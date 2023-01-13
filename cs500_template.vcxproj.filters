@@ -13,6 +13,27 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Scene Manager">
+      <UniqueIdentifier>{e9f19012-074d-4191-9944-3a15ce213970}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scene Manager\Scene">
+      <UniqueIdentifier>{79fbd49d-47fd-41a6-b487-37daf95a9134}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GFX">
+      <UniqueIdentifier>{f3cc102e-bf38-4453-92ac-31e7bff98edf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GFX\Camera">
+      <UniqueIdentifier>{04661d71-86b3-4cb8-a467-c2a48524b699}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Object">
+      <UniqueIdentifier>{af2d41b4-31b7-4d18-b247-d09b707f9355}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GFX\Material">
+      <UniqueIdentifier>{261b6d28-bc08-48af-aba2-5f7d873b2ab3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Geometry">
+      <UniqueIdentifier>{75330c08-a92f-4d43-b284-d984ef1d6eed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -21,10 +42,37 @@
     <ClCompile Include="src\FrameBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SceneManager.cpp">
+      <Filter>Source Files\Scene Manager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\FrameBuffer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene.h">
+      <Filter>Source Files\Scene Manager\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneManager.h">
+      <Filter>Source Files\Scene Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GraphicsManager.h">
+      <Filter>Source Files\GFX</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Camera.h">
+      <Filter>Source Files\GFX\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Material.h">
+      <Filter>Source Files\GFX\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object.h">
+      <Filter>Source Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ray.h">
+      <Filter>Source Files\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sphere.h">
+      <Filter>Source Files\Geometry</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
