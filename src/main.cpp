@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "FrameBuffer.h"
+#include "SceneManager.h"
 
 int main(int argc, char ** argv)
 {
@@ -11,6 +12,7 @@ int main(int argc, char ** argv)
 
     FrameBuffer::Init(WIDTH, HEIGHT);
 
+    std::string inputDirectory= "./scenes";
     std::string inputFile = "input.txt";
     std::string screenshotName = "screenshot.png";
     bool        takeScreenshot = false;
@@ -23,6 +25,8 @@ int main(int argc, char ** argv)
         takeScreenshot = true;
     }
 	
+    //Loading the scene
+    SceneManager.LoadScenes(inputDirectory.data());
     // Generate image and texture to display
     sf::Image   image;
     sf::Texture texture;
