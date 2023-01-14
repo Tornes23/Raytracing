@@ -17,7 +17,7 @@ public:
 		static SceneManagerClass instance;
 		return instance;
 	}
-
+	 
 private:
 	SceneManagerClass() {}
 
