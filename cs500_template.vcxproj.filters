@@ -34,6 +34,9 @@
     <Filter Include="Source Files\Geometry">
       <UniqueIdentifier>{75330c08-a92f-4d43-b284-d984ef1d6eed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GFX\Shader">
+      <UniqueIdentifier>{b9ff0866-d25b-49b3-ae33-031a2c6a4dc2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -44,6 +47,12 @@
     </ClCompile>
     <ClCompile Include="src\SceneManager.cpp">
       <Filter>Source Files\Scene Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene.cpp">
+      <Filter>Source Files\Scene Manager\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object.cpp">
+      <Filter>Source Files\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -68,10 +77,7 @@
     <ClInclude Include="src\Object.h">
       <Filter>Source Files\Object</Filter>
     </ClInclude>
-    <ClInclude Include="src\Ray.h">
-      <Filter>Source Files\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Sphere.h">
+    <ClInclude Include="src\Geometry.h">
       <Filter>Source Files\Geometry</Filter>
     </ClInclude>
   </ItemGroup>

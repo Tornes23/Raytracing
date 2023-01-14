@@ -3,14 +3,14 @@
 #include <string>
 #include <SFML/System/Vector3.hpp>
 
-struct Material;
+struct Geometry;
 struct Object
 {
+	void Destroy();
 	sf::Vector3<float> mPos{0.0F, 0.0F, 0.0F};
 	sf::Vector3<float> mForward{ 0.0F, 0.0F, 0.0F };
 	sf::Vector3<float> mRight{ 0.0F, 0.0F, 0.0F };
 
-	//either mesh or model
-
-	std::shared_ptr<Material> mMaterial;
+	//the corresponding Geometry
+	std::shared_ptr<Geometry> mModel;
 };

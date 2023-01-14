@@ -12,7 +12,7 @@ int main(int argc, char ** argv)
 
     FrameBuffer::Init(WIDTH, HEIGHT);
 
-    std::string inputDirectory= "./scenes";
+    std::string inputDirectory= "./scenes/";
     std::string inputFile = "input.txt";
     std::string screenshotName = "screenshot.png";
     bool        takeScreenshot = false;
