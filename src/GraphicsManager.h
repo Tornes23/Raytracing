@@ -10,6 +10,8 @@ class GraphicsManagerClass
 {
 public:
 
+	void CreateCamera(const char* info);
+
 	//singleton stuff
 	GraphicsManagerClass(GraphicsManagerClass const&) = delete;
 	void operator=(GraphicsManagerClass const&) = delete;

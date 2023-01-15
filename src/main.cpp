@@ -49,6 +49,10 @@ int main(int argc, char ** argv)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
             window.close();
 
+        //render the objects into the scene
+
+        //apply lighting based on the ray hits
+
         // Fill framebuffer
         sf::Time elapsed = clock.getElapsedTime();
         int      time    = static_cast<int>(elapsed.asSeconds());

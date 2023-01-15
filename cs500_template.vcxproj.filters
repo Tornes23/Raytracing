@@ -34,8 +34,11 @@
     <Filter Include="Source Files\Geometry">
       <UniqueIdentifier>{75330c08-a92f-4d43-b284-d984ef1d6eed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\GFX\Shader">
-      <UniqueIdentifier>{b9ff0866-d25b-49b3-ae33-031a2c6a4dc2}</UniqueIdentifier>
+    <Filter Include="Source Files\GFX\Color">
+      <UniqueIdentifier>{0dea16ae-751e-4028-b7fc-1a72bd607153}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{2721edd5-eef1-4ea9-9bf0-d6082c7ea3eb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +56,21 @@
     </ClCompile>
     <ClCompile Include="src\Object.cpp">
       <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Color.cpp">
+      <Filter>Source Files\GFX\Color</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GraphicsManager.cpp">
+      <Filter>Source Files\GFX</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utils.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>Source Files\GFX\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Material.cpp">
+      <Filter>Source Files\GFX\Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +97,12 @@
     </ClInclude>
     <ClInclude Include="src\Geometry.h">
       <Filter>Source Files\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Color.h">
+      <Filter>Source Files\GFX\Color</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils.h">
+      <Filter>Source Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -5,8 +5,7 @@
 class Camera
 {
 public:
-	Camera();
-	~Camera();
+	Camera(const char* info = nullptr);
 
 private:
 
