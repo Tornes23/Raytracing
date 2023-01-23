@@ -5,7 +5,10 @@
 
 Object::Object(const char* info, GeometryTypes type)
 {
-	mPos = Utils::GetVector(info);
+	if (info == nullptr)
+		return;
+
+	mPos = Utils::GetVector(&info);
 
 	switch (type)
 	{
@@ -16,19 +19,28 @@ Object::Object(const char* info, GeometryTypes type)
 		//mModel = new Plane();
 		break;
 	case GeometryTypes::AABB:
-		//mModel = new AABB();
+		mModel = new AABB(&info);
 		break;
 	case GeometryTypes::Sphere:
-		mModel = new Sphere(info);
+		mModel = new Sphere(&info);
 		break;
 	case GeometryTypes::Model:
 		//mModel = new Geometry();
 		break;
 	default:
-		//mModel = new AABB();
+		mModel = new AABB(&info);
 		break;
 	}
+
 }
+
+Object::Object(const Object& obj)
+{
+	mPos = obj.mPos;
+	mModel = obj.mModel;
+	mMaterial = obj.mMaterial;
+}
+
 void Object::Destroy()
 {
 	if(mModel != nullptr)

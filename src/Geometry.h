@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <SFML/System/Vector3.hpp>
+#include <glm/vec3.hpp>
 struct Mesh;
 
 struct Geometry
@@ -12,55 +12,58 @@ struct Geometry
 struct Segment
 {
     //constructor
-    Segment(const sf::Vector3<float>& p0, const sf::Vector3<float>& p1) : mP0(p0), mP1(p1) {}
+    Segment(const glm::vec3& p0, const glm::vec3& p1) : mP0(p0), mP1(p1) {}
 
-    sf::Vector3<float> mP0;
-    sf::Vector3<float> mP1;
+    glm::vec3 mP0;
+    glm::vec3 mP1;
 };
 
 struct Plane : Geometry
 {
     //constructor
-    Plane(const sf::Vector3<float>& pos, const sf::Vector3<float>& norm) : mNormal(norm) {}
+    Plane(const glm::vec3& pos, const glm::vec3& norm) : mNormal(norm) {}
 
     //necessary data
-    sf::Vector3<float> mNormal;
+    glm::vec3 mNormal;
 
 };
 
 struct Triangle : Geometry
 {
     //constructor
-    Triangle(const sf::Vector3<float>& v0, const sf::Vector3<float>& v1, const sf::Vector3<float>& v2) : mV0(v0), mV1(v1), mV2(v2) {}
+    Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2) : mV0(v0), mV1(v1), mV2(v2) {}
 
     //necessary data
-    sf::Vector3<float> mV0;
-    sf::Vector3<float> mV1;
-    sf::Vector3<float> mV2;
+    glm::vec3 mV0;
+    glm::vec3 mV1;
+    glm::vec3 mV2;
 };
 
 struct AABB : Geometry
 {
     //constructor
-    AABB(const sf::Vector3<float>& min, const sf::Vector3<float>& max) : mMin(min), mMax(max) {}
+
+    AABB(const glm::vec3& width, const glm::vec3& height, const glm::vec3& length) : mWidth(width), mHeight(height), mLength(length) {}
+    AABB(const char** info = nullptr);
 
     //necessary data
-    sf::Vector3<float> mMin;
-    sf::Vector3<float> mMax;
+    glm::vec3 mWidth;
+    glm::vec3 mHeight;
+    glm::vec3 mLength;
 };
 
 struct Sphere : Geometry
 {
     //constructor
     Sphere(float radius) : mRadius(radius) {}
-    Sphere(const char* info = nullptr);
+    Sphere(const char** info = nullptr);
 
     float mRadius;
 };
 
 struct Ray
 {
-    Ray(const sf::Vector3<float>& p0, const sf::Vector3<float>& vec) : mP0(p0), mV(vec) {}
-	sf::Vector3<float> mP0;
-	sf::Vector3<float> mV;
+    Ray(const glm::vec3& p0, const glm::vec3& vec) : mP0(p0), mV(vec) {}
+	glm::vec3 mP0;
+	glm::vec3 mV;
 };

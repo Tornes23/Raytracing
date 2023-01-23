@@ -19,7 +19,7 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
 {
     //stream to read from the file
     std::ifstream inFile(to_load, std::ios::in);
-    char buffer[40] = { '\0' };
+    char buffer[80] = { '\0' };
     //checking if it was opened
     if (!inFile)
         std::cerr << "ERROR WHILE TRYING TO OPEN " << to_load << " FILE\n";
@@ -28,7 +28,7 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
     //reading the code from the file and adding it to the string
     while (inFile.good())
     {
-        inFile.getline(buffer, 40);
+        inFile.getline(buffer, 80);
         if (!inFile.eof())
         {
             if (buffer[0] != '\0' && buffer[0] != '#')
@@ -42,6 +42,8 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
 
                     if (type.compare("CAMERA") == 0)
                         GraphicsManager.CreateCamera(line.substr(found + 1u).c_str());
+                    else if (type.compare("AMBIENT") == 0)
+                        GraphicsManager.GetAmbient(line.substr(found + 1u).c_str());
                     else
                     {
                         if (type.compare("SPHERE") == 0)

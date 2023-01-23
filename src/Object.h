@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
-#include <SFML/System/Vector3.hpp>
+#include <glm/vec3.hpp>
 
 #include "Material.h"
 
@@ -18,10 +18,10 @@ struct Geometry;
 struct Object
 {
 	Object(const char* info = nullptr, GeometryTypes type = GeometryTypes::AABB);
+	Object(const Object& obj);
+
 	void Destroy();
-	sf::Vector3<float> mPos{0.0F, 0.0F, 0.0F};
-	sf::Vector3<float> mForward{ 0.0F, 0.0F, 0.0F };
-	sf::Vector3<float> mRight{ 0.0F, 0.0F, 0.0F };
+	glm::vec3 mPos{0.0F, 0.0F, 0.0F};
 
 	//the corresponding Geometry
 	Geometry* mModel = nullptr;

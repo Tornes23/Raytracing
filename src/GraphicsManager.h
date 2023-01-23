@@ -11,6 +11,7 @@ class GraphicsManagerClass
 public:
 
 	void CreateCamera(const char* info);
+	void GetAmbient(const char* info);
 
 	//singleton stuff
 	GraphicsManagerClass(GraphicsManagerClass const&) = delete;
@@ -26,6 +27,7 @@ private:
 
 	std::vector<Camera> mCameras;
 	std::map<std::string, std::shared_ptr<Material>> mMaterials;
+	Color mAmbientLight;
 
 };
 

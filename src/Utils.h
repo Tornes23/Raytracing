@@ -1,9 +1,9 @@
 #pragma once
-#include <SFML/System/Vector3.hpp>
+#include <glm/vec3.hpp>
+
 namespace Utils
 {
-	void GetData(const char* info);
-	sf::Vector3<float> GetVector(const char* info);
-	float GetFloat(const char* info, int start, int end);
+	glm::vec3 GetVector(const char** info);
+	float GetFloat(const char** info);
 
 }

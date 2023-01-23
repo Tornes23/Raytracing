@@ -2,9 +2,15 @@
 #include "Geometry.h"
 #include "Utils.h"
 
-Sphere::Sphere(const char* info)
+Sphere::Sphere(const char** info)
 {
 	//parse and shi
-	std::cout << "Tetsing";
-	mRadius = Utils::GetFloat(info, 0, std::strlen(info));
+	mRadius = Utils::GetFloat(info);
+}
+
+AABB::AABB(const char** info)
+{
+	mWidth = Utils::GetVector(info);
+	mHeight = Utils::GetVector(info);
+	mLength = Utils::GetVector(info);
 }

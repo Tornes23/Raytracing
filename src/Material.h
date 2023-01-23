@@ -5,9 +5,8 @@
 
 struct Material
 {
-	Material(Color diffuse = Color::White, std::string name = "Default") : mDiffuse(diffuse), mName(name) {}
+	Material(Color diffuse = Color::White) : mDiffuse(diffuse) {}
 	void ParseData(std::ifstream& file);
 
 	Color mDiffuse;
-	std::string mName;
 };

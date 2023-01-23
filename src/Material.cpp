@@ -17,9 +17,10 @@ void Material::ParseData(std::ifstream& file)
         if (found != line.npos)
         {
             std::string type = line.substr(0, found);
-
+            std::string vector = line.substr(found + 1u).data();
+            const char* info = vector.data();
             if (type.compare("DIFFUSE") == 0)
-                mDiffuse = Color(Utils::GetVector(line.substr(found + 1u).c_str(), found));
+                mDiffuse = Color(Utils::GetVector(&info));
         }
 
     } while (!file.eof());
