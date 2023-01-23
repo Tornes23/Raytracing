@@ -52,7 +52,8 @@ struct AABB : Geometry
 struct Sphere : Geometry
 {
     //constructor
-    Sphere(const sf::Vector3<float>& pos, float radius) : mRadius(radius) {}
+    Sphere(float radius) : mRadius(radius) {}
+    Sphere(const char* info = nullptr);
 
     float mRadius;
 };

@@ -5,7 +5,7 @@
 
 Object::Object(const char* info, GeometryTypes type)
 {
-	//mPos = Utils::GetVector(info);
+	mPos = Utils::GetVector(info);
 
 	switch (type)
 	{
@@ -19,7 +19,7 @@ Object::Object(const char* info, GeometryTypes type)
 		//mModel = new AABB();
 		break;
 	case GeometryTypes::Sphere:
-		//mModel = new Sphere();
+		mModel = new Sphere(info);
 		break;
 	case GeometryTypes::Model:
 		//mModel = new Geometry();

@@ -19,14 +19,16 @@ void Utils::GetData(const char* info)
 
 }
 
-sf::Vector3<float> Utils::GetVector(const char* info, size_t& start)
+sf::Vector3<float> Utils::GetVector(const char* info)
 {
     if(info == nullptr)
         return sf::Vector3<float>();
 
+    const char* starting = info;
+
     sf::Vector3<float> vec;
 
-    std::string line(info);
+    std::string line(starting);
     size_t start_pos = line.find('(');
     size_t end_pos = line.find(')');
 
@@ -47,11 +49,11 @@ sf::Vector3<float> Utils::GetVector(const char* info, size_t& start)
             }
 
             if (i == 0)
-                vec.x = GetFloat(info, start, start_pos);
+                vec.x = GetFloat(starting, start, start_pos);
             if (i == 1)
-                vec.y = GetFloat(info, start, start_pos);
+                vec.y = GetFloat(starting, start, start_pos);
             if (i == 2)
-                vec.z = GetFloat(info, start, end_pos - 1);
+                vec.z = GetFloat(starting, start, end_pos - 1);
 
             start = start_pos - 1;
 

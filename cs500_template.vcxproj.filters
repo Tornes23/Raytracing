@@ -72,6 +72,9 @@
     <ClCompile Include="src\Material.cpp">
       <Filter>Source Files\GFX\Material</Filter>
     </ClCompile>
+    <ClCompile Include="src\Geometry.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\FrameBuffer.h">

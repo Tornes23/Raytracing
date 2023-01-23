@@ -3,7 +3,7 @@
 namespace Utils
 {
 	void GetData(const char* info);
-	sf::Vector3<float> GetVector(const char* info, size_t& start);
+	sf::Vector3<float> GetVector(const char* info);
 	float GetFloat(const char* info, int start, int end);
 
 }
