@@ -47,6 +47,7 @@ Color::Color(const glm::vec3& color)
 	mR = static_cast<unsigned char>(color.x * 255);
 	mG = static_cast<unsigned char>(color.y * 255);
 	mB = static_cast<unsigned char>(color.z * 255);
+
 	mA = 255;
 }
 
@@ -85,9 +86,9 @@ void Color::SetColor(const std::vector<float>& c)
 
 glm::vec3 Color::GetColor()
 {
-	float r = static_cast<float>(mR) / 255.0F;
-	float g = static_cast<float>(mG) / 255.0F;
-	float b = static_cast<float>(mB) / 255.0F;
+	float r = static_cast<float>(mR) / 255;
+	float g = static_cast<float>(mG) / 255;
+	float b = static_cast<float>(mB) / 255;
 
 	return glm::vec3(r, g, b);
 }
@@ -96,6 +97,8 @@ Color Color::operator*(const Color& rhs)
 {
 	return Color(mR * rhs.mR, mG * rhs.mG, mB * rhs.mB);
 }
+
+
 
 
 

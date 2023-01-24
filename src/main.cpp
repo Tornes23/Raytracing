@@ -77,7 +77,7 @@ int main(int argc, char ** argv)
                 {
                     if (GraphicsManager.RenderNormals())
                     {
-                        Color result = (info.mColor + Color(glm::vec3(1.0F)) / 2.0F) * GraphicsManager.GetAmbient();
+                        Color result(Color((info.mNomal + glm::vec3(1.0F)) / 2.0F) * GraphicsManager.GetAmbient());
                         FrameBuffer::SetPixel(x, y, result.mR, result.mG, result.mB);
                     }
                     else
