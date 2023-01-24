@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 
 #include "Material.h"
+#include "Geometry.h"
 
 enum class GeometryTypes
 {
@@ -19,7 +20,7 @@ struct Object
 {
 	Object(const char* info = nullptr, GeometryTypes type = GeometryTypes::AABB);
 	Object(const Object& obj);
-
+	bool CheckIntersection(const Ray& ray, ContactInfo& info);
 	void Destroy();
 	glm::vec3 mPos{0.0F, 0.0F, 0.0F};
 

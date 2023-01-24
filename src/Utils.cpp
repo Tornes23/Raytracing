@@ -49,3 +49,14 @@ float Utils::GetFloat(const char** info)
 
     return val;
 }
+
+std::string Utils::GetFilename(const std::string& path)
+{
+    if (path.empty())
+        return path;
+
+    std::string file = path.substr(path.find_last_of("/") + 1u);
+    file = file.substr(0, file.find('.'));
+
+    return file;
+}

@@ -7,7 +7,7 @@ class Scene
 {
 public:
 	~Scene();
-	Scene(std::vector<Object> objects);
+	Scene(const std::vector<Object>& objects, const std::string& name);
 
 private:
 

@@ -41,9 +41,16 @@ Object::Object(const Object& obj)
 	mMaterial = obj.mMaterial;
 }
 
+bool Object::CheckIntersection(const Ray& ray, ContactInfo& info)
+{
+	return mModel->CheckIntersection(ray, mPos, info);
+}
+
 void Object::Destroy()
 {
-	if(mModel != nullptr)
+	if (mModel != nullptr)
+	{
 		delete mModel;
-	mModel = nullptr;
+		mModel = nullptr;
+	}
 }

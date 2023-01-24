@@ -6,7 +6,9 @@
 
 #include "SceneManager.h"
 #include "GraphicsManager.h"
+#include "Scene.h"
 #include "Object.h"
+#include "Utils.h"
 
 void SceneManagerClass::LoadScenes(const char* _directory)
 {
@@ -60,8 +62,18 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
         }
     }
 
-    mScenes.push_back(Scene(objects));
+    mScenes.push_back(new Scene(objects, Utils::GetFilename(to_load)));
     //closing the file
     inFile.close();
 	//load stuff
+}
+
+void SceneManagerClass::FreeScenes()
+{
+    for (int i = 0; i < mScenes.size(); i++)
+    {
+        if(mScenes[i] != nullptr)
+            delete mScenes[i];
+        mScenes[i] = nullptr;
+    }
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "Scene.h"
 
+class Scene;
 class SceneManagerClass
 {
 public:
@@ -9,6 +9,7 @@ public:
 	void LoadScenes(const char* directory);
 	void LoadScene(const std::string& to_load);
 
+	void FreeScenes();
 	//singleton stuff
 	SceneManagerClass(SceneManagerClass const&) = delete;
 	void operator=(SceneManagerClass const&) = delete;
@@ -21,7 +22,7 @@ public:
 private:
 	SceneManagerClass() {}
 
-	std::vector<Scene> mScenes;
+	std::vector<Scene*> mScenes;
 };
 
 #define SceneManager (SceneManagerClass::GetInstance())
