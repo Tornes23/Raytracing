@@ -7,7 +7,7 @@ struct Scene
 {
 	~Scene();
 	Scene(const std::vector<Object>& objects, const std::string& name);
-
+	
 	std::vector<Object> mObjects;
 
 	std::string mName;

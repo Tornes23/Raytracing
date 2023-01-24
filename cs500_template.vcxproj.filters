@@ -40,6 +40,9 @@
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{2721edd5-eef1-4ea9-9bf0-d6082c7ea3eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GFX\Raytraycer">
+      <UniqueIdentifier>{2d3eeb3b-e3f7-45ea-8bc3-f9c8926361a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -75,6 +78,9 @@
     <ClCompile Include="src\Geometry.cpp">
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
+    <ClCompile Include="src\Raytracer.cpp">
+      <Filter>Source Files\GFX\Raytraycer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\FrameBuffer.h">
@@ -106,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="src\Utils.h">
       <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Raytracer.h">
+      <Filter>Source Files\GFX\Raytraycer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

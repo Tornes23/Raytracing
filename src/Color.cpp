@@ -92,6 +92,11 @@ glm::vec3 Color::GetColor()
 	return glm::vec3(r, g, b);
 }
 
+Color Color::operator*(const Color& rhs)
+{
+	return Color(mR * rhs.mR, mG * rhs.mG, mB * rhs.mB);
+}
+
 
 
 

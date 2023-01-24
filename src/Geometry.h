@@ -2,15 +2,17 @@
 #include <iostream>
 #include <memory>
 #include <glm/vec3.hpp>
+#include "Color.h"
 struct Mesh;
 
 struct ContactInfo
 {
     glm::vec3 mContact;
     glm::vec3 mNomal;
-    float mT0;
-    float mT1;
-    float mTI;
+    float mT0 = -1.0F;
+    float mT1 = -1.0F;
+    float mTI = -1.0F;
+    Color mColor = Color::White;
 };
 
 struct Ray
@@ -22,7 +24,7 @@ struct Ray
 
 struct Geometry
 {
-    virtual ~Geometry() { std::cout << "Calling base destructor\n";  mModel.reset(); }
+    virtual ~Geometry() { mModel.reset(); }
     Geometry(std::shared_ptr<Mesh> model = nullptr) : mModel(model) {}
     virtual bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info) = 0;
 	std::shared_ptr<Mesh> mModel;

@@ -43,7 +43,14 @@ Object::Object(const Object& obj)
 
 bool Object::CheckIntersection(const Ray& ray, ContactInfo& info)
 {
-	return mModel->CheckIntersection(ray, mPos, info);
+	bool intersected = mModel->CheckIntersection(ray, mPos, info);
+
+	if (!intersected)
+		return false;
+
+	info.mColor = mMaterial.mDiffuse;
+
+	return intersected;
 }
 
 void Object::Destroy()

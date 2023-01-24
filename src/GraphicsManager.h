@@ -12,10 +12,11 @@ class GraphicsManagerClass
 public:
 
 	void CreateCamera(const char* info);
-	void GetAmbient(const char* info);
+	void ParseAmbient(const char* info);
 	glm::vec2 GetNDC(const glm::vec2& xy);
 	glm::vec3 GetPixelWorld(const glm::vec2& ndc, bool one_cam = true);
 	glm::vec3 GetCameraPos(int index = 0);
+	Color GetAmbient();
 	
 	void SetWidth(int width);
 	void SetHeight(int height);

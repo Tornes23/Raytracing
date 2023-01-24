@@ -7,7 +7,7 @@ void GraphicsManagerClass::CreateCamera(const char* info)
 	mCameras.push_back(Camera(info));
 }
 
-void GraphicsManagerClass::GetAmbient(const char* info)
+void GraphicsManagerClass::ParseAmbient(const char* info)
 {
 	mAmbientLight = Color(Utils::GetVector(&info));
 }
@@ -29,7 +29,7 @@ glm::vec3 GraphicsManagerClass::GetPixelWorld(const glm::vec2& ndc, bool one_cam
 
 	glm::vec3 pixel = mCameras[0].mPos;
 
-	pixel += mCameras[0].mFocal * glm::normalize(mCameras[0].mPos - mCameras[0].mTarget)
+	pixel += mCameras[0].mFocal * glm::normalize(mCameras[0].mTarget - mCameras[0].mPos)
 		  + ndc.x * (mCameras[0].mRight / 2.0F) 
 		  + ndc.y * (mCameras[0].mUp / (2.0F * mAspectRatio));
 
@@ -46,6 +46,7 @@ glm::vec3 GraphicsManagerClass::GetCameraPos(int index)
 	return mCameras[index].mPos;
 }
 
+Color GraphicsManagerClass::GetAmbient() { return mAmbientLight; }
 void GraphicsManagerClass::SetWidth(int width) { mWidth = width; }
 void GraphicsManagerClass::SetHeight(int height) { mHeight = height; }
 void GraphicsManagerClass::SetAspectRatio(float ratio) { mAspectRatio = ratio;  }

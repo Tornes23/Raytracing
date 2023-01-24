@@ -6,11 +6,13 @@
 #include "SceneManager.h"
 #include "GraphicsManager.h"
 #include "Geometry.h"
+#include "Raytracer.h"
+#include "Scene.h"
 
 int main(int argc, char ** argv)
 {
-    const int WIDTH  = 1280;
-    const int HEIGHT = 720;
+    const int WIDTH  = 500;
+    const int HEIGHT = 500;
     GraphicsManager.SetWidth(WIDTH);
     GraphicsManager.SetHeight(HEIGHT);
     GraphicsManager.SetAspectRatio((float)WIDTH / HEIGHT);
@@ -67,11 +69,12 @@ int main(int argc, char ** argv)
                 Ray ray(camPos, glm::normalize(pixelworld - camPos));
                 Scene* scene = SceneManager.GetScene();
 
-                //i think im misundertsanding something
-                //do i cast rays per pixel and check each ray with all objects?
-                //i shuld render the objects and then do ray casting right?
-                //ask david
-
+                ContactInfo info = Raytracer.CastRay(ray, scene->mObjects);
+                if (info.mTI >= 0.0f)
+                {
+                    Color result = info.mColor * GraphicsManager.GetAmbient();
+                    FrameBuffer::SetPixel(x, y, result.mR, result.mG, result.mB);
+                }
             }
         }
 
@@ -79,26 +82,26 @@ int main(int argc, char ** argv)
         sf::Time elapsed = clock.getElapsedTime();
         int      time    = static_cast<int>(elapsed.asSeconds());
 
-        for (unsigned x = 0; x < WIDTH; x++)
-        {
-            for (unsigned y = 0; y < HEIGHT; y++)
-            {
-                if (time % 2 == 0)
-                {
-                    if (y % 50 < 25 && x % 50 < 25)
-                        FrameBuffer::SetPixel(x, y, 255, 0, 0);
-                    else
-                        FrameBuffer::SetPixel(x, y, 0, 255, 0);
-                }
-                else
-                {
-                    if (y % 50 < 25 && x % 50 < 25)
-                        FrameBuffer::SetPixel(x, y, 0, 255, 0);
-                    else
-                        FrameBuffer::SetPixel(x, y, 255, 0, 0);
-                }
-            }
-        }
+        //for (unsigned x = 0; x < WIDTH; x++)
+        //{
+        //    for (unsigned y = 0; y < HEIGHT; y++)
+        //    {
+        //        if (time % 2 == 0)
+        //        {
+        //            if (y % 50 < 25 && x % 50 < 25)
+        //                FrameBuffer::SetPixel(x, y, 255, 0, 0);
+        //            else
+        //                FrameBuffer::SetPixel(x, y, 0, 255, 0);
+        //        }
+        //        else
+        //        {
+        //            if (y % 50 < 25 && x % 50 < 25)
+        //                FrameBuffer::SetPixel(x, y, 0, 255, 0);
+        //            else
+        //                FrameBuffer::SetPixel(x, y, 255, 0, 0);
+        //        }
+        //    }
+        //}
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
             takeScreenshot = true;
