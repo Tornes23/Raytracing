@@ -44,3 +44,8 @@ AABB::AABB(const char** info)
 	mHeight = Utils::GetVector(info);
 	mLength = Utils::GetVector(info);
 }
+
+bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
+{
+	return false;
+}

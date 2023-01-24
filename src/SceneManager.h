@@ -1,13 +1,15 @@
 #pragma once
 #include <vector>
 
-class Scene;
+struct Scene;
 class SceneManagerClass
 {
 public:
 
 	void LoadScenes(const char* directory);
 	void LoadScene(const std::string& to_load);
+
+	Scene* GetScene(int index = 0);
 
 	void FreeScenes();
 	//singleton stuff

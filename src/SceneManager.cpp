@@ -68,6 +68,16 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
 	//load stuff
 }
 
+Scene* SceneManagerClass::GetScene(int index)
+{
+    if (index < 0)
+        return mScenes[0];
+    if (index > mScenes.size())
+        return mScenes.back();
+
+    return mScenes[index];
+}
+
 void SceneManagerClass::FreeScenes()
 {
     for (int i = 0; i < mScenes.size(); i++)

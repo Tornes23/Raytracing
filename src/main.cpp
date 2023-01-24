@@ -1,12 +1,19 @@
+#include <iostream>
 #include <SFML/Graphics.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "FrameBuffer.h"
 #include "SceneManager.h"
+#include "GraphicsManager.h"
+#include "Geometry.h"
 
 int main(int argc, char ** argv)
 {
     const int WIDTH  = 1280;
     const int HEIGHT = 720;
+    GraphicsManager.SetWidth(WIDTH);
+    GraphicsManager.SetHeight(HEIGHT);
+    GraphicsManager.SetAspectRatio((float)WIDTH / HEIGHT);
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
 
@@ -50,7 +57,23 @@ int main(int argc, char ** argv)
             window.close();
 
         //apply lighting based on the ray hits
+        for (unsigned x = 0; x < WIDTH; x++)
+        {
+            for (unsigned y = 0; y < HEIGHT; y++)
+            {
+                glm::vec2 ndc = GraphicsManager.GetNDC({x,y});
+                glm::vec3 pixelworld = GraphicsManager.GetPixelWorld(ndc);
+                glm::vec3 camPos = GraphicsManager.GetCameraPos();
+                Ray ray(camPos, glm::normalize(pixelworld - camPos));
+                Scene* scene = SceneManager.GetScene();
 
+                //i think im misundertsanding something
+                //do i cast rays per pixel and check each ray with all objects?
+                //i shuld render the objects and then do ray casting right?
+                //ask david
+
+            }
+        }
 
         // Fill framebuffer
         sf::Time elapsed = clock.getElapsedTime();
