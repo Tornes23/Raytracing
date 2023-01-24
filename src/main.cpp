@@ -58,6 +58,9 @@ int main(int argc, char ** argv)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
             window.close();
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::N))
+            GraphicsManager.ToggleRenderNormals();
+
         //apply lighting based on the ray hits
         for (unsigned x = 0; x < WIDTH; x++)
         {
@@ -72,8 +75,16 @@ int main(int argc, char ** argv)
                 ContactInfo info = Raytracer.CastRay(ray, scene->mObjects);
                 if (info.mTI >= 0.0f)
                 {
-                    Color result = info.mColor * GraphicsManager.GetAmbient();
-                    FrameBuffer::SetPixel(x, y, result.mR, result.mG, result.mB);
+                    if (GraphicsManager.RenderNormals())
+                    {
+                        Color result = (info.mColor + Color(glm::vec3(1.0F)) / 2.0F) * GraphicsManager.GetAmbient();
+                        FrameBuffer::SetPixel(x, y, result.mR, result.mG, result.mB);
+                    }
+                    else
+                    {
+                        Color result = info.mColor * GraphicsManager.GetAmbient();
+                        FrameBuffer::SetPixel(x, y, result.mR, result.mG, result.mB);
+                    }
                 }
             }
         }
@@ -81,27 +92,6 @@ int main(int argc, char ** argv)
         // Fill framebuffer
         sf::Time elapsed = clock.getElapsedTime();
         int      time    = static_cast<int>(elapsed.asSeconds());
-
-        //for (unsigned x = 0; x < WIDTH; x++)
-        //{
-        //    for (unsigned y = 0; y < HEIGHT; y++)
-        //    {
-        //        if (time % 2 == 0)
-        //        {
-        //            if (y % 50 < 25 && x % 50 < 25)
-        //                FrameBuffer::SetPixel(x, y, 255, 0, 0);
-        //            else
-        //                FrameBuffer::SetPixel(x, y, 0, 255, 0);
-        //        }
-        //        else
-        //        {
-        //            if (y % 50 < 25 && x % 50 < 25)
-        //                FrameBuffer::SetPixel(x, y, 0, 255, 0);
-        //            else
-        //                FrameBuffer::SetPixel(x, y, 255, 0, 0);
-        //        }
-        //    }
-        //}
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
             takeScreenshot = true;

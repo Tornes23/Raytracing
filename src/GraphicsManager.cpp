@@ -47,6 +47,9 @@ glm::vec3 GraphicsManagerClass::GetCameraPos(int index)
 }
 
 Color GraphicsManagerClass::GetAmbient() { return mAmbientLight; }
+bool GraphicsManagerClass::RenderNormals(){ return mRenderNormals; }
 void GraphicsManagerClass::SetWidth(int width) { mWidth = width; }
+void GraphicsManagerClass::SetRenderNormals(bool render) { mRenderNormals = render; }
+void GraphicsManagerClass::ToggleRenderNormals() { mRenderNormals = !mRenderNormals; }
 void GraphicsManagerClass::SetHeight(int height) { mHeight = height; }
 void GraphicsManagerClass::SetAspectRatio(float ratio) { mAspectRatio = ratio;  }

@@ -14,5 +14,5 @@ Camera::Camera(const char* info)
 	mFocal = Utils::GetFloat(&info);
 	glm::vec3 right = glm::cross(mUp, (mTarget - mPos));
 	mUp = glm::normalize(glm::cross((mTarget - mPos), right));
-	mRight = glm::normalize(glm::cross(mUp, (mTarget - mPos)));
+	mRight = glm::normalize(glm::cross((mTarget - mPos), mUp));
 }

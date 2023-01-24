@@ -17,10 +17,13 @@ public:
 	glm::vec3 GetPixelWorld(const glm::vec2& ndc, bool one_cam = true);
 	glm::vec3 GetCameraPos(int index = 0);
 	Color GetAmbient();
+	bool RenderNormals();
 	
 	void SetWidth(int width);
 	void SetHeight(int height);
 	void SetAspectRatio(float ratio);
+	void SetRenderNormals(bool render);
+	void ToggleRenderNormals();
 
 	//singleton stuff
 	GraphicsManagerClass(GraphicsManagerClass const&) = delete;
@@ -40,6 +43,7 @@ private:
 	int mWidth = 0;
 	int mHeight = 0;
 	float mAspectRatio = 0.0F;
+	float mRenderNormals = false;
 
 };
 
