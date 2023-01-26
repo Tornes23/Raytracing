@@ -2,13 +2,14 @@
 #include <iostream>
 #include <memory>
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include "Color.h"
 struct Mesh;
 
 struct ContactInfo
 {
-    glm::vec3 mContact;
-    glm::vec3 mNomal;
+    glm::vec3 mContact = glm::vec3(0.0F);
+    glm::vec3 mNormal = glm::vec3(0.0F);
     float mT0 = -1.0F;
     float mT1 = -1.0F;
     float mTI = -1.0F;
@@ -42,8 +43,9 @@ struct Segment
 struct Plane : Geometry
 {
     //constructor
-    Plane(const glm::vec3& pos, const glm::vec3& norm) : mNormal(norm) {}
-    bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info);
+    Plane(const glm::vec3& norm = glm::vec3(0.0F)) : mNormal(norm) {}
+    bool CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2& interval);
+    bool CheckIntersection(const Ray& ray, const glm::vec3& point, ContactInfo& info);
 
     //necessary data
     glm::vec3 mNormal;
@@ -66,14 +68,15 @@ struct AABB : Geometry
 {
     //constructor
 
-    AABB(const glm::vec3& width, const glm::vec3& height, const glm::vec3& length) : mWidth(width), mHeight(height), mLength(length) {}
+    AABB(const glm::vec3& width, const glm::vec3& height, const glm::vec3& length);
     AABB(const char** info = nullptr);
-    bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info);
+    bool CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info);
 
     //necessary data
-    glm::vec3 mWidth;
-    glm::vec3 mHeight;
-    glm::vec3 mLength;
+    std::vector<glm::vec3> mVectors;
+    // 0 is mWidth;
+    // 1 is mHeight;
+    // 2 is mLength;
 };
 
 struct Sphere : Geometry

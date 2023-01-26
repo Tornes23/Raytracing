@@ -43,6 +43,8 @@ int main(int argc, char ** argv)
     texture.create(WIDTH, HEIGHT);
     image.create(WIDTH, HEIGHT, sf::Color::Black);
 
+    bool reload = false;
+
     // Init the clock
     sf::Clock clock;
     while (window.isOpen())
@@ -58,8 +60,17 @@ int main(int argc, char ** argv)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
             window.close();
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::N))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
             GraphicsManager.ToggleRenderNormals();
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F4))
+            reload = true;
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F2))
+            SceneManager.NextScene();
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F3))
+            SceneManager.PrevScene();
 
         //apply lighting based on the ray hits
         for (unsigned x = 0; x < WIDTH; x++)
@@ -77,7 +88,7 @@ int main(int argc, char ** argv)
                 {
                     if (GraphicsManager.RenderNormals())
                     {
-                        Color result(Color((info.mNomal + glm::vec3(1.0F)) / 2.0F) * GraphicsManager.GetAmbient());
+                        Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * GraphicsManager.GetAmbient(SceneManager.GetDisplayScene()));
                         FrameBuffer::SetPixel(x, y, result.mR, result.mG, result.mB);
                     }
                     else
@@ -104,6 +115,13 @@ int main(int argc, char ** argv)
         window.draw(sprite);
         window.display();
 		
+        if (reload)
+        {
+            SceneManager.FreeScenes();
+            SceneManager.LoadScenes(inputDirectory.data());
+            GraphicsManager.SetRenderNormals(false);
+            reload = false;
+        }
 		
         if (takeScreenshot)
         {

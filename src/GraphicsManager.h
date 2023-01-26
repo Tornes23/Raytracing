@@ -16,7 +16,7 @@ public:
 	glm::vec2 GetNDC(const glm::vec2& xy);
 	glm::vec3 GetPixelWorld(const glm::vec2& ndc, bool one_cam = true);
 	glm::vec3 GetCameraPos(int index = 0);
-	Color GetAmbient();
+	Color GetAmbient(int index  = 0);
 	bool RenderNormals();
 	
 	void SetWidth(int width);
@@ -39,7 +39,7 @@ private:
 
 	std::vector<Camera> mCameras;
 	std::map<std::string, std::shared_ptr<Material>> mMaterials;
-	Color mAmbientLight;
+	std::vector<Color> mAmbientLights;
 	int mWidth = 0;
 	int mHeight = 0;
 	float mAspectRatio = 0.0F;

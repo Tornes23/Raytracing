@@ -9,6 +9,7 @@ ContactInfo RayTracer::CastRay(const Ray& ray, std::vector<Object>& objs)
     for (int i = 0; i < objs.size(); i++)
     {
         bool intersected = objs[i].CheckIntersection(ray, info);
+        
         if(intersected)
         {
             if (info.mTI < minInfo.mTI)

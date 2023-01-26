@@ -33,19 +33,162 @@ bool Sphere::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactI
 		info.mTI = info.mT1;
 
 	info.mContact = ray.mP0 + ray.mV * info.mTI;
-	info.mNomal = glm::normalize(info.mContact - center);
+	info.mNormal = glm::normalize(info.mContact - center);
+
+	if (glm::dot(info.mNormal, ray.mV) > 0)
+		info.mNormal = -info.mNormal;
 
 	return true;
 }
 
-AABB::AABB(const char** info)
+AABB::AABB(const glm::vec3& width, const glm::vec3& height, const glm::vec3& length)
 {
-	mWidth = Utils::GetVector(info);
-	mHeight = Utils::GetVector(info);
-	mLength = Utils::GetVector(info);
+	mVectors.resize(3);
+
+	mVectors[0] = width;
+	mVectors[1] = height;
+	mVectors[2] = length;
 }
 
-bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
+AABB::AABB(const char** info)
 {
-	return false;
+	mVectors.resize(3);
+
+	mVectors[0] = Utils::GetVector(info);
+	mVectors[1] = Utils::GetVector(info);
+	mVectors[2] = Utils::GetVector(info);
+}
+
+bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info)
+{
+	bool all = true;
+	glm::vec2 mainInterval(0.0F, std::numeric_limits<float>::max());
+
+	glm::vec3 cp = glm::normalize(ray.mP0 - corner);
+	std::vector<Plane> planes(6);
+	std::vector<glm::vec3> dsiplacements(6);
+
+	planes[0] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[1])));//right plane
+	planes[1] = Plane(-planes[0].mNormal);// left plane
+	planes[2] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[0])));//bot plane
+	planes[3] = Plane(-planes[2].mNormal);// top plane
+	planes[4] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[2])));//back plane
+	planes[5] = Plane(-planes[4].mNormal);// front plane
+
+	dsiplacements[0] = mVectors[2];// right plane
+	dsiplacements[1] = glm::vec3(0.0F);//front plane
+	dsiplacements[2] = glm::vec3(0.0F);//bottom plane
+	dsiplacements[3] = mVectors[1];// top plane
+	dsiplacements[4] = mVectors[0];// back plane
+	dsiplacements[5] = glm::vec3(0.0F);//left plane
+
+
+
+	ContactInfo temp;
+	int indexMin = 0;
+	int indexMax = 0;
+	for (int i = 0; i < 6; i++)
+	{
+		glm::vec2 interval(0.0F, std::numeric_limits<float>::max());
+		float raydot = glm::dot(ray.mV, planes[i].mNormal);
+		glm::vec3 point = corner + dsiplacements[i];
+		if (raydot == 0.0F || !planes[i].CheckIntersection(ray, point, interval))
+		{
+			all = false;
+			break;
+		}
+
+		if (mainInterval.x < interval.x)
+		{
+			mainInterval.x = interval.x;
+			indexMin = i;
+		}
+
+		if (mainInterval.y > interval.y)
+		{
+			mainInterval.y = interval.y;
+			indexMax = i;
+		}
+
+		if (mainInterval.y < mainInterval.x)
+		{
+			all = false;
+			break;
+		}
+
+	}
+
+	if(!all)
+		return false;
+
+	if (mainInterval.x == 0.0F)
+	{
+		info.mTI = mainInterval.y;
+		info.mNormal = planes[indexMax].mNormal;
+	}
+	else
+	{
+		info.mTI = mainInterval.x;
+		info.mNormal = planes[indexMin].mNormal;
+	}
+		info.mContact = ray.mP0 + info.mTI * ray.mV;
+
+
+	if (glm::dot(info.mNormal, ray.mV) > 0)
+		info.mNormal = -info.mNormal;
+
+
+	return true;
+}
+
+bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2& interval)
+{
+	float dot = glm::dot(ray.mV, mNormal);
+
+	if(dot == 0.0F)
+		return false;
+
+	glm::vec3 cp = glm::normalize(ray.mP0 - point);
+	float time = -glm::dot(cp, mNormal) / dot;
+
+	if (time < 0.0F)
+		return false;
+
+	float raydot = glm::dot(ray.mV, mNormal);
+
+	if (raydot < 0.0F)
+	{
+		float dot = glm::dot(cp, mNormal);
+		if (dot > 0.0F)
+			interval.x = time;
+	}
+	else
+	{
+		float dot = glm::dot(cp, mNormal);
+		if (dot < 0.0F)
+			interval.y = time;
+		else
+			return false;
+	}
+
+	return true;
+}
+
+bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, ContactInfo& info)
+{
+	float dot = glm::dot(ray.mV, mNormal);
+	if (dot == 0.0F)
+		return false;
+
+	glm::vec3 cp = glm::normalize(ray.mP0 - point);
+	float time = -glm::dot(cp, mNormal) / dot;
+
+	if (time < 0.0F)
+		return false;
+
+	info.mTI = time;
+	info.mContact = ray.mP0 + time * ray.mV;
+	info.mNormal = mNormal;
+
+	return true;
 }

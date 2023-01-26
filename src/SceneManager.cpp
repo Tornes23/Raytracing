@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <glm/common.hpp>
 
 #include "SceneManager.h"
 #include "GraphicsManager.h"
@@ -68,15 +69,27 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
 	//load stuff
 }
 
-Scene* SceneManagerClass::GetScene(int index)
+void SceneManagerClass::PrevScene()
 {
-    if (index < 0)
+    mDisplayScene = glm::clamp(mDisplayScene - 1, 0, (int)mScenes.size());
+}
+
+void SceneManagerClass::NextScene()
+{
+    mDisplayScene = glm::clamp(mDisplayScene + 1, 0, (int)mScenes.size());
+}
+
+Scene* SceneManagerClass::GetScene()
+{
+    if (mDisplayScene < 0)
         return mScenes[0];
-    if (index > mScenes.size())
+    if (mDisplayScene > mScenes.size())
         return mScenes.back();
 
-    return mScenes[index];
+    return mScenes[mDisplayScene];
 }
+
+int SceneManagerClass::GetDisplayScene(){ return mDisplayScene;}
 
 void SceneManagerClass::FreeScenes()
 {
@@ -86,4 +99,6 @@ void SceneManagerClass::FreeScenes()
             delete mScenes[i];
         mScenes[i] = nullptr;
     }
+
+    mScenes.clear();
 }

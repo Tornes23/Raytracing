@@ -8,8 +8,12 @@ public:
 
 	void LoadScenes(const char* directory);
 	void LoadScene(const std::string& to_load);
+	void NextScene();
+	void PrevScene();
 
-	Scene* GetScene(int index = 0);
+
+	Scene* GetScene();
+	int GetDisplayScene();
 
 	void FreeScenes();
 	//singleton stuff
@@ -24,6 +28,7 @@ public:
 private:
 	SceneManagerClass() {}
 
+	int mDisplayScene = 1;
 	std::vector<Scene*> mScenes;
 };
 

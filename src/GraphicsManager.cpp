@@ -9,7 +9,7 @@ void GraphicsManagerClass::CreateCamera(const char* info)
 
 void GraphicsManagerClass::ParseAmbient(const char* info)
 {
-	mAmbientLight = Color(Utils::GetVector(&info));
+	mAmbientLights.push_back(Color(Utils::GetVector(&info)));
 }
 
 glm::vec2 GraphicsManagerClass::GetNDC(const glm::vec2& xy)
@@ -45,8 +45,16 @@ glm::vec3 GraphicsManagerClass::GetCameraPos(int index)
 
 	return mCameras[index].mPos;
 }
+Color GraphicsManagerClass::GetAmbient(int index) 
+{ 
+	if (index < 0)
+		return mAmbientLights[0];
+	if (index > mAmbientLights.size())
+		return mAmbientLights.back();
 
-Color GraphicsManagerClass::GetAmbient() { return mAmbientLight; }
+	return mAmbientLights[index];
+}
+
 bool GraphicsManagerClass::RenderNormals(){ return mRenderNormals; }
 void GraphicsManagerClass::SetWidth(int width) { mWidth = width; }
 void GraphicsManagerClass::SetRenderNormals(bool render) { mRenderNormals = render; }
