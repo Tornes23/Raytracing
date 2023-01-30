@@ -18,7 +18,7 @@ struct ContactInfo
 
 struct Ray
 {
-    Ray(const glm::vec3& p0, const glm::vec3& vec) : mP0(p0), mV(vec) {}
+    Ray(const glm::vec3& p0, const glm::vec3& vec);
     glm::vec3 mP0;
     glm::vec3 mV;
 };

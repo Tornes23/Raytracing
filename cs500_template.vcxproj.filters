@@ -43,6 +43,9 @@
     <Filter Include="Source Files\GFX\Raytraycer">
       <UniqueIdentifier>{2d3eeb3b-e3f7-45ea-8bc3-f9c8926361a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GFX\Light">
+      <UniqueIdentifier>{8d75f527-8b3c-47e3-b1d5-14fb9e08c9a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -81,6 +84,9 @@
     <ClCompile Include="src\Raytracer.cpp">
       <Filter>Source Files\GFX\Raytraycer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Light.cpp">
+      <Filter>Source Files\GFX\Light</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\FrameBuffer.h">
@@ -115,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="src\Raytracer.h">
       <Filter>Source Files\GFX\Raytraycer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Light.h">
+      <Filter>Source Files\GFX\Light</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

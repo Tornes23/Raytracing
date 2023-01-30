@@ -6,12 +6,14 @@
 #include <glm/vec2.hpp>
 #include "Camera.h"
 #include "Material.h"
+#include "Light.h"
 
 class GraphicsManagerClass
 {
 public:
 
 	void CreateCamera(const char* info);
+	void CreateLight(const char* info);
 	void ParseAmbient(const char* info);
 	glm::vec2 GetNDC(const glm::vec2& xy);
 	glm::vec3 GetPixelWorld(const glm::vec2& ndc, bool one_cam = true);
@@ -38,6 +40,7 @@ private:
 	GraphicsManagerClass() {}
 
 	std::vector<Camera> mCameras;
+	std::vector<Light> mLights;
 	std::map<std::string, std::shared_ptr<Material>> mMaterials;
 	std::vector<Color> mAmbientLights;
 	int mWidth = 0;

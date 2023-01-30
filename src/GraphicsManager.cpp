@@ -7,6 +7,11 @@ void GraphicsManagerClass::CreateCamera(const char* info)
 	mCameras.push_back(Camera(info));
 }
 
+void GraphicsManagerClass::CreateLight(const char* info)
+{
+	mLights.push_back(Light(info));
+}
+
 void GraphicsManagerClass::ParseAmbient(const char* info)
 {
 	mAmbientLights.push_back(Color(Utils::GetVector(&info)));

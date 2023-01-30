@@ -98,17 +98,26 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 			break;
 		}
 
-		if (mainInterval.x < interval.x)
-		{
-			mainInterval.x = interval.x;
+		if (mainInterval.x > interval.x)
 			indexMin = i;
-		}
 
-		if (mainInterval.y > interval.y)
-		{
-			mainInterval.y = interval.y;
+		mainInterval.x = glm::max(mainInterval.x, interval.x);
+		mainInterval.y = glm::min(mainInterval.y, interval.y);
+
+		if (interval.x == 0.0f && mainInterval.y < interval.y)
 			indexMax = i;
-		}
+
+		//if (mainInterval.x < interval.x)
+		//{
+		//	mainInterval.x = interval.x;
+		//	indexMin = i;
+		//}
+		//
+		//if (mainInterval.y > interval.y)
+		//{
+		//	mainInterval.y = interval.y;
+		//	indexMax = i;
+		//}
 
 		if (mainInterval.y < mainInterval.x)
 		{
@@ -148,7 +157,8 @@ bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2&
 	if(dot == 0.0F)
 		return false;
 
-	glm::vec3 cp = glm::normalize(ray.mP0 - point);
+	//glm::vec3 cp = glm::normalize(ray.mP0 - point);
+	glm::vec3 cp = ray.mP0 - point;
 	float time = -glm::dot(cp, mNormal) / dot;
 
 	if (time < 0.0F)
@@ -156,10 +166,10 @@ bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2&
 
 	float raydot = glm::dot(ray.mV, mNormal);
 
-	if (raydot < 0.0F)
+	if (raydot <= 0.0F)
 	{
 		float dot = glm::dot(cp, mNormal);
-		if (dot > 0.0F)
+		if (dot >= 0.0F)
 			interval.x = time;
 	}
 	else
@@ -191,4 +201,10 @@ bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, ContactInf
 	info.mNormal = mNormal;
 
 	return true;
+}
+
+Ray::Ray(const glm::vec3& p0, const glm::vec3& vec)
+{
+	mP0 = p0;
+	mV = glm::normalize(vec);
 }

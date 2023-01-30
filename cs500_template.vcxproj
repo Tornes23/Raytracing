@@ -94,6 +94,7 @@
     <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\Geometry.cpp" />
     <ClCompile Include="src\GraphicsManager.cpp" />
+    <ClCompile Include="src\Light.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\Object.cpp" />
@@ -108,6 +109,7 @@
     <ClInclude Include="src\FrameBuffer.h" />
     <ClInclude Include="src\Geometry.h" />
     <ClInclude Include="src\GraphicsManager.h" />
+    <ClInclude Include="src\Light.h" />
     <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\Object.h" />
     <ClInclude Include="src\Raytracer.h" />
