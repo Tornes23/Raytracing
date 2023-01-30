@@ -19,3 +19,9 @@ ContactInfo RayTracer::CastRay(const Ray& ray, std::vector<Object>& objs)
 
     return minInfo;
 }
+
+void RayTracer::SetBounces(int bounces) { mBounces = bounces; }
+void RayTracer::SetSamples(int samples) { mSamples = samples; }
+
+int RayTracer::GetBounces() { return mBounces; }
+int RayTracer::GetSamples() { return mSamples; }

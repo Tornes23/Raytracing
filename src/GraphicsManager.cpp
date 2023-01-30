@@ -50,6 +50,15 @@ glm::vec3 GraphicsManagerClass::GetCameraPos(int index)
 
 	return mCameras[index].mPos;
 }
+Camera GraphicsManagerClass::GetCamera(int index)
+{
+	if (index < 0)
+		return mCameras[0];
+	if (index > mCameras.size())
+		return mCameras.back();
+
+	return mCameras[index];
+}
 Color GraphicsManagerClass::GetAmbient(int index) 
 { 
 	if (index < 0)

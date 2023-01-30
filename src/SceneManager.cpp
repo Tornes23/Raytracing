@@ -13,8 +13,8 @@
 
 void SceneManagerClass::LoadScenes(const char* _directory)
 {
-	for (auto& it : std::filesystem::directory_iterator(_directory))
-		LoadScene(it.path().string());
+    for (auto& it : std::filesystem::directory_iterator(_directory))
+        LoadScene(it.path().string());
 
 }
 

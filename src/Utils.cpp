@@ -66,3 +66,8 @@ std::string Utils::GetFilename(const std::string& path)
 
     return file;
 }
+
+void Utils::LoadConfig(const std::string& path)
+{
+    //load the configurations
+}

@@ -2,6 +2,7 @@
 #include <glm/gtx/transform.hpp>
 #include "Geometry.h"
 #include "Utils.h"
+#include "GraphicsManager.h"
 
 Sphere::Sphere(const char** info)
 {
@@ -41,22 +42,23 @@ bool Sphere::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactI
 	return true;
 }
 
-AABB::AABB(const glm::vec3& width, const glm::vec3& height, const glm::vec3& length)
+AABB::AABB(const glm::vec3& length, const glm::vec3& width, const glm::vec3& height)
 {
 	mVectors.resize(3);
 
-	mVectors[0] = width;
-	mVectors[1] = height;
-	mVectors[2] = length;
+	mVectors[0] = length;
+	mVectors[1] = width;
+	mVectors[2] = height;
+
 }
 
 AABB::AABB(const char** info)
 {
 	mVectors.resize(3);
 
-	mVectors[0] = Utils::GetVector(info);
-	mVectors[1] = Utils::GetVector(info);
-	mVectors[2] = Utils::GetVector(info);
+	mVectors[0] = Utils::GetVector(info);//length
+	mVectors[1] = Utils::GetVector(info);//width
+	mVectors[2] = Utils::GetVector(info);//height
 }
 
 bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info)
@@ -66,23 +68,21 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 
 	glm::vec3 cp = glm::normalize(ray.mP0 - corner);
 	std::vector<Plane> planes(6);
-	std::vector<glm::vec3> dsiplacements(6);
+	std::vector<glm::vec3> displacements(6);
 
-	planes[0] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[1])));//right plane
-	planes[1] = Plane(-planes[0].mNormal);// left plane
-	planes[2] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[0])));//bot plane
-	planes[3] = Plane(-planes[2].mNormal);// top plane
-	planes[4] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[2])));//back plane
-	planes[5] = Plane(-planes[4].mNormal);// front plane
+	planes[0] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[1])));//left plane
+	planes[1] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[1])));//top plane
+	planes[2] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[2])));//front plane
+	planes[3] = Plane(-planes[0].mNormal);//right plane
+	planes[4] = Plane(-planes[1].mNormal);// bot plane
+	planes[5] = Plane(-planes[2].mNormal);// back plane
 
-	dsiplacements[0] = mVectors[2];// right plane
-	dsiplacements[1] = glm::vec3(0.0F);//front plane
-	dsiplacements[2] = glm::vec3(0.0F);//bottom plane
-	dsiplacements[3] = mVectors[1];// top plane
-	dsiplacements[4] = mVectors[0];// back plane
-	dsiplacements[5] = glm::vec3(0.0F);//left plane
-
-
+	displacements[0] = glm::vec3(0.0F);//left plane
+	displacements[1] = mVectors[2];// top plane
+	displacements[2] = glm::vec3(0.0F);//front plane
+	displacements[3] = mVectors[0];// right plane
+	displacements[4] = glm::vec3(0.0F);//bottom plane
+	displacements[5] = mVectors[1];// back plane
 
 	ContactInfo temp;
 	int indexMin = 0;
@@ -91,12 +91,15 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 	{
 		glm::vec2 interval(0.0F, std::numeric_limits<float>::max());
 		float raydot = glm::dot(ray.mV, planes[i].mNormal);
-		glm::vec3 point = corner + dsiplacements[i];
+		glm::vec3 point = corner + displacements[i];
+		std::cout << "Checking with " << (i == 0 ? "left" : i == 1 ? "top" : i == 2 ? "front" : i == 3 ? "right" : i == 4 ? "bot" : "back") << " plane \n";
 		if (raydot == 0.0F || !planes[i].CheckIntersection(ray, point, interval))
 		{
+			std::cout << "Failed\n";
 			all = false;
 			break;
 		}
+			std::cout << "Intersected!\n";
 
 		if (mainInterval.x > interval.x)
 			indexMin = i;
@@ -152,33 +155,46 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 
 bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2& interval)
 {
-	float dot = glm::dot(ray.mV, mNormal);
-
-	if(dot == 0.0F)
+	float raydot = glm::dot(ray.mV, mNormal);
+	float epsilon = std::numeric_limits<float>::epsilon();
+	if(raydot < std::numeric_limits<float>::epsilon() && -std::numeric_limits<float>::epsilon() < raydot)
 		return false;
 
 	//glm::vec3 cp = glm::normalize(ray.mP0 - point);
 	glm::vec3 cp = ray.mP0 - point;
-	float time = -glm::dot(cp, mNormal) / dot;
+	float dot = glm::dot(cp, mNormal);
+	float time = -dot / raydot;
 
-	if (time < 0.0F)
+	if (time <= 0.0F)
+	{
+		std::cout << "Time is negative\n";
 		return false;
-
-	float raydot = glm::dot(ray.mV, mNormal);
+	}
 
 	if (raydot <= 0.0F)
 	{
-		float dot = glm::dot(cp, mNormal);
+		//std::cout << "Ray towards back\n";
 		if (dot >= 0.0F)
+		{
+			//std::cout << "Ray starts in front\n";
 			interval.x = time;
+		}
+		//else
+		//	std::cout << "Ray starts in back\n";
 	}
 	else
 	{
-		float dot = glm::dot(cp, mNormal);
+		//std::cout << "Ray towards front\n";
 		if (dot < 0.0F)
+		{
+			//std::cout << "Ray starts in back\n";
 			interval.y = time;
+		}
 		else
+		{
+			//std::cout << "Ray starts in front\n";
 			return false;
+		}
 	}
 
 	return true;
