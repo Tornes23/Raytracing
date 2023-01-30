@@ -1,22 +1,66 @@
 #include <glm/gtx/transform.hpp>
 #include "GraphicsManager.h"
 #include "Utils.h"
+#include "Geometry.h"
+#include "SceneManager.h"
+#include "Scene.h"
+#include "Raytracer.h"
 
-void GraphicsManagerClass::CreateCamera(const char* info)
+void GraphicsManagerClass::Render() { Render(0, 0, mWidth, mHeight); }
+
+void GraphicsManagerClass::Render(int startX, int startY, int width, int height)
 {
-	mCameras.push_back(Camera(info));
+	for (unsigned x = 0; x < width; x++)
+	{
+		for (unsigned y = 0; y < height; y++)
+		{
+			glm::vec2 ndc = GetNDC({ x,y });
+			glm::vec3 pixelworld = GetPixelWorld(ndc);
+			glm::vec3 camPos = GetCameraPos();
+			Ray ray(camPos, glm::normalize(pixelworld - camPos));
+			Scene* scene = SceneManager.GetScene();
+
+			ContactInfo info = Raytracer.CastRay(ray, scene->mObjects);
+			if (info.mTI >= 0.0f)
+			{
+				//probably need to add mutextes so they don't oveelap, but since each of them does different work shouldnt overlap right
+				if (mRenderNormals)
+				{
+					Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * GetAmbient(SceneManager.GetDisplayScene()));
+					mFrameBuffer.SetPixel(x, y, result.mR, result.mG, result.mB);
+				}
+				else
+				{
+					Color result = info.mColor * GetAmbient();
+					mFrameBuffer.SetPixel(x, y, result.mR, result.mG, result.mB);
+				}
+			}
+		}
+	}
 }
 
-void GraphicsManagerClass::CreateLight(const char* info)
+
+void GraphicsManagerClass::Init(int width, int height)
 {
-	mLights.push_back(Light(info));
+	mFrameBuffer.Init(width, height);
+	SetWidth(width);
+	SetHeight(height);
+	SetAspectRatio((float)width/ height);
+
+	// Generate image and texture to display
+	mTexture.create(width, height);
+	mImage.create(width, height, sf::Color::Black);
 }
 
-void GraphicsManagerClass::ParseAmbient(const char* info)
+void GraphicsManagerClass::Update()
 {
-	mAmbientLights.push_back(Color(Utils::GetVector(&info)));
+	mTexture.update(mImage);
+	mSprite.setTexture(mTexture);
 }
 
+void GraphicsManagerClass::CreateCamera(const char* info){ mCameras.push_back(Camera(info)); }
+void GraphicsManagerClass::CreateLight(const char* info){ mLights.push_back(Light(info));}
+void GraphicsManagerClass::ParseAmbient(const char* info){ mAmbientLights.push_back(Color(Utils::GetVector(&info))); }
 glm::vec2 GraphicsManagerClass::GetNDC(const glm::vec2& xy)
 {
 	float x = ((xy.x + 0.5F) - (mWidth / 2.0F)) / (mWidth / 2.0F);
@@ -69,9 +113,33 @@ Color GraphicsManagerClass::GetAmbient(int index)
 	return mAmbientLights[index];
 }
 
+sf::Image& GraphicsManagerClass::GetImage() { return mImage; }
+sf::Sprite& GraphicsManagerClass::GetSprite() { return mSprite; }
+sf::Texture& GraphicsManagerClass::GetTexture() { return mTexture; }
+
 bool GraphicsManagerClass::RenderNormals(){ return mRenderNormals; }
 void GraphicsManagerClass::SetWidth(int width) { mWidth = width; }
 void GraphicsManagerClass::SetRenderNormals(bool render) { mRenderNormals = render; }
 void GraphicsManagerClass::ToggleRenderNormals() { mRenderNormals = !mRenderNormals; }
 void GraphicsManagerClass::SetHeight(int height) { mHeight = height; }
 void GraphicsManagerClass::SetAspectRatio(float ratio) { mAspectRatio = ratio;  }
+
+#ifdef MULTITHREAD
+#include "ThreadPool.h"
+glm::ivec2 GraphicsManagerClass::GetBatchSize() { return mBatchSize; }
+void GraphicsManagerClass::BatchedRender()
+{
+	//for each thread call render for the wanted coords
+	for (int x = 0; x < mBatchSize.x; x++)
+	{
+		for (int y = 0; y < mBatchSize.y; y++)
+		{
+			int startX = x * mBatchSize.x;
+			int startY = y * mBatchSize.y;
+			//ThreadPool.InitThread(BatchedRender, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
+		}
+	}
+
+}
+#endif // MULTITHREAD
+

@@ -14,6 +14,11 @@ public:
 	int GetBounces();
 	int GetSamples();
 
+#ifdef MULTITHREAD
+	Ray GetRayForPixel(int x, int y);
+#endif // MULTITHREAD
+
+
 	//singleton stuff
 	RayTracer(RayTracer const&) = delete;
 	void operator=(RayTracer const&) = delete;

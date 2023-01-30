@@ -92,14 +92,14 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 		glm::vec2 interval(0.0F, std::numeric_limits<float>::max());
 		float raydot = glm::dot(ray.mV, planes[i].mNormal);
 		glm::vec3 point = corner + displacements[i];
-		std::cout << "Checking with " << (i == 0 ? "left" : i == 1 ? "top" : i == 2 ? "front" : i == 3 ? "right" : i == 4 ? "bot" : "back") << " plane \n";
+		//std::cout << "Checking with " << (i == 0 ? "left" : i == 1 ? "top" : i == 2 ? "front" : i == 3 ? "right" : i == 4 ? "bot" : "back") << " plane \n";
 		if (raydot == 0.0F || !planes[i].CheckIntersection(ray, point, interval))
 		{
-			std::cout << "Failed\n";
+			//std::cout << "Failed\n";
 			all = false;
 			break;
 		}
-			std::cout << "Intersected!\n";
+			//std::cout << "Intersected!\n";
 
 		if (mainInterval.x > interval.x)
 			indexMin = i;
@@ -167,7 +167,7 @@ bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2&
 
 	if (time <= 0.0F)
 	{
-		std::cout << "Time is negative\n";
+		//std::cout << "Time is negative\n";
 		return false;
 	}
 

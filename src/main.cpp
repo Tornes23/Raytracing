@@ -13,13 +13,9 @@ int main(int argc, char ** argv)
 {
     const int WIDTH  = 500;
     const int HEIGHT = 500;
-    GraphicsManager.SetWidth(WIDTH);
-    GraphicsManager.SetHeight(HEIGHT);
-    GraphicsManager.SetAspectRatio((float)WIDTH / HEIGHT);
+    GraphicsManager.Init(WIDTH, HEIGHT);
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
-
-    FrameBuffer::Init(WIDTH, HEIGHT);
 
     std::string inputDirectory= "./scenes/";
     std::string inputFile = "input.txt";
@@ -36,12 +32,7 @@ int main(int argc, char ** argv)
 	
     //Loading the scene
     SceneManager.LoadScenes(inputDirectory.data());
-    // Generate image and texture to display
-    sf::Image   image;
-    sf::Texture texture;
-    sf::Sprite  sprite;
-    texture.create(WIDTH, HEIGHT);
-    image.create(WIDTH, HEIGHT, sf::Color::Black);
+
 
     bool reload = false;
 
@@ -72,33 +63,14 @@ int main(int argc, char ** argv)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F3))
             SceneManager.PrevScene();
 
-        //apply lighting based on the ray hits
-        for (unsigned x = 0; x < WIDTH; x++)
-        {
-            for (unsigned y = 0; y < HEIGHT; y++)
-            {
-                glm::vec2 ndc = GraphicsManager.GetNDC({x,y});
-                glm::vec3 pixelworld = GraphicsManager.GetPixelWorld(ndc);
-                glm::vec3 camPos = GraphicsManager.GetCameraPos();
-                Ray ray(camPos, glm::normalize(pixelworld - camPos));
-                Scene* scene = SceneManager.GetScene();
+#ifdef MULTITHREAD
 
-                ContactInfo info = Raytracer.CastRay(ray, scene->mObjects);
-                if (info.mTI >= 0.0f)
-                {
-                    if (GraphicsManager.RenderNormals())
-                    {
-                        Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * GraphicsManager.GetAmbient(SceneManager.GetDisplayScene()));
-                        FrameBuffer::SetPixel(x, y, result.mR, result.mG, result.mB);
-                    }
-                    else
-                    {
-                        Color result = info.mColor * GraphicsManager.GetAmbient();
-                        FrameBuffer::SetPixel(x, y, result.mR, result.mG, result.mB);
-                    }
-                }
-            }
-        }
+        //each thread will take care of the rendering of each batch
+        GraphicsManager.BatchedRender();
+        
+#else
+        GraphicsManager.Render();
+#endif // MULTITHREAD
 
         // Fill framebuffer
         sf::Time elapsed = clock.getElapsedTime();
@@ -108,11 +80,10 @@ int main(int argc, char ** argv)
             takeScreenshot = true;
 		
         // Show image on screen
-        FrameBuffer::ConvertFrameBufferToSFMLImage(image);
+        FrameBuffer::ConvertFrameBufferToSFMLImage(GraphicsManager.GetImage());
 
-        texture.update(image);
-        sprite.setTexture(texture);
-        window.draw(sprite);
+        GraphicsManager.Update();
+        window.draw(GraphicsManager.GetSprite());
         window.display();
 		
         if (reload)
@@ -125,7 +96,7 @@ int main(int argc, char ** argv)
 		
         if (takeScreenshot)
         {
-            image.saveToFile(screenshotName);
+            GraphicsManager.GetImage().saveToFile(screenshotName);
             takeScreenshot = false;
         }
     }

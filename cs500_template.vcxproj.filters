@@ -90,6 +90,9 @@
     <ClCompile Include="src\Light.cpp">
       <Filter>Source Files\GFX\Light</Filter>
     </ClCompile>
+    <ClCompile Include="src\ThreadPool.cpp">
+      <Filter>Source Files\ThreadPool</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\FrameBuffer.h">
