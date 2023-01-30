@@ -39,8 +39,14 @@ float Utils::GetFloat(const char** info)
     std::string number;
     char* end{};
 
-    while (**info != ',' && **info != ')' && **info != '\0' && **info != '\n')
+    while (**info != '('  && **info != ',' && **info != ')' && **info != '\0' && **info != '\n')
     {
+        if (**info == ' ')
+        {
+            (*info)++;
+            continue;
+        }
+
         number.push_back(**info);
         (*info)++;
     }

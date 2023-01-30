@@ -28,7 +28,7 @@ public:
 private:
 	SceneManagerClass() {}
 
-	int mDisplayScene = 1;
+	int mDisplayScene = 0;
 	std::vector<Scene*> mScenes;
 };
 

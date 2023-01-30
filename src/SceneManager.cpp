@@ -47,6 +47,9 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
                         GraphicsManager.CreateCamera(line.substr(found + 1u).c_str());
                     else if (type.compare("AMBIENT") == 0)
                         GraphicsManager.ParseAmbient(line.substr(found + 1u).c_str());
+                    else if (type.compare("LIGHT") == 0)
+                        GraphicsManager.CreateLight(line.substr(found + 1u).c_str());
+
                     else
                     {
                         if (type.compare("SPHERE") == 0)

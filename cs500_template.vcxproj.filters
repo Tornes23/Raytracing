@@ -46,6 +46,9 @@
     <Filter Include="Source Files\GFX\Light">
       <UniqueIdentifier>{8d75f527-8b3c-47e3-b1d5-14fb9e08c9a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ThreadPool">
+      <UniqueIdentifier>{c66988a8-6402-47dd-b8a5-d998455246f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -124,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="src\Light.h">
       <Filter>Source Files\GFX\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ThreadPool.h">
+      <Filter>Source Files\ThreadPool</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

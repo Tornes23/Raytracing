@@ -115,6 +115,7 @@
     <ClInclude Include="src\Raytracer.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\SceneManager.h" />
+    <ClInclude Include="src\ThreadPool.h" />
     <ClInclude Include="src\Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
