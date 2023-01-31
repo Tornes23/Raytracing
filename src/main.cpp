@@ -51,16 +51,16 @@ int main(int argc, char ** argv)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
             window.close();
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F2))
             GraphicsManager.ToggleRenderNormals();
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F4))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F6))
             reload = true;
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F2))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F3))
             SceneManager.NextScene();
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F3))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F4))
             SceneManager.PrevScene();
 
 #ifdef MULTITHREAD
@@ -96,7 +96,7 @@ int main(int argc, char ** argv)
 		
         if (takeScreenshot)
         {
-            GraphicsManager.GetImage().saveToFile(screenshotName);
+            GraphicsManager.GetScreenshot(screenshotName);
             takeScreenshot = false;
         }
     }

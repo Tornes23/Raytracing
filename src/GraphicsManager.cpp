@@ -23,7 +23,6 @@ void GraphicsManagerClass::Render(int startX, int startY, int width, int height)
 			ContactInfo info = Raytracer.CastRay(ray, scene->mObjects);
 			if (info.mTI >= 0.0f)
 			{
-				//probably need to add mutextes so they don't oveelap, but since each of them does different work shouldnt overlap right
 				if (mRenderNormals)
 				{
 					Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * GetAmbient(SceneManager.GetDisplayScene()));
@@ -61,6 +60,7 @@ void GraphicsManagerClass::Update()
 void GraphicsManagerClass::CreateCamera(const char* info){ mCameras.push_back(Camera(info)); }
 void GraphicsManagerClass::CreateLight(const char* info){ mLights.push_back(Light(info));}
 void GraphicsManagerClass::ParseAmbient(const char* info){ mAmbientLights.push_back(Color(Utils::GetVector(&info))); }
+void GraphicsManagerClass::GetScreenshot(std::string name) { mImage.saveToFile(name); }
 glm::vec2 GraphicsManagerClass::GetNDC(const glm::vec2& xy)
 {
 	float x = ((xy.x + 0.5F) - (mWidth / 2.0F)) / (mWidth / 2.0F);

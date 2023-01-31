@@ -21,6 +21,7 @@ public:
 	void CreateCamera(const char* info);
 	void CreateLight(const char* info);
 	void ParseAmbient(const char* info);
+	void GetScreenshot(std::string name);
 
 	glm::vec2 GetNDC(const glm::vec2& xy);
 	glm::vec3 GetPixelWorld(const glm::vec2& ndc, bool one_cam = true);
@@ -67,7 +68,7 @@ private:
 	int mWidth = 0;
 	int mHeight = 0;
 	float mAspectRatio = 0.0F;
-	float mRenderNormals = false;
+	float mRenderNormals = true;
 	FrameBuffer mFrameBuffer;
 
 	sf::Image   mImage;
