@@ -8,12 +8,19 @@
 #include "Geometry.h"
 #include "Raytracer.h"
 #include "Scene.h"
+#ifdef MULTITHREAD
+#include "ThreadPool.h"
+#endif
 
 int main(int argc, char ** argv)
 {
     const int WIDTH  = 500;
     const int HEIGHT = 500;
     GraphicsManager.Init(WIDTH, HEIGHT);
+#ifdef MULTITHREAD
+    ThreadPool.Init();
+#endif // MULTITHREAD
+
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
 

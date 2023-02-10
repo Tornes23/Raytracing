@@ -46,8 +46,14 @@
     <Filter Include="Source Files\GFX\Light">
       <UniqueIdentifier>{8d75f527-8b3c-47e3-b1d5-14fb9e08c9a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\ThreadPool">
+    <Filter Include="Source Files\Multithreading">
       <UniqueIdentifier>{c66988a8-6402-47dd-b8a5-d998455246f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Multithreading\ThreadPool">
+      <UniqueIdentifier>{b4ebc1b9-2db3-4c6b-9c7a-d570fdb0abf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Multithreading\Queue">
+      <UniqueIdentifier>{0b5e92b4-7b46-4bfd-b62f-8065ece53f2a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -91,7 +97,7 @@
       <Filter>Source Files\GFX\Light</Filter>
     </ClCompile>
     <ClCompile Include="src\ThreadPool.cpp">
-      <Filter>Source Files\ThreadPool</Filter>
+      <Filter>Source Files\Multithreading\ThreadPool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -132,7 +138,10 @@
       <Filter>Source Files\GFX\Light</Filter>
     </ClInclude>
     <ClInclude Include="src\ThreadPool.h">
-      <Filter>Source Files\ThreadPool</Filter>
+      <Filter>Source Files\Multithreading\ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TaskQueue.h">
+      <Filter>Source Files\Multithreading\Queue</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -10,9 +10,9 @@ void GraphicsManagerClass::Render() { Render(0, 0, mWidth, mHeight); }
 
 void GraphicsManagerClass::Render(int startX, int startY, int width, int height)
 {
-	for (unsigned x = 0; x < width; x++)
+	for (int x = 0; x < width; x++)
 	{
-		for (unsigned y = 0; y < height; y++)
+		for (int y = 0; y < height; y++)
 		{
 			glm::vec2 ndc = GetNDC({ x,y });
 			glm::vec3 pixelworld = GetPixelWorld(ndc);
@@ -49,6 +49,11 @@ void GraphicsManagerClass::Init(int width, int height)
 	// Generate image and texture to display
 	mTexture.create(width, height);
 	mImage.create(width, height, sf::Color::Black);
+#ifdef MULTITHREAD
+	mBatchSize.x = mWidth / 10;
+	mBatchSize.y = mHeight / 10;
+#endif // MULTITHREAD
+
 }
 
 void GraphicsManagerClass::Update()
@@ -127,6 +132,7 @@ void GraphicsManagerClass::SetAspectRatio(float ratio) { mAspectRatio = ratio;  
 #ifdef MULTITHREAD
 #include "ThreadPool.h"
 glm::ivec2 GraphicsManagerClass::GetBatchSize() { return mBatchSize; }
+
 void GraphicsManagerClass::BatchedRender()
 {
 	//for each thread call render for the wanted coords
@@ -136,7 +142,8 @@ void GraphicsManagerClass::BatchedRender()
 		{
 			int startX = x * mBatchSize.x;
 			int startY = y * mBatchSize.y;
-			//ThreadPool.InitThread(BatchedRender, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
+			//auto fn = [=](int, int, int, int) {GraphicsManager.Render(startX, startY, startX + mBatchSize.x, startY + mBatchSize.y); }
+			ThreadPool.Submit(&GraphicsManagerClass::Render, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
 		}
 	}
 
