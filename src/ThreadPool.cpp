@@ -17,10 +17,12 @@ void ThreadPoolClass::ShutDown(){
 
 	mbShutDown = true;
 	mConditionalLock.notify_all();
-
+	
 	for (int i = 0; i < mThreads.size(); i++) 
 		if (mThreads[i].joinable()) mThreads[i].join();
 }
+
+int ThreadPoolClass::ThreadCount() { return mThreads.size(); }
 
 
 Worker::Worker(const int id) : mID(id) { }

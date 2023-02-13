@@ -5,10 +5,14 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "Raytracer.h"
+#ifdef MULTITHREAD
+#include "ThreadPool.h"
+#endif // MULTITHREAD
 
-void GraphicsManagerClass::Render() { Render(0, 0, mWidth, mHeight); }
 
-void GraphicsManagerClass::Render(int startX, int startY, int width, int height)
+void GraphicsManagerClass::Render() { RenderBatch(0, 0, mWidth, mHeight); }
+
+void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int height)
 {
 	for (int x = 0; x < width; x++)
 	{
@@ -50,8 +54,8 @@ void GraphicsManagerClass::Init(int width, int height)
 	mTexture.create(width, height);
 	mImage.create(width, height, sf::Color::Black);
 #ifdef MULTITHREAD
-	mBatchSize.x = mWidth / 10;
-	mBatchSize.y = mHeight / 10;
+	mBatchSize.x = mWidth / ThreadPool.ThreadCount();
+	mBatchSize.y = mHeight / ThreadPool.ThreadCount();
 #endif // MULTITHREAD
 
 }
@@ -142,8 +146,7 @@ void GraphicsManagerClass::BatchedRender()
 		{
 			int startX = x * mBatchSize.x;
 			int startY = y * mBatchSize.y;
-			//auto fn = [=](int, int, int, int) {GraphicsManager.Render(startX, startY, startX + mBatchSize.x, startY + mBatchSize.y); }
-			ThreadPool.Submit(&GraphicsManagerClass::Render, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
+			ThreadPool.Submit(&GraphicsManagerClass::RenderBatch, &GetInstance(),startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
 		}
 	}
 

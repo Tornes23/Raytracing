@@ -16,10 +16,10 @@ int main(int argc, char ** argv)
 {
     const int WIDTH  = 500;
     const int HEIGHT = 500;
-    GraphicsManager.Init(WIDTH, HEIGHT);
 #ifdef MULTITHREAD
     ThreadPool.Init();
 #endif // MULTITHREAD
+    GraphicsManager.Init(WIDTH, HEIGHT);
 
 
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
@@ -71,10 +71,8 @@ int main(int argc, char ** argv)
             SceneManager.PrevScene();
 
 #ifdef MULTITHREAD
-
         //each thread will take care of the rendering of each batch
         GraphicsManager.BatchedRender();
-        
 #else
         GraphicsManager.Render();
 #endif // MULTITHREAD

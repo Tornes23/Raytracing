@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <future>
 #include <memory>
 #include <vector>
 #include <string>
@@ -28,11 +29,11 @@ public:
 	glm::vec3 GetPixelWorld(const glm::vec2& ndc, bool one_cam = true);
 	glm::vec3 GetCameraPos(int index = 0);
 	Camera GetCamera(int index = 0);
-	Color GetAmbient(int index  = 0);
+	Color GetAmbient(int index = 0);
 	sf::Image& GetImage();
 	sf::Sprite& GetSprite();
 	sf::Texture& GetTexture();
-	
+
 	bool RenderNormals();
 
 	void SetWidth(int width);
@@ -42,7 +43,9 @@ public:
 	void ToggleRenderNormals();
 
 	void Render();
-	void Render(int startX, int startY, int width, int height);
+	void RenderBatch(int startX, int startY, int width, int height);
+
+
 
 #ifdef MULTITHREAD
 	glm::ivec2 GetBatchSize();
