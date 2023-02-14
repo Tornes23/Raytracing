@@ -80,7 +80,7 @@ private:
 	sf::Sprite  mSprite;
 
 #ifdef MULTITHREAD
-	glm::ivec2 mBatchSize{10,10};
+	glm::ivec2 mBatchSize{250,250};
 #endif // MULTITHREAD
 
 };

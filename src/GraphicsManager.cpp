@@ -54,8 +54,8 @@ void GraphicsManagerClass::Init(int width, int height)
 	mTexture.create(width, height);
 	mImage.create(width, height, sf::Color::Black);
 #ifdef MULTITHREAD
-	mBatchSize.x = mWidth / ThreadPool.ThreadCount();
-	mBatchSize.y = mHeight / ThreadPool.ThreadCount();
+	//mBatchSize.x = std::ceil(mWidth / ThreadPool.ThreadCount()) + 1;
+	//mBatchSize.y = std::ceil(mHeight / ThreadPool.ThreadCount()) + 1;
 #endif // MULTITHREAD
 
 }
@@ -139,10 +139,12 @@ glm::ivec2 GraphicsManagerClass::GetBatchSize() { return mBatchSize; }
 
 void GraphicsManagerClass::BatchedRender()
 {
+	int xBatches = mWidth / mBatchSize.x;
+	int yBatches = mHeight / mBatchSize.y;
 	//for each thread call render for the wanted coords
-	for (int x = 0; x < mBatchSize.x; x++)
+	for (int x = 0; x < xBatches; x++)
 	{
-		for (int y = 0; y < mBatchSize.y; y++)
+		for (int y = 0; y < yBatches; y++)
 		{
 			int startX = x * mBatchSize.x;
 			int startY = y * mBatchSize.y;

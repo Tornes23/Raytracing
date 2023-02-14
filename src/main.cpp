@@ -52,7 +52,13 @@ int main(int argc, char ** argv)
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
+            {
                 window.close();
+#ifdef MULTITHREAD
+                ThreadPool.ShutDown();
+#endif // MULTITHREAD
+
+            }
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
