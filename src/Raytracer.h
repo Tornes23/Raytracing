@@ -8,6 +8,7 @@ class RayTracer
 public:
 
 	ContactInfo CastRay(const Ray& ray, std::vector<Object>& objs);
+	ContactInfo RayPath(const Ray& ray, std::vector<Object>& objs, int _bounce);
 	void SetBounces(int bounces = 1);
 	void SetSamples(int samples = 1);
 
@@ -32,6 +33,7 @@ private:
 	RayTracer() {}
 	int mBounces = 1;
 	int mSamples = 1;
+	float mEpsilon = 0.01F;
 };
 
 #define Raytracer (RayTracer::GetInstance())

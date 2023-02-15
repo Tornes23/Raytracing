@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include "Color.h"
+
 struct Mesh;
 
 struct ContactInfo
@@ -28,28 +29,7 @@ struct Geometry
     virtual ~Geometry() { mModel.reset(); }
     Geometry(std::shared_ptr<Mesh> model = nullptr) : mModel(model) {}
     virtual bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info) = 0;
-	std::shared_ptr<Mesh> mModel;
-};
-
-struct Segment
-{
-    //constructor
-    Segment(const glm::vec3& p0, const glm::vec3& p1) : mP0(p0), mP1(p1) {}
-
-    glm::vec3 mP0;
-    glm::vec3 mP1;
-};
-
-struct Plane : Geometry
-{
-    //constructor
-    Plane(const glm::vec3& norm = glm::vec3(0.0F)) : mNormal(norm) {}
-    bool CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2& interval);
-    bool CheckIntersection(const Ray& ray, const glm::vec3& point, ContactInfo& info);
-
-    //necessary data
-    glm::vec3 mNormal;
-
+    std::shared_ptr<Mesh> mModel;
 };
 
 struct Triangle : Geometry
@@ -64,6 +44,53 @@ struct Triangle : Geometry
     glm::vec3 mV2;
 };
 
+struct Mesh
+{
+    Mesh(const std::string& obj);
+    //Mesh(const std::string& gltf);
+    std::vector<Triangle> mTriangles;
+};
+
+struct Segment
+{
+    //constructor
+    Segment(const glm::vec3& p0, const glm::vec3& p1) : mP0(p0), mP1(p1) {}
+
+    glm::vec3 mP0;
+    glm::vec3 mP1;
+};
+
+struct Polygon : Geometry
+{
+    //constructor
+    Polygon(const char** info = nullptr);
+    bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info);
+    std::vector<glm::vec3> mVertices;
+    std::vector<Triangle> mTriangles;
+};
+
+
+struct Model : Geometry
+{
+    //constructor
+    Model(const char** info = nullptr);
+    bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info);
+
+};
+
+
+struct Plane : Geometry
+{
+    //constructor
+    Plane(const glm::vec3& norm = glm::vec3(0.0F)) : mNormal(norm) {}
+    bool CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2& interval);
+    bool CheckIntersection(const Ray& ray, const glm::vec3& point, ContactInfo& info);
+
+    //necessary data
+    glm::vec3 mNormal;
+
+};
+
 struct AABB : Geometry
 {
     //constructor
@@ -74,9 +101,6 @@ struct AABB : Geometry
 
     //necessary data
     std::vector<glm::vec3> mVectors;
-    // 0 is mWidth;
-    // 1 is mHeight;
-    // 2 is mLength;
 };
 
 struct Sphere : Geometry

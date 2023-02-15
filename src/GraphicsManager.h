@@ -24,6 +24,7 @@ public:
 	void CreateLight(const char* info);
 	void ParseAmbient(const char* info);
 	void GetScreenshot(std::string name);
+	void AddLight(const Light& light);
 
 	glm::vec2 GetNDC(const glm::vec2& xy);
 	glm::vec3 GetPixelWorld(const glm::vec2& ndc, bool one_cam = true);
@@ -33,6 +34,7 @@ public:
 	sf::Image& GetImage();
 	sf::Sprite& GetSprite();
 	sf::Texture& GetTexture();
+	std::vector<Light>& GetLights();
 
 	bool RenderNormals();
 
@@ -72,7 +74,7 @@ private:
 	int mWidth = 0;
 	int mHeight = 0;
 	float mAspectRatio = 0.0F;
-	float mRenderNormals = true;
+	float mRenderNormals = false;
 	FrameBuffer mFrameBuffer;
 
 	sf::Image   mImage;
@@ -80,7 +82,7 @@ private:
 	sf::Sprite  mSprite;
 
 #ifdef MULTITHREAD
-	glm::ivec2 mBatchSize{250,250};
+	glm::ivec2 mBatchSize{50,50};
 #endif // MULTITHREAD
 
 };

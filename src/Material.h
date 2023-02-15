@@ -5,8 +5,9 @@
 
 struct Material
 {
-	Material(Color diffuse = Color::White) : mDiffuse(diffuse) {}
+	Material(Color diffuse = Color::White) : mDiffuse(diffuse), mRoughness(1.0F){}
 	void ParseData(std::ifstream& file);
 
 	Color mDiffuse;
+	float mRoughness;
 };

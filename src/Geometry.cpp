@@ -1,4 +1,5 @@
 #include <iostream>
+#include <TinyOBJ/tiny_obj_loader.h>
 #include <glm/gtx/transform.hpp>
 #include "Geometry.h"
 #include "Utils.h"
@@ -190,4 +191,45 @@ Ray::Ray(const glm::vec3& p0, const glm::vec3& vec)
 {
 	mP0 = p0;
 	mV = glm::normalize(vec);
+}
+
+Polygon::Polygon(const char** info)
+{
+	int vertices = Utils::GetInt(info);
+
+	mVertices.resize(vertices);
+	for (int i = 0; i < vertices; i++)
+		mVertices[i] = Utils::GetVector(info);
+
+	//triangulate
+}
+
+bool Polygon::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
+{
+	return false;
+}
+
+Model::Model(const char** info)
+{
+	std::string file = *info;
+	mModel = std::make_shared<Mesh>(Mesh(file));
+}
+
+bool Model::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
+{
+	return false;
+}
+
+Mesh::Mesh(const std::string& obj)
+{
+	tinyobj::attrib_t attrib;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+
+	std::string warn;
+	std::string err;
+
+	//bool valid = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, obj.c_str());
+
+	//triangulate
 }

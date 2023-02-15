@@ -21,6 +21,11 @@ void Material::ParseData(std::ifstream& file)
             const char* info = vector.data();
             if (type.compare("DIFFUSE") == 0)
                 mDiffuse = Color(Utils::GetVector(&info));
+            if (type.compare("METAl") == 0)
+            {
+                mDiffuse = Color(Utils::GetVector(&info));
+                mRoughness = Utils::GetFloat(&info);
+            }
         }
 
     } while (!file.eof());

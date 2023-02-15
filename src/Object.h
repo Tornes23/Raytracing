@@ -3,6 +3,7 @@
 #include <string>
 #include <glm/vec3.hpp>
 
+#include "Light.h"
 #include "Material.h"
 #include "Geometry.h"
 
@@ -12,6 +13,7 @@ enum class GeometryTypes
 	Plane,
 	AABB,
 	Sphere,
+	Polygon,
 	Model
 };
 
@@ -20,11 +22,14 @@ struct Object
 {
 	Object(const char* info = nullptr, GeometryTypes type = GeometryTypes::AABB);
 	Object(const Object& obj);
+	Object(const Light& light);
 	bool CheckIntersection(const Ray& ray, ContactInfo& info);
+	bool CheckRayPath(const Ray& ray, ContactInfo& info);
 	void Destroy();
 	glm::vec3 mPos{0.0F, 0.0F, 0.0F};
 
 	//the corresponding Geometry
 	Geometry* mModel = nullptr;
 	Material mMaterial;
+	bool mbLight = false;
 };

@@ -56,6 +56,10 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
                             objects.push_back(Object(line.substr(found + 1u).c_str(), GeometryTypes::Sphere));
                         if (type.compare("BOX") == 0)
                             objects.push_back(Object(line.substr(found + 1u).c_str(), GeometryTypes::AABB));
+                        if (type.compare("POLYGON") == 0)
+                            objects.push_back(Object(line.substr(found + 1u).c_str(), GeometryTypes::Polygon));
+                        if (type.compare("MESH") == 0)
+                            objects.push_back(Object(line.substr(found + 1u).c_str(), GeometryTypes::Model));
 
                         objects.back().mMaterial.ParseData(inFile);
                     }
@@ -65,6 +69,9 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
             }
         }
     }
+    
+    for (auto obj : GraphicsManager.GetLights())
+        objects.push_back(Object(obj));
 
     mScenes.push_back(new Scene(objects, Utils::GetFilename(to_load)));
     //closing the file

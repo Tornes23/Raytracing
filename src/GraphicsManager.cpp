@@ -14,22 +14,24 @@ void GraphicsManagerClass::Render() { RenderBatch(0, 0, mWidth, mHeight); }
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int height)
 {
-	for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
+	int x = 242;
+	int y = 222;
+	//for (int x = 0; x < width; x++)
+	//{
+	//	for (int y = 0; y < height; y++)
+	//	{
 			glm::vec2 ndc = GetNDC({ x,y });
 			glm::vec3 pixelworld = GetPixelWorld(ndc);
 			glm::vec3 camPos = GetCameraPos();
 			Ray ray(camPos, glm::normalize(pixelworld - camPos));
 			Scene* scene = SceneManager.GetScene();
-
+			Color ambient = GetAmbient(SceneManager.GetDisplayScene());
 			ContactInfo info = Raytracer.CastRay(ray, scene->mObjects);
 			if (info.mTI >= 0.0f)
 			{
 				if (mRenderNormals)
 				{
-					Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * GetAmbient(SceneManager.GetDisplayScene()));
+					Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * ambient);
 					mFrameBuffer.SetPixel(x, y, result.mR, result.mG, result.mB);
 				}
 				else
@@ -38,8 +40,10 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 					mFrameBuffer.SetPixel(x, y, result.mR, result.mG, result.mB);
 				}
 			}
-		}
-	}
+			else
+				mFrameBuffer.SetPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
+	//	}
+	//}
 }
 
 
@@ -70,6 +74,7 @@ void GraphicsManagerClass::CreateCamera(const char* info){ mCameras.push_back(Ca
 void GraphicsManagerClass::CreateLight(const char* info){ mLights.push_back(Light(info));}
 void GraphicsManagerClass::ParseAmbient(const char* info){ mAmbientLights.push_back(Color(Utils::GetVector(&info))); }
 void GraphicsManagerClass::GetScreenshot(std::string name) { mImage.saveToFile(name); }
+void GraphicsManagerClass::AddLight(const Light& light) { mLights.push_back(light); }
 glm::vec2 GraphicsManagerClass::GetNDC(const glm::vec2& xy)
 {
 	float x = ((xy.x + 0.5F) - (mWidth / 2.0F)) / (mWidth / 2.0F);
@@ -125,6 +130,7 @@ Color GraphicsManagerClass::GetAmbient(int index)
 sf::Image& GraphicsManagerClass::GetImage() { return mImage; }
 sf::Sprite& GraphicsManagerClass::GetSprite() { return mSprite; }
 sf::Texture& GraphicsManagerClass::GetTexture() { return mTexture; }
+std::vector<Light>& GraphicsManagerClass::GetLights() { return mLights; }
 
 bool GraphicsManagerClass::RenderNormals(){ return mRenderNormals; }
 void GraphicsManagerClass::SetWidth(int width) { mWidth = width; }

@@ -8,5 +8,5 @@ Light::Light(const char* info)
 
 	mPos = Utils::GetVector(&info);
 	mRadius = Utils::GetFloat(&info);
-	mIntensity= Utils::GetVector(&info);
+	mColor = Utils::GetVector(&info);
 }

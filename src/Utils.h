@@ -6,7 +6,10 @@ namespace Utils
 {
 	glm::vec3 GetVector(const char** info);
 	float GetFloat(const char** info);
+	int GetInt (const char** info);
+	std::string GetFile(const char** info);
 	std::string GetFilename(const std::string& path);
 	void LoadConfig(const std::string& path);
+	glm::vec3 GetRandomVector();
 
 }
