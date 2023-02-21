@@ -233,3 +233,5 @@ Mesh::Mesh(const std::string& obj)
 
 	//triangulate
 }
+
+bool ContactInfo::IsValid() { return (mT0 >= 0.0F && mT1 >= 0.0F && mTI >= 0.0F); }

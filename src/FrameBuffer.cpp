@@ -1,9 +1,5 @@
 #include "FrameBuffer.h"
 
-int             FrameBuffer::width     = 0;
-int             FrameBuffer::height    = 0;
-unsigned char * FrameBuffer::imageData = nullptr;
-
 void FrameBuffer::Init(int w, int h)
 {
     width     = w;
@@ -37,6 +33,29 @@ void FrameBuffer::SetPixel(int x, int y, unsigned char r, unsigned char g, unsig
         imageData[(y * width + x) * 3 + 0] = r;
         imageData[(y * width + x) * 3 + 1] = g;
         imageData[(y * width + x) * 3 + 2] = b;
+    }
+}
+
+void FrameBuffer::AddToPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b)
+{
+    if (x >= 0 && y >= 0 && x < width && y < height)
+    {
+        imageData[(y * width + x) * 3 + 0] += r;
+        imageData[(y * width + x) * 3 + 1] += g;
+        imageData[(y * width + x) * 3 + 2] += b;
+    }
+}
+
+void FrameBuffer::Normalize(int startX, int startY, int endX, int endY, int factor)
+{
+    for (int x = startX; x < endX; x++)
+    {
+        for (int y = startY; y < endY; y++)
+        {
+            imageData[(y * width + x) * 3 + 0] /= factor;
+            imageData[(y * width + x) * 3 + 1] /= factor;
+            imageData[(y * width + x) * 3 + 2] /= factor;
+        }
     }
 }
 

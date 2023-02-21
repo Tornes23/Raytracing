@@ -4,51 +4,78 @@
 #include "Raytracer.h"
 #include "Utils.h"
 
-ContactInfo RayTracer::CastRay(const Ray& ray, std::vector<Object>& objs)
+ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
 {
-    ContactInfo result = RayPath(ray, objs, 0);
- 
+    ContactInfo result;
+
+    ContactInfo info = RayCast(ray, objs);
+
+    if (info.mbWithLight) {
+        result.mTI = 1.0F;
+        result.mColor = info.mColor;
+        return result;
+    }
+
+    if (info.IsValid()) {
+        result = info;
+        result.mColor = BounceRay(ComputeBounceRay(info.mNormal, info.mContact), objs, 1).mColor;
+    }
+            
     return result;
 }
 
-ContactInfo RayTracer::RayPath(const Ray& ray, std::vector<Object>& objs, int _bounce)
+ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs)
 {
-    ContactInfo info;
-    if (_bounce > mBounces) {
-        return info;
-    }
     ContactInfo minInfo;
-    minInfo.mT0 = std::numeric_limits<float>::max();
+    minInfo.mTI = std::numeric_limits<float>::max();
+    int minIndex = -1;
 
     for (int i = 0; i < objs.size(); i++)
     {
+        ContactInfo info;
         bool intersected = objs[i].CheckIntersection(ray, info);
 
         if (intersected)
         {
-            if (info.mTI < minInfo.mTI)
+            if (info.mTI < minInfo.mTI){
                 minInfo = info;
-
-            if (objs[i].mbLight)
-            {
-                minInfo.mColor = minInfo.mColor * objs[i].mMaterial.mDiffuse;
-                return minInfo;
+                minIndex = i;
             }
-
-            Ray bounce(info.mContact + mEpsilon, info.mNormal + Utils::GetRandomVector());
-            ContactInfo recur = RayPath(bounce, objs, _bounce + 1);
         }
+    }
+
+    if (minIndex >= 0 && objs[minIndex].mbLight) {
+        minInfo.mColor = objs[minIndex].mMaterial.mDiffuse;
+        minInfo.mbWithLight = true;
     }
 
     return minInfo;
 }
 
+ContactInfo RayTracer::BounceRay(const Ray& ray, std::vector<Object>& objs, int bounce){
 
+    ContactInfo result;
+    if (bounce > mBounces) return result;
+
+    ContactInfo info = RayCast(ray, objs);
+
+    if (info.mbWithLight) {
+        result.mTI = 1.0F;
+        result.mColor = result.mColor * info.mColor;
+        return result;
+    }
+
+    if (info.IsValid()) {
+        result = info;
+        result.mColor = result.mColor * BounceRay(ComputeBounceRay(info.mNormal, info.mContact), objs, bounce + 1).mColor;
+    }
+
+    return result;
+}
+
+Ray RayTracer::ComputeBounceRay(const glm::vec3& normal, const glm::vec3& contact) { return Ray(contact + mEpsilon, normal + Utils::GetRandomVector()); }
 void RayTracer::SetBounces(int bounces) { mBounces = bounces; }
-void RayTracer::SetSamples(int samples) { mSamples = samples; }
-
 int RayTracer::GetBounces() { return mBounces; }
-int RayTracer::GetSamples() { return mSamples; }
 
 #ifdef MULTITHREAD
 

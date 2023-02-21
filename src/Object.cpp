@@ -42,7 +42,7 @@ Object::Object(const Object& obj)
 	mPos = obj.mPos;
 	mModel = obj.mModel;
 	mMaterial = obj.mMaterial;
-	mbLight = false;
+	mbLight = obj.mbLight;
 }
 
 Object::Object(const Light& light)

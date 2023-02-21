@@ -18,7 +18,9 @@ class GraphicsManagerClass
 {
 public:
 	void Init(int width, int height);
+	void ShutDown();
 	void Update();
+	void Clear();
 
 	void CreateCamera(const char* info);
 	void CreateLight(const char* info);
@@ -31,18 +33,21 @@ public:
 	glm::vec3 GetCameraPos(int index = 0);
 	Camera GetCamera(int index = 0);
 	Color GetAmbient(int index = 0);
-	sf::Image& GetImage();
-	sf::Sprite& GetSprite();
-	sf::Texture& GetTexture();
+	const sf::Image& GetImage();
+	const sf::Sprite& GetSprite();
+	const sf::Texture& GetTexture();
+	const FrameBuffer& GetFrameBuffer();
 	std::vector<Light>& GetLights();
 
 	bool RenderNormals();
+	int GetSampleCount();
 
 	void SetWidth(int width);
 	void SetHeight(int height);
 	void SetAspectRatio(float ratio);
 	void SetRenderNormals(bool render);
 	void ToggleRenderNormals();
+	void SetSamples(int count = 1);
 
 	void Render();
 	void RenderBatch(int startX, int startY, int width, int height);
@@ -80,6 +85,7 @@ private:
 	sf::Image   mImage;
 	sf::Texture mTexture;
 	sf::Sprite  mSprite;
+	int  mSamples = 1;
 
 #ifdef MULTITHREAD
 	glm::ivec2 mBatchSize{50,50};

@@ -26,7 +26,7 @@ int main(int argc, char ** argv)
 
     std::string inputDirectory= "./scenes/";
     std::string inputFile = "input.txt";
-    std::string screenshotName = "screenshot.png";
+    std::string screenshotName = "vergasos.png";
     bool        takeScreenshot = false;
 
     if (argc > 1)
@@ -91,8 +91,6 @@ int main(int argc, char ** argv)
             takeScreenshot = true;
 		
         // Show image on screen
-        FrameBuffer::ConvertFrameBufferToSFMLImage(GraphicsManager.GetImage());
-
         GraphicsManager.Update();
         window.draw(GraphicsManager.GetSprite());
         window.display();
@@ -111,6 +109,9 @@ int main(int argc, char ** argv)
             takeScreenshot = false;
         }
     }
+
+    GraphicsManager.ShutDown();
+    SceneManager.FreeScenes();
 
     return 0;
 }

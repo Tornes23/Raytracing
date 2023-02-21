@@ -10,40 +10,46 @@
 #endif // MULTITHREAD
 
 
-void GraphicsManagerClass::Render() { RenderBatch(0, 0, mWidth, mHeight); }
+void GraphicsManagerClass::Render() { RenderBatch(0, 0, mWidth, mHeight); mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSamples); }
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int height)
 {
-	int x = 242;
-	int y = 222;
-	//for (int x = 0; x < width; x++)
-	//{
-	//	for (int y = 0; y < height; y++)
-	//	{
+	//int x = 248;
+	//int y = 217;
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
 			glm::vec2 ndc = GetNDC({ x,y });
 			glm::vec3 pixelworld = GetPixelWorld(ndc);
 			glm::vec3 camPos = GetCameraPos();
 			Ray ray(camPos, glm::normalize(pixelworld - camPos));
 			Scene* scene = SceneManager.GetScene();
 			Color ambient = GetAmbient(SceneManager.GetDisplayScene());
-			ContactInfo info = Raytracer.CastRay(ray, scene->mObjects);
-			if (info.mTI >= 0.0f)
+
+			for (int k = 0; k < mSamples; k++)
 			{
-				if (mRenderNormals)
+				ContactInfo info = Raytracer.Cast(ray, scene->mObjects);
+				if (info.IsValid())
 				{
-					Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * ambient);
-					mFrameBuffer.SetPixel(x, y, result.mR, result.mG, result.mB);
+					if (mRenderNormals)
+					{
+						Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * ambient);
+						mFrameBuffer.AddToPixel(x, y, result.mR, result.mG, result.mB);
+					}
+					else
+					{
+						//Color result = info.mColor * GetAmbient();
+						Color result = info.mColor;
+						mFrameBuffer.AddToPixel(x, y, result.mR, result.mG, result.mB);
+					}
 				}
 				else
-				{
-					Color result = info.mColor * GetAmbient();
-					mFrameBuffer.SetPixel(x, y, result.mR, result.mG, result.mB);
-				}
+					mFrameBuffer.AddToPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
 			}
-			else
-				mFrameBuffer.SetPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
-	//	}
-	//}
+
+		}
+	}
 }
 
 
@@ -64,11 +70,19 @@ void GraphicsManagerClass::Init(int width, int height)
 
 }
 
+void GraphicsManagerClass::ShutDown()
+{
+	mFrameBuffer.Free();
+}
+
 void GraphicsManagerClass::Update()
 {
+	mFrameBuffer.ConvertFrameBufferToSFMLImage(mImage);
 	mTexture.update(mImage);
 	mSprite.setTexture(mTexture);
 }
+
+void GraphicsManagerClass::Clear() { mFrameBuffer.Clear(0, 0, 0); }
 
 void GraphicsManagerClass::CreateCamera(const char* info){ mCameras.push_back(Camera(info)); }
 void GraphicsManagerClass::CreateLight(const char* info){ mLights.push_back(Light(info));}
@@ -127,15 +141,18 @@ Color GraphicsManagerClass::GetAmbient(int index)
 	return mAmbientLights[index];
 }
 
-sf::Image& GraphicsManagerClass::GetImage() { return mImage; }
-sf::Sprite& GraphicsManagerClass::GetSprite() { return mSprite; }
-sf::Texture& GraphicsManagerClass::GetTexture() { return mTexture; }
+const FrameBuffer& GraphicsManagerClass::GetFrameBuffer() { return mFrameBuffer; }
+const sf::Image& GraphicsManagerClass::GetImage() { return mImage; }
+const sf::Sprite& GraphicsManagerClass::GetSprite() { return mSprite; }
+const sf::Texture& GraphicsManagerClass::GetTexture() { return mTexture; }
 std::vector<Light>& GraphicsManagerClass::GetLights() { return mLights; }
 
 bool GraphicsManagerClass::RenderNormals(){ return mRenderNormals; }
+int GraphicsManagerClass::GetSampleCount() { return mSamples; }
 void GraphicsManagerClass::SetWidth(int width) { mWidth = width; }
 void GraphicsManagerClass::SetRenderNormals(bool render) { mRenderNormals = render; }
 void GraphicsManagerClass::ToggleRenderNormals() { mRenderNormals = !mRenderNormals; }
+void GraphicsManagerClass::SetSamples(int count) { mSamples = count; }
 void GraphicsManagerClass::SetHeight(int height) { mHeight = height; }
 void GraphicsManagerClass::SetAspectRatio(float ratio) { mAspectRatio = ratio;  }
 
@@ -157,6 +174,8 @@ void GraphicsManagerClass::BatchedRender()
 			ThreadPool.Submit(&GraphicsManagerClass::RenderBatch, &GetInstance(),startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
 		}
 	}
+
+	mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSamples);
 
 }
 #endif // MULTITHREAD

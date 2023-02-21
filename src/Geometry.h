@@ -14,7 +14,9 @@ struct ContactInfo
     float mT0 = -1.0F;
     float mT1 = -1.0F;
     float mTI = -1.0F;
+    bool mbWithLight = false;
     Color mColor = Color::White;
+    bool IsValid();
 };
 
 struct Ray

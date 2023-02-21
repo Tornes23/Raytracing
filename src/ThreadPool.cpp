@@ -1,5 +1,6 @@
 #ifdef MULTITHREAD
 #include "ThreadPool.h"
+#include <Windows.h>
 #include <iostream>
 
 void ThreadPoolClass::Init() {
@@ -32,11 +33,12 @@ void Worker::operator()()
 	std::function<void()> func;
 	bool dequeued;
 	while (!ThreadPool.mbShutDown) {
+		
+		while (ThreadPool.mQueue.Empty()) {
+			Sleep(50);
+		}
 		{
 			std::unique_lock<std::mutex> lock(ThreadPool.mConditionalMutex);
-			if (ThreadPool.mQueue.Empty()) {
-				ThreadPool.mConditionalLock.wait(lock);
-			}
 			dequeued = ThreadPool.mQueue.Dequeue(func);
 		}
 		if (dequeued) {

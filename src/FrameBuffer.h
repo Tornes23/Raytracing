@@ -4,19 +4,21 @@
 class FrameBuffer
 {
   public:
-    static void Init(int w, int h);
-    static void Free();
+    void Init(int w, int h);
+    void Free();
 
-    static void Clear(unsigned char r = 0, unsigned char g = 0, unsigned char b = 0);
-    static void SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b);
-    static void GetPixel(int x, int y, unsigned char & r, unsigned char & g, unsigned char & b);
-    static int  GetWidth() { return width; }
-    static int  GetHeight() { return height; }
+    void Clear(unsigned char r = 0, unsigned char g = 0, unsigned char b = 0);
+    void SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b);
+    void AddToPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b);
+    void Normalize(int startX, int startY, int endX, int endY, int factor);
+    void GetPixel(int x, int y, unsigned char & r, unsigned char & g, unsigned char & b);
+    int  GetWidth() { return width; }
+    int  GetHeight() { return height; }
 
-    static void ConvertFrameBufferToSFMLImage(sf::Image & image);
+    void ConvertFrameBufferToSFMLImage(sf::Image & image);
 
   private:
-    static int             width;
-    static int             height;
-    static unsigned char * imageData;
+    int             width;
+    int             height;
+    unsigned char * imageData;
 };

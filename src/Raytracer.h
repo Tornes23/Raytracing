@@ -7,13 +7,14 @@ class RayTracer
 {
 public:
 
-	ContactInfo CastRay(const Ray& ray, std::vector<Object>& objs);
-	ContactInfo RayPath(const Ray& ray, std::vector<Object>& objs, int _bounce);
+	ContactInfo Cast(const Ray& ray, std::vector<Object>& objs);
+	ContactInfo RayCast(const Ray& ray, std::vector<Object>& objs);
+	ContactInfo BounceRay(const Ray& ray, std::vector<Object>& objs, int bounce);
+	Ray ComputeBounceRay(const glm::vec3& normal, const glm::vec3& contact);
+
 	void SetBounces(int bounces = 1);
-	void SetSamples(int samples = 1);
 
 	int GetBounces();
-	int GetSamples();
 
 #ifdef MULTITHREAD
 	Ray GetRayForPixel(int x, int y);
@@ -32,7 +33,6 @@ public:
 private:
 	RayTracer() {}
 	int mBounces = 1;
-	int mSamples = 1;
 	float mEpsilon = 0.01F;
 };
 
