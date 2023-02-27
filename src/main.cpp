@@ -94,7 +94,7 @@ int main(int argc, char ** argv)
         GraphicsManager.Update();
         window.draw(GraphicsManager.GetSprite());
         window.display();
-		
+        GraphicsManager.Clear();
         if (reload)
         {
             SceneManager.FreeScenes();

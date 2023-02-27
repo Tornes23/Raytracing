@@ -20,12 +20,13 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 	{
 		for (int y = 0; y < height; y++)
 		{
+			int currScene = SceneManager.GetDisplayScene();
 			glm::vec2 ndc = GetNDC({ x,y });
 			glm::vec3 pixelworld = GetPixelWorld(ndc);
-			glm::vec3 camPos = GetCameraPos();
+			glm::vec3 camPos = GetCameraPos(currScene);
 			Ray ray(camPos, glm::normalize(pixelworld - camPos));
 			Scene* scene = SceneManager.GetScene();
-			Color ambient = GetAmbient(SceneManager.GetDisplayScene());
+			Color ambient = GetAmbient(currScene);
 
 			for (int k = 0; k < mSamples; k++)
 			{
@@ -45,9 +46,9 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 					}
 				}
 				else
-					mFrameBuffer.AddToPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
+					mFrameBuffer.SetPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
 			}
-
+		
 		}
 	}
 }
@@ -104,11 +105,12 @@ glm::vec3 GraphicsManagerClass::GetPixelWorld(const glm::vec2& ndc, bool one_cam
 		return glm::vec3(0.0F);
 	}
 
-	glm::vec3 pixel = mCameras[0].mPos;
+	int currScene = SceneManager.GetDisplayScene();
+	glm::vec3 pixel = mCameras[currScene].mPos;
 
-	pixel += mCameras[0].mFocal * glm::normalize(mCameras[0].mTarget - mCameras[0].mPos)
-		  + ndc.x * (mCameras[0].mRight / 2.0F) 
-		  + ndc.y * (mCameras[0].mUp / (2.0F * mAspectRatio));
+	pixel += mCameras[currScene].mFocal * glm::normalize(mCameras[currScene].mTarget - mCameras[currScene].mPos)
+		  + ndc.x * (mCameras[currScene].mRight / 2.0F) 
+		  + ndc.y * (mCameras[currScene].mUp / (2.0F * mAspectRatio));
 
 	return pixel;
 }
@@ -175,6 +177,7 @@ void GraphicsManagerClass::BatchedRender()
 		}
 	}
 
+	//need to make all threads wait here so clear works and doesn't end up adding to white
 	mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSamples);
 
 }

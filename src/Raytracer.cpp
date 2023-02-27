@@ -8,9 +8,11 @@ ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
 {
     ContactInfo result;
 
-    ContactInfo info = RayCast(ray, objs);
+    ContactInfo info = FindClosestObj(ray, objs);
 
     if (info.mbWithLight) {
+        result.mT0 = 1.0F;
+        result.mT1 = 1.0F;
         result.mTI = 1.0F;
         result.mColor = info.mColor;
         return result;
@@ -18,13 +20,13 @@ ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
 
     if (info.IsValid()) {
         result = info;
-        result.mColor = BounceRay(ComputeBounceRay(info.mNormal, info.mContact), objs, 1).mColor;
+        result.mColor = result.mColor * RayCast(ComputeBounceRay(info.mNormal, info.mContact), objs, 1).mColor;
     }
             
     return result;
 }
 
-ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs)
+ContactInfo RayTracer::FindClosestObj(const Ray& ray, std::vector<Object>& objs)
 {
     ContactInfo minInfo;
     minInfo.mTI = std::numeric_limits<float>::max();
@@ -52,22 +54,22 @@ ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs)
     return minInfo;
 }
 
-ContactInfo RayTracer::BounceRay(const Ray& ray, std::vector<Object>& objs, int bounce){
+ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs, int bounce){
 
     ContactInfo result;
     if (bounce > mBounces) return result;
 
-    ContactInfo info = RayCast(ray, objs);
+    ContactInfo info = FindClosestObj(ray, objs);
 
     if (info.mbWithLight) {
         result.mTI = 1.0F;
-        result.mColor = result.mColor * info.mColor;
+        result.mColor = Color::White;
         return result;
     }
 
     if (info.IsValid()) {
         result = info;
-        result.mColor = result.mColor * BounceRay(ComputeBounceRay(info.mNormal, info.mContact), objs, bounce + 1).mColor;
+        result.mColor = result.mColor * RayCast(ComputeBounceRay(info.mNormal, info.mContact), objs, bounce + 1).mColor;
     }
 
     return result;

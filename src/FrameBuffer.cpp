@@ -1,3 +1,4 @@
+#include <glm/glm.hpp>
 #include "FrameBuffer.h"
 
 void FrameBuffer::Init(int w, int h)
@@ -6,6 +7,7 @@ void FrameBuffer::Init(int w, int h)
     height    = h;
     int size  = 3 * width * height;
     imageData = new unsigned char[size];
+    Clear(0, 0, 0);
 }
 
 void FrameBuffer::Free()
@@ -40,9 +42,9 @@ void FrameBuffer::AddToPixel(int x, int y, unsigned char r, unsigned char g, uns
 {
     if (x >= 0 && y >= 0 && x < width && y < height)
     {
-        imageData[(y * width + x) * 3 + 0] += r;
-        imageData[(y * width + x) * 3 + 1] += g;
-        imageData[(y * width + x) * 3 + 2] += b;
+        imageData[(y * width + x) * 3 + 0] = (unsigned char)glm::clamp<int>(imageData[(y * width + x) * 3 + 0] + r, 0, 255);
+        imageData[(y * width + x) * 3 + 1] = (unsigned char)glm::clamp<int>(imageData[(y * width + x) * 3 + 1] + g, 0, 255);
+        imageData[(y * width + x) * 3 + 2] = (unsigned char)glm::clamp<int>(imageData[(y * width + x) * 3 + 2] + b, 0, 255);
     }
 }
 

@@ -8,8 +8,8 @@ class RayTracer
 public:
 
 	ContactInfo Cast(const Ray& ray, std::vector<Object>& objs);
-	ContactInfo RayCast(const Ray& ray, std::vector<Object>& objs);
-	ContactInfo BounceRay(const Ray& ray, std::vector<Object>& objs, int bounce);
+	ContactInfo FindClosestObj(const Ray& ray, std::vector<Object>& objs);
+	ContactInfo RayCast(const Ray& ray, std::vector<Object>& objs, int bounce);
 	Ray ComputeBounceRay(const glm::vec3& normal, const glm::vec3& contact);
 
 	void SetBounces(int bounces = 1);
