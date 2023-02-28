@@ -55,12 +55,12 @@
     <Filter Include="Source Files\Multithreading\Queue">
       <UniqueIdentifier>{0b5e92b4-7b46-4bfd-b62f-8065ece53f2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GFX\FrameBuffer">
+      <UniqueIdentifier>{0b65a223-3326-4941-90e9-92ae8e08ee62}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FrameBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SceneManager.cpp">
@@ -99,11 +99,11 @@
     <ClCompile Include="src\ThreadPool.cpp">
       <Filter>Source Files\Multithreading\ThreadPool</Filter>
     </ClCompile>
+    <ClCompile Include="src\FrameBuffer.cpp">
+      <Filter>Source Files\GFX\FrameBuffer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\FrameBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Scene.h">
       <Filter>Source Files\Scene Manager\Scene</Filter>
     </ClInclude>
@@ -142,6 +142,9 @@
     </ClInclude>
     <ClInclude Include="src\TaskQueue.h">
       <Filter>Source Files\Multithreading\Queue</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FrameBuffer.h">
+      <Filter>Source Files\GFX\FrameBuffer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

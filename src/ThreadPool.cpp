@@ -5,6 +5,8 @@
 
 void ThreadPoolClass::Init() {
 
+	mGivenTasks = 0;
+	mFinishedTasks = 0;
 	int count = std::thread::hardware_concurrency() - 1;
 	mThreads = std::vector<std::thread>(count);
 	mbShutDown = false;
@@ -23,10 +25,30 @@ void ThreadPoolClass::ShutDown(){
 		if (mThreads[i].joinable()) mThreads[i].join();
 }
 
+void ThreadPoolClass::Wait()
+{
+	while (mFinishedTasks < mGivenTasks)
+		Sleep(10);
+}
+
+void ThreadPoolClass::AddTaskGiven(){ 
+	std::lock_guard<std::mutex> lock(mConditionalMutex);
+	mGivenTasks++; 
+}
+
+void ThreadPoolClass::AddTaskFinished() { 
+	std::lock_guard<std::mutex> lock(mConditionalMutex);
+	mFinishedTasks++; 
+}
+
+void ThreadPoolClass::ResetFinishedTasks() { mFinishedTasks = 0; }
+
+void ThreadPoolClass::SetTaskCount(int count) { mGivenTasks = count; }
+
 int ThreadPoolClass::ThreadCount() { return mThreads.size(); }
 
 
-Worker::Worker(const int id) : mID(id) { }
+Worker::Worker(const int id) : mID(id), mbWorking(false) { }
 
 void Worker::operator()()
 {
@@ -34,16 +56,22 @@ void Worker::operator()()
 	bool dequeued;
 	while (!ThreadPool.mbShutDown) {
 		
-		while (ThreadPool.mQueue.Empty()) {
-			Sleep(50);
-		}
 		{
 			std::unique_lock<std::mutex> lock(ThreadPool.mConditionalMutex);
+			mbWorking = false;
+
+			while (ThreadPool.mQueue.Empty()) {
+				ThreadPool.mConditionalLock.wait(lock);
+
+			}
 			dequeued = ThreadPool.mQueue.Dequeue(func);
+			mbWorking = true;
 		}
-		if (dequeued) {
-			func();
-		}
+
+			if (dequeued) {
+				ThreadPool.AddTaskGiven();
+				func();
+			}
 	}
 }
 

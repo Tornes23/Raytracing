@@ -28,26 +28,23 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 			Scene* scene = SceneManager.GetScene();
 			Color ambient = GetAmbient(currScene);
 
-			for (int k = 0; k < mSamples; k++)
+			ContactInfo info = Raytracer.Cast(ray, scene->mObjects);
+			if (info.IsValid())
 			{
-				ContactInfo info = Raytracer.Cast(ray, scene->mObjects);
-				if (info.IsValid())
+				if (mRenderNormals)
 				{
-					if (mRenderNormals)
-					{
-						Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * ambient);
-						mFrameBuffer.AddToPixel(x, y, result.mR, result.mG, result.mB);
-					}
-					else
-					{
-						//Color result = info.mColor * GetAmbient();
-						Color result = info.mColor;
-						mFrameBuffer.AddToPixel(x, y, result.mR, result.mG, result.mB);
-					}
+					Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * ambient);
+					mFrameBuffer.AddToPixel(x, y, result.mR, result.mG, result.mB);
 				}
 				else
-					mFrameBuffer.SetPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
+				{
+					//Color result = info.mColor * GetAmbient();
+					Color result = info.mColor;
+					mFrameBuffer.AddToPixel(x, y, result.mR, result.mG, result.mB);
+				}
 			}
+			else
+				mFrameBuffer.SetPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
 		
 		}
 	}
@@ -166,19 +163,40 @@ void GraphicsManagerClass::BatchedRender()
 {
 	int xBatches = mWidth / mBatchSize.x;
 	int yBatches = mHeight / mBatchSize.y;
+
+	ThreadPool.SetTaskCount(mSamples * xBatches * yBatches);
+
 	//for each thread call render for the wanted coords
+	for (int s = 0; s < mSamples; s++) {
+
+		for (int x = 0; x < xBatches; x++)
+		{
+			for (int y = 0; y < yBatches; y++)
+			{
+				int startX = x * mBatchSize.x;
+				int startY = y * mBatchSize.y;
+				ThreadPool.Submit(&GraphicsManagerClass::RenderBatch, &GetInstance(),startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
+			}
+		}
+	}
+
+	//wait here until rendering is finished
+	ThreadPool.Wait();
+	ThreadPool.ResetFinishedTasks();
+	ThreadPool.SetTaskCount(xBatches * yBatches);
+
 	for (int x = 0; x < xBatches; x++)
 	{
 		for (int y = 0; y < yBatches; y++)
 		{
 			int startX = x * mBatchSize.x;
 			int startY = y * mBatchSize.y;
-			ThreadPool.Submit(&GraphicsManagerClass::RenderBatch, &GetInstance(),startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
+			ThreadPool.Submit(&FrameBuffer::Normalize, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, mSamples);
 		}
 	}
 
-	//need to make all threads wait here so clear works and doesn't end up adding to white
-	mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSamples);
+	//wait here until image is normalized
+	ThreadPool.Wait();
 
 }
 #endif // MULTITHREAD

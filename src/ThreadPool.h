@@ -35,6 +35,15 @@ public:
 	// Waits until threads finish their current task and shutdowns the pool;
 	void ShutDown();
 
+	// Waits until threads finish their current tasks;
+	void Wait();
+
+	// Modifies the values which serve as a state keeper of how the tasks of the threads are going
+	void AddTaskGiven();
+	void AddTaskFinished();
+	void ResetFinishedTasks();
+	void SetTaskCount(int count);
+	
 	// Submit a function to be executed asynchronously by the pool
 	template<typename F, typename...Args>
 	auto Submit(F&& f, Args&&... args)->std::future<decltype(f(args...))>;
@@ -48,6 +57,8 @@ private:
 	ThreadPoolClass() : mbShutDown(false) {}
 
 	bool mbShutDown;
+	int mGivenTasks;
+	int mFinishedTasks;
 	TaskQueue<std::function<void()>> mQueue;
 	std::vector<std::thread> mThreads;
 	std::mutex mConditionalMutex;
@@ -61,6 +72,7 @@ public:
 
 private:
 	int mID;
+	bool mbWorking;
 };
 
 #pragma region Submit
