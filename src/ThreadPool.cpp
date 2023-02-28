@@ -39,11 +39,12 @@ void ThreadPoolClass::AddTaskGiven(){
 void ThreadPoolClass::AddTaskFinished() { 
 	std::lock_guard<std::mutex> lock(mConditionalMutex);
 	mFinishedTasks++; 
+	std::cout << "Finished Task count = " << mFinishedTasks << "\n";
 }
 
 void ThreadPoolClass::ResetFinishedTasks() { mFinishedTasks = 0; }
 
-void ThreadPoolClass::SetTaskCount(int count) { mGivenTasks = count; }
+void ThreadPoolClass::SetTaskCount(int count) { mGivenTasks = count; std::cout << "Task count = " << mGivenTasks << "\n"; }
 
 int ThreadPoolClass::ThreadCount() { return mThreads.size(); }
 
