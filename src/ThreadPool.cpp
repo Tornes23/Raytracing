@@ -7,6 +7,10 @@ void ThreadPoolClass::Init() {
 
 	mGivenTasks = 0;
 	mFinishedTasks = 0;
+	mMainThread = std::this_thread::get_id();
+	//DEBUG
+	//std::cout << "Main thread id = " << mMainThread << "\n";
+
 	int count = std::thread::hardware_concurrency() - 1;
 	mThreads = std::vector<std::thread>(count);
 	mbShutDown = false;
@@ -27,24 +31,40 @@ void ThreadPoolClass::ShutDown(){
 
 void ThreadPoolClass::Wait()
 {
+	//DEBUG
+	//std::cout << "Given tasks are = " << mGivenTasks << "\n";
+	//std::cout << "Finished tasks are = " << mFinishedTasks << "\n";
 	while (mFinishedTasks < mGivenTasks)
 		Sleep(10);
+
+	SetTaskCount(0);
+	ResetFinishedTasks();
+
+}
+
+void ThreadPoolClass::PrintToConsole(const std::string& mesg)
+{
+	std::lock_guard<std::mutex> lock(mConditionalMutex);
+	std::cout << mesg;
 }
 
 void ThreadPoolClass::AddTaskGiven(){ 
 	std::lock_guard<std::mutex> lock(mConditionalMutex);
-	mGivenTasks++; 
+	mGivenTasks++;
+	//DEBUG
+	//std::cout << "Given tasks are = " << mGivenTasks << "\n";
 }
 
 void ThreadPoolClass::AddTaskFinished() { 
 	std::lock_guard<std::mutex> lock(mConditionalMutex);
 	mFinishedTasks++; 
-	std::cout << "Finished Task count = " << mFinishedTasks << "\n";
+	//DEBUG
+	//std::cout << "Finished tasks are = " << mFinishedTasks << "\n";
 }
 
 void ThreadPoolClass::ResetFinishedTasks() { mFinishedTasks = 0; }
 
-void ThreadPoolClass::SetTaskCount(int count) { mGivenTasks = count; std::cout << "Task count = " << mGivenTasks << "\n"; }
+void ThreadPoolClass::SetTaskCount(int count) { mGivenTasks = count; }
 
 int ThreadPoolClass::ThreadCount() { return mThreads.size(); }
 
@@ -70,8 +90,8 @@ void Worker::operator()()
 		}
 
 			if (dequeued) {
-				ThreadPool.AddTaskGiven();
 				func();
+				ThreadPool.AddTaskFinished();
 			}
 	}
 }

@@ -1,5 +1,11 @@
+#include <iostream>
 #include <glm/glm.hpp>
 #include "FrameBuffer.h"
+#ifdef MULTITHREAD
+#include <mutex>
+#include <thread>
+#endif // MULTITHREAD
+
 
 void FrameBuffer::Init(int w, int h)
 {
@@ -28,6 +34,22 @@ void FrameBuffer::Clear(unsigned char r, unsigned char g, unsigned char b)
     }
 }
 
+void FrameBuffer::ClearBatch(int startX, int startY, int endX, int endY, unsigned char r, unsigned char g, unsigned char b)
+{
+    //DEBUG
+    //std::cout << "clearing batch = [" << startX << ", " << startY << ", " << endX << ", " << endY << "]\n";
+
+    for (int x = startX; x < endX; x++)
+    {
+        for (int y = startY; y < endX; y++)
+        {
+            imageData[(y * width + x) * 3 + 0] = r;
+            imageData[(y * width + x) * 3 + 1] = g;
+            imageData[(y * width + x) * 3 + 2] = b;
+        }
+    }
+}
+
 void FrameBuffer::SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b)
 {
     if (x >= 0 && y >= 0 && x < width && y < height)
@@ -42,6 +64,7 @@ void FrameBuffer::AddToPixel(int x, int y, unsigned char r, unsigned char g, uns
 {
     if (x >= 0 && y >= 0 && x < width && y < height)
     {
+
         imageData[(y * width + x) * 3 + 0] = (unsigned char)glm::clamp<int>(imageData[(y * width + x) * 3 + 0] + r, 0, 255);
         imageData[(y * width + x) * 3 + 1] = (unsigned char)glm::clamp<int>(imageData[(y * width + x) * 3 + 1] + g, 0, 255);
         imageData[(y * width + x) * 3 + 2] = (unsigned char)glm::clamp<int>(imageData[(y * width + x) * 3 + 2] + b, 0, 255);
@@ -50,13 +73,17 @@ void FrameBuffer::AddToPixel(int x, int y, unsigned char r, unsigned char g, uns
 
 void FrameBuffer::Normalize(int startX, int startY, int endX, int endY, int factor)
 {
+
+    //DEBUG
+    //std::cout << "normalizing batch = [" << startX << ", " << startY << ", " << width << ", " << height << "]\n";
+
     for (int x = startX; x < endX; x++)
     {
         for (int y = startY; y < endY; y++)
         {
-            imageData[(y * width + x) * 3 + 0] /= factor;
-            imageData[(y * width + x) * 3 + 1] /= factor;
-            imageData[(y * width + x) * 3 + 2] /= factor;
+            imageData[(y * width + x) * 3 + 0] /= (unsigned char)factor;
+            imageData[(y * width + x) * 3 + 1] /= (unsigned char)factor;
+            imageData[(y * width + x) * 3 + 2] /= (unsigned char)factor;
         }
     }
 }

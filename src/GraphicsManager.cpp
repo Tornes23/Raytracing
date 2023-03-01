@@ -14,11 +14,16 @@ void GraphicsManagerClass::Render() { RenderBatch(0, 0, mWidth, mHeight); mFrame
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int height)
 {
+	//DEBUG
+	//std::cout << "rendering batch = [" << startX << ", " << startY << ", " << width << ", " << height << "]\n";
+	//std::cout << "Id of thread executing this thread is = " << std::this_thread::get_id() << "\n";
+
+
 	//int x = 248;
 	//int y = 217;
-	for (int x = 0; x < width; x++)
+	for (int x = startX; x < width; x++)
 	{
-		for (int y = 0; y < height; y++)
+		for (int y = startY; y < height; y++)
 		{
 			int currScene = SceneManager.GetDisplayScene();
 			glm::vec2 ndc = GetNDC({ x,y });
@@ -48,6 +53,11 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 		
 		}
 	}
+
+	//DEBUG
+	//std::cout << "Batch = [" << startX << ", " << startY << ", " << width << ", " << height << "] FINISHED! \n";
+
+
 }
 
 
@@ -80,7 +90,32 @@ void GraphicsManagerClass::Update()
 	mSprite.setTexture(mTexture);
 }
 
-void GraphicsManagerClass::Clear() { mFrameBuffer.Clear(0, 0, 0); }
+void GraphicsManagerClass::Clear() {
+#ifdef MULTITHREAD
+
+	int xBatches = 2;
+	int yBatches = 1;
+	//int xBatches = mWidth / mBatchSize.x;
+	//int yBatches = mHeight / mBatchSize.y;
+
+	ThreadPool.SetTaskCount(xBatches * yBatches);
+
+	//for each thread call clear for the wanted coords
+	for (int x = 0; x < xBatches; x++)
+	{
+		for (int y = 0; y < yBatches; y++)
+		{
+			int startX = x * mBatchSize.x;
+			int startY = y * mBatchSize.y;
+			ThreadPool.Submit(&FrameBuffer::ClearBatch, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, 0, 0, 0);
+		}
+	}
+
+#else
+	mFrameBuffer.Clear();
+#endif // MULTITHREAD
+
+}
 
 void GraphicsManagerClass::CreateCamera(const char* info){ mCameras.push_back(Camera(info)); }
 void GraphicsManagerClass::CreateLight(const char* info){ mLights.push_back(Light(info));}
@@ -161,30 +196,34 @@ glm::ivec2 GraphicsManagerClass::GetBatchSize() { return mBatchSize; }
 
 void GraphicsManagerClass::BatchedRender()
 {
+	//int xBatches = 2;
+	//int yBatches = 1;
 	int xBatches = mWidth / mBatchSize.x;
 	int yBatches = mHeight / mBatchSize.y;
 
 	ThreadPool.SetTaskCount(mSamples * xBatches * yBatches);
-
+	//
 	//for each thread call render for the wanted coords
 	for (int s = 0; s < mSamples; s++) {
-
+	
 		for (int x = 0; x < xBatches; x++)
 		{
 			for (int y = 0; y < yBatches; y++)
 			{
+				//DEBUG
+				//int x = 0;
+				//int y = 0;
 				int startX = x * mBatchSize.x;
 				int startY = y * mBatchSize.y;
-				ThreadPool.Submit(&GraphicsManagerClass::RenderBatch, &GetInstance(),startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
+				ThreadPool.Submit(&GraphicsManagerClass::RenderBatch, &GetInstance(), startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
 			}
 		}
 	}
 
 	//wait here until rendering is finished
-	ThreadPool.Wait();
-	ThreadPool.ResetFinishedTasks();
+	//ThreadPool.Wait();
 	ThreadPool.SetTaskCount(xBatches * yBatches);
-
+	
 	for (int x = 0; x < xBatches; x++)
 	{
 		for (int y = 0; y < yBatches; y++)
@@ -196,7 +235,7 @@ void GraphicsManagerClass::BatchedRender()
 	}
 
 	//wait here until image is normalized
-	ThreadPool.Wait();
+	//ThreadPool.Wait();
 
 }
 #endif // MULTITHREAD

@@ -38,6 +38,8 @@ public:
 	// Waits until threads finish their current tasks;
 	void Wait();
 
+	void PrintToConsole(const std::string& mesg);
+
 	// Modifies the values which serve as a state keeper of how the tasks of the threads are going
 	void AddTaskGiven();
 	void AddTaskFinished();
@@ -54,11 +56,12 @@ public:
 	int ThreadCount();
 
 private:
-	ThreadPoolClass() : mbShutDown(false) {}
+	ThreadPoolClass() : mbShutDown(false), mGivenTasks(0), mFinishedTasks(0) {}
 
 	bool mbShutDown;
 	int mGivenTasks;
 	int mFinishedTasks;
+	std::thread::id mMainThread;
 	TaskQueue<std::function<void()>> mQueue;
 	std::vector<std::thread> mThreads;
 	std::mutex mConditionalMutex;
@@ -93,6 +96,9 @@ inline auto ThreadPoolClass::Submit(F&& f, Args && ...args) -> std::future<declt
 	// Enqueue generic wrapper function
 	mQueue.Enqueue(wrapperFunc);
 	
+	////notifying a task was added
+	//AddTaskGiven();
+
 	// Wake up one thread if its waiting
 	mConditionalLock.notify_one();
 	
@@ -117,6 +123,9 @@ auto ThreadPoolClass::Submit(F T::* f, T1* obj, Args&&... args) -> std::future<d
 	// Enqueue generic wrapper function
 	mQueue.Enqueue(wrapper_func);
 	
+	////notifying a task was added
+	//AddTaskGiven();
+
 	// Wake up one thread if its waiting
 	mConditionalLock.notify_one();
 	
