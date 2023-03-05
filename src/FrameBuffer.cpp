@@ -41,7 +41,7 @@ void FrameBuffer::ClearBatch(int startX, int startY, int endX, int endY, unsigne
 
     for (int x = startX; x < endX; x++)
     {
-        for (int y = startY; y < endX; y++)
+        for (int y = startY; y < endY; y++)
         {
             imageData[(y * width + x) * 3 + 0] = r;
             imageData[(y * width + x) * 3 + 1] = g;

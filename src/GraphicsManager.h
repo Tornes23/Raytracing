@@ -85,7 +85,7 @@ private:
 	sf::Image   mImage;
 	sf::Texture mTexture;
 	sf::Sprite  mSprite;
-	int  mSamples = 1;
+	int  mSamples = 2;
 
 #ifdef MULTITHREAD
 	glm::ivec2 mBatchSize{50,50};

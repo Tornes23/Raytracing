@@ -19,8 +19,6 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 	//std::cout << "Id of thread executing this thread is = " << std::this_thread::get_id() << "\n";
 
 
-	//int x = 248;
-	//int y = 217;
 	for (int x = startX; x < width; x++)
 	{
 		for (int y = startY; y < height; y++)
@@ -93,10 +91,8 @@ void GraphicsManagerClass::Update()
 void GraphicsManagerClass::Clear() {
 #ifdef MULTITHREAD
 
-	int xBatches = 2;
-	int yBatches = 1;
-	//int xBatches = mWidth / mBatchSize.x;
-	//int yBatches = mHeight / mBatchSize.y;
+	int xBatches = mWidth / mBatchSize.x;
+	int yBatches = mHeight / mBatchSize.y;
 
 	ThreadPool.SetTaskCount(xBatches * yBatches);
 
@@ -110,7 +106,6 @@ void GraphicsManagerClass::Clear() {
 			ThreadPool.Submit(&FrameBuffer::ClearBatch, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, 0, 0, 0);
 		}
 	}
-
 #else
 	mFrameBuffer.Clear();
 #endif // MULTITHREAD
@@ -220,8 +215,6 @@ void GraphicsManagerClass::BatchedRender()
 		}
 	}
 
-	//wait here until rendering is finished
-	//ThreadPool.Wait();
 	ThreadPool.SetTaskCount(xBatches * yBatches);
 	
 	for (int x = 0; x < xBatches; x++)
@@ -233,9 +226,6 @@ void GraphicsManagerClass::BatchedRender()
 			ThreadPool.Submit(&FrameBuffer::Normalize, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, mSamples);
 		}
 	}
-
-	//wait here until image is normalized
-	//ThreadPool.Wait();
 
 }
 #endif // MULTITHREAD
