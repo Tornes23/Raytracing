@@ -23,7 +23,8 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 	//DEBUG
 	//std::cout << "rendering batch = [" << startX << ", " << startY << ", " << width << ", " << height << "]\n";
 	//std::cout << "Id of thread executing this thread is = " << std::this_thread::get_id() << "\n";
-
+	//int x = 115;
+	//int y = 258;
 	for (int x = startX; x < width; x++)
 	{
 		for (int y = startY; y < height; y++)

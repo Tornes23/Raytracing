@@ -121,11 +121,15 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 
 	if (mainInterval.x == 0.0F)
 	{
+		info.mT0 = mainInterval.y;
+		info.mT1 = mainInterval.x;
 		info.mTI = mainInterval.y;
 		info.mNormal = planes[indexMax].mNormal;
 	}
 	else
 	{
+		info.mT0 = mainInterval.x;
+		info.mT1 = mainInterval.y;
 		info.mTI = mainInterval.x;
 		info.mNormal = planes[indexMin].mNormal;
 	}
