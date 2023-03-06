@@ -1,32 +1,29 @@
 #include "Material.h"
 #include "Utils.h"
 
-void Material::ParseData(std::ifstream& file)
+void Diffuse::ParseData(const char** info) { mColor = Color(Utils::GetVector(info)); }
+
+Ray Diffuse::BounceRay(const glm::vec3& normal, const glm::vec3& cp)
 {
-    char buffer[40] = { '\0' };
-    do
-    {
-        file.getline(buffer, 40);
-        if(buffer[0] == '\0' || buffer[0] == '#')
-            break;
+    return Ray(cp + (normal * Raytracer.GetEpsilon()), normal + Utils::GetRandomVector());
+}
 
-        //read diffuse
-        std::string line(buffer);
-        size_t found = line.find(' ');
+void Metal::ParseData(const char** info)
+{
+    mColor = Color(Utils::GetVector(info));
+    mRoughness = Utils::GetFloat(info);
+}
 
-        if (found != line.npos)
-        {
-            std::string type = line.substr(0, found);
-            std::string vector = line.substr(found + 1u).data();
-            const char* info = vector.data();
-            if (type.compare("DIFFUSE") == 0)
-                mDiffuse = Color(Utils::GetVector(&info));
-            if (type.compare("METAl") == 0)
-            {
-                mDiffuse = Color(Utils::GetVector(&info));
-                mRoughness = Utils::GetFloat(&info);
-            }
-        }
+Ray Metal::BounceRay(const glm::vec3& normal, const glm::vec3& cp)
+{
+    return Ray(normal, cp);
+}
 
-    } while (!file.eof());
+void Dielectric::ParseData(const char** info)
+{
+}
+
+Ray Dielectric::BounceRay(const glm::vec3& normal, const glm::vec3& cp)
+{
+    return Ray(normal, cp);
 }

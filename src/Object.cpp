@@ -1,6 +1,7 @@
 #include "Object.h"
 #include "Geometry.h"
 #include "Utils.h"
+#include "Material.h"
 
 
 Object::Object(const char* info, GeometryTypes type)
@@ -49,7 +50,8 @@ Object::Object(const Light& light)
 {
 	mModel = new Sphere(light.mRadius);
 	mPos = light.mPos;
-	mMaterial.mDiffuse = light.mColor;
+	mMaterial = new Diffuse;
+	mMaterial->mColor = light.mColor;
 	mbLight = true;
 }
 
@@ -60,7 +62,8 @@ bool Object::CheckIntersection(const Ray& ray, ContactInfo& info)
 	if (!intersected)
 		return false;
 
-	info.mColor = mMaterial.mDiffuse;
+	if(mMaterial != nullptr)
+		info.mColor = mMaterial->mColor;
 
 	return intersected;
 }
@@ -76,5 +79,10 @@ void Object::Destroy()
 	{
 		delete mModel;
 		mModel = nullptr;
+	}
+	if (mMaterial != nullptr)
+	{
+		delete mMaterial;
+		mMaterial = nullptr;
 	}
 }

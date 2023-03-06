@@ -47,7 +47,7 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 				}
 			}
 			else
-				mFrameBuffer.SetPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
+				mFrameBuffer.AddToPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
 		
 		}
 	}

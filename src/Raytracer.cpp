@@ -2,6 +2,7 @@
 #include "GraphicsManager.h"
 #include "SceneManager.h"
 #include "Raytracer.h"
+#include "Object.h"
 #include "Utils.h"
 
 ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
@@ -10,7 +11,7 @@ ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
 
     ContactInfo info = FindClosestObj(ray, objs);
 
-    if (info.mbWithLight) {
+    if (info.mCollidedWith->mbLight) {
         result.mT0 = 1.0F;
         result.mT1 = 1.0F;
         result.mTI = 1.0F;
@@ -20,7 +21,7 @@ ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
 
     if (info.IsValid()) {
         result = info;
-        result.mColor = result.mColor * RayCast(ComputeBounceRay(info.mNormal, info.mContact), objs, 1).mColor;
+        result.mColor = result.mColor * RayCast(info.mCollidedWith->mMaterial->BounceRay(info.mNormal, info.mContact), objs, 1).mColor;
     }
             
     return result;
@@ -47,9 +48,10 @@ ContactInfo RayTracer::FindClosestObj(const Ray& ray, std::vector<Object>& objs)
     }
 
     if (minIndex >= 0 && objs[minIndex].mbLight) {
-        minInfo.mColor = objs[minIndex].mMaterial.mDiffuse;
-        minInfo.mbWithLight = true;
+        minInfo.mColor = objs[minIndex].mMaterial->mColor;
     }
+
+    minInfo.mCollidedWith = &objs[minIndex];
 
     return minInfo;
 }
@@ -61,23 +63,24 @@ ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs, int bo
 
     ContactInfo info = FindClosestObj(ray, objs);
 
-    if (info.mbWithLight) {
+    if (info.mCollidedWith->mbLight) {
         result.mTI = 1.0F;
-        result.mColor = Color::White;
+        result.mColor = info.mColor;
         return result;
     }
 
     if (info.IsValid()) {
         result = info;
-        result.mColor = result.mColor * RayCast(ComputeBounceRay(info.mNormal, info.mContact), objs, bounce + 1).mColor;
+        result.mColor = result.mColor * RayCast(info.mCollidedWith->mMaterial->BounceRay(info.mNormal, info.mContact), objs, bounce + 1).mColor;
     }
 
     return result;
 }
 
-Ray RayTracer::ComputeBounceRay(const glm::vec3& normal, const glm::vec3& contact) { return Ray(contact + mEpsilon, normal + Utils::GetRandomVector()); }
 void RayTracer::SetBounces(int bounces) { mBounces = bounces; }
 int RayTracer::GetBounces() { return mBounces; }
+
+float RayTracer::GetEpsilon() { return mEpsilon; }
 
 #ifdef MULTITHREAD
 

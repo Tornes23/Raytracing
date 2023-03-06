@@ -6,6 +6,7 @@
 #include "Color.h"
 
 struct Mesh;
+struct Object;
 
 struct ContactInfo
 {
@@ -14,8 +15,8 @@ struct ContactInfo
     float mT0 = -1.0F;
     float mT1 = -1.0F;
     float mTI = -1.0F;
-    bool mbWithLight = false;
-    Color mColor = Color::White;
+    Object* mCollidedWith = nullptr;
+    Color mColor = Color::Black;
     bool IsValid();
 };
 

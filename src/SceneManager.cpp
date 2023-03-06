@@ -60,7 +60,7 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
                         if (type.compare("MESH") == 0)
                             objects.push_back(Object(line.substr(found + 1u).c_str(), GeometryTypes::Model));
 
-                        objects.back().mMaterial.ParseData(inFile);
+                        objects.back().mMaterial = Utils::ParseMaterial(inFile);
                     }
 
                    

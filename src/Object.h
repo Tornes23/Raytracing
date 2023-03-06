@@ -4,7 +4,6 @@
 #include <glm/vec3.hpp>
 
 #include "Light.h"
-#include "Material.h"
 #include "Geometry.h"
 
 enum class GeometryTypes
@@ -18,6 +17,7 @@ enum class GeometryTypes
 };
 
 struct Geometry;
+struct Material;
 struct Object
 {
 	Object(const char* info = nullptr, GeometryTypes type = GeometryTypes::AABB);
@@ -30,6 +30,6 @@ struct Object
 
 	//the corresponding Geometry
 	Geometry* mModel = nullptr;
-	Material mMaterial;
+	Material* mMaterial = nullptr;
 	bool mbLight = false;
 };

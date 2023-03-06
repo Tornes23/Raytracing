@@ -10,11 +10,11 @@ public:
 	ContactInfo Cast(const Ray& ray, std::vector<Object>& objs);
 	ContactInfo FindClosestObj(const Ray& ray, std::vector<Object>& objs);
 	ContactInfo RayCast(const Ray& ray, std::vector<Object>& objs, int bounce);
-	Ray ComputeBounceRay(const glm::vec3& normal, const glm::vec3& contact);
 
 	void SetBounces(int bounces = 1);
 
 	int GetBounces();
+	float GetEpsilon();
 
 #ifdef MULTITHREAD
 	Ray GetRayForPixel(int x, int y);
