@@ -23,7 +23,7 @@ public:
 	void SetColor(glm::vec3& color);
 	void SetColor(const std::vector<double>& c);
 	void SetColor(const std::vector<float>& c);
-	glm::vec3 GetColor();
+	glm::vec3 GetColor() const;
 	Color operator*(const Color& rhs);
 
 	unsigned char mR;

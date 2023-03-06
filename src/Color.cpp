@@ -84,7 +84,7 @@ void Color::SetColor(const std::vector<float>& c)
 	mA = static_cast<unsigned char>(c[3] * 255);
 }
 
-glm::vec3 Color::GetColor()
+glm::vec3 Color::GetColor() const
 {
 	float r = static_cast<float>(mR) / 255;
 	float g = static_cast<float>(mG) / 255;
@@ -95,7 +95,10 @@ glm::vec3 Color::GetColor()
 
 Color Color::operator*(const Color& rhs)
 {
-	return Color(mR * rhs.mR, mG * rhs.mG, mB * rhs.mB);
+	glm::vec3 floats = GetColor();
+	glm::vec3 rhsFloats = rhs.GetColor();
+
+	return Color(floats.r * rhsFloats.r, floats.g * rhsFloats.g, floats.b * rhsFloats.b);
 }
 
 

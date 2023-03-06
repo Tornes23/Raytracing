@@ -10,14 +10,19 @@
 #endif // MULTITHREAD
 
 
-void GraphicsManagerClass::Render() { RenderBatch(0, 0, mWidth, mHeight); mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSamples); }
+void GraphicsManagerClass::Render() { 
+	
+	for (int s = 0; s < mSamples; s++) {
+		RenderBatch(0, 0, mWidth, mHeight);
+	}
+	mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSamples); 
+}
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int height)
 {
 	//DEBUG
 	//std::cout << "rendering batch = [" << startX << ", " << startY << ", " << width << ", " << height << "]\n";
 	//std::cout << "Id of thread executing this thread is = " << std::this_thread::get_id() << "\n";
-
 
 	for (int x = startX; x < width; x++)
 	{
@@ -41,13 +46,12 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 				}
 				else
 				{
-					//Color result = info.mColor * GetAmbient();
 					Color result = info.mColor;
 					mFrameBuffer.AddToPixel(x, y, result.mR, result.mG, result.mB);
 				}
 			}
 			else
-				mFrameBuffer.AddToPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
+				mFrameBuffer.SetPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
 		
 		}
 	}
