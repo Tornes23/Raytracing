@@ -1,104 +1,96 @@
+#include <glm/glm.hpp>
 #include "Color.h"
 
 //setting the static variables
-Color Color::White = Color(1.0F, 1.0F, 1.0F, 1.0F);
-Color Color::Black = Color(0.0F, 0.0F, 0.0F, 1.0F);
-Color Color::Red = Color(1.0F, 0.0F, 0.0F, 1.0F);
-Color Color::Green = Color(0.0F, 1.0F, 0.0F, 1.0F);
-Color Color::Blue = Color(0.0F, 0.0F, 1.0F, 1.0F);
+Color Color::White = Color(1.0F, 1.0F, 1.0F);
+Color Color::Black = Color(0.0F, 0.0F, 0.0F);
+Color Color::Red = Color(1.0F, 0.0F, 0.0F);
+Color Color::Green = Color(0.0F, 1.0F, 0.0F);
+Color Color::Blue = Color(0.0F, 0.0F, 1.0F);
 
-Color::Color(float r, float g, float b, float a)
+Color::Color(float r, float g, float b)
 {
 	//setting the values
-	mR = static_cast<unsigned char>(r * 255);
-	mG = static_cast<unsigned char>(g * 255);
-	mB = static_cast<unsigned char>(b * 255);
-	mA = static_cast<unsigned char>(a * 255);
+	mRGB.r = r;
+	mRGB.g = g;
+	mRGB.b = b;
 }
 
 Color::Color(float c)
 {
-	mR = static_cast<unsigned char>(c * 255);
-	mG = static_cast<unsigned char>(c * 255);
-	mB = static_cast<unsigned char>(c * 255);
-	mA = static_cast <unsigned char>(255);
+	mRGB.r = c;
+	mRGB.g = c;
+	mRGB.b = c;
 }
 
 Color::Color(const std::vector<double>& c)
 {
 	//setting the values
-	mR = static_cast<unsigned char>(c[0] * 255);
-	mG = static_cast<unsigned char>(c[1] * 255);
-	mB = static_cast<unsigned char>(c[2] * 255);
-	mA = static_cast<unsigned char>(c[3] * 255);
+	mRGB.r = c[0];
+	mRGB.g = c[1];
+	mRGB.b = c[2];
 }
 
 Color::Color(const std::vector<float>& c)
 {
 	//setting the values
-	mR = static_cast<unsigned char>(c[0] * 255);
-	mG = static_cast<unsigned char>(c[1] * 255);
-	mB = static_cast<unsigned char>(c[2] * 255);
-	mA = static_cast<unsigned char>(c[3] * 255);
+	mRGB.r = c[0];
+	mRGB.g = c[1];
+	mRGB.b = c[2];
 }
 
 Color::Color(const glm::vec3& color)
 {
-	mR = static_cast<unsigned char>(color.x * 255);
-	mG = static_cast<unsigned char>(color.y * 255);
-	mB = static_cast<unsigned char>(color.z * 255);
-
-	mA = 255;
+	mRGB = color;
 }
 
-Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+Color::Color(unsigned char r, unsigned char g, unsigned char b)
 {
 	//setting the values
-	mR = r;
-	mG = g;
-	mB = b;
-	mA = a;
+	mRGB.r = r / 255.0F;
+	mRGB.g = g / 255.0F;
+	mRGB.b = b / 255.0F;
 }
+
+Color::Color(const Color& color) { mRGB = color.GetColor(); }
 
 void Color::SetColor(glm::vec3& color)
 {
-	mR = static_cast<unsigned char>(color.x * 255);
-	mG = static_cast<unsigned char>(color.y * 255);
-	mB = static_cast<unsigned char>(color.z * 255);
-	mA = 255;
+	mRGB = color;
 }
 
 void Color::SetColor(const std::vector<double>& c)
 {
-	mR = static_cast<unsigned char>(c[0] * 255);
-	mG = static_cast<unsigned char>(c[1] * 255);
-	mB = static_cast<unsigned char>(c[2] * 255);
-	mA = static_cast<unsigned char>(c[3] * 255);
+	mRGB.r = static_cast<float>(c[0]);
+	mRGB.g = static_cast<float>(c[1]);
+	mRGB.b = static_cast<float>(c[2]);
 }
 
 void Color::SetColor(const std::vector<float>& c)
 {
-	mR = static_cast<unsigned char>(c[0] * 255);
-	mG = static_cast<unsigned char>(c[1] * 255);
-	mB = static_cast<unsigned char>(c[2] * 255);
-	mA = static_cast<unsigned char>(c[3] * 255);
+	mRGB.r = c[0];
+	mRGB.g = c[1];
+	mRGB.b = c[2];
 }
 
-glm::vec3 Color::GetColor() const
-{
-	float r = static_cast<float>(mR) / 255;
-	float g = static_cast<float>(mG) / 255;
-	float b = static_cast<float>(mB) / 255;
+glm::vec3 Color::GetColor() const{ return mRGB; }
+glm::vec<3, unsigned char> Color::ToRGB() const { 
 
-	return glm::vec3(r, g, b);
+	unsigned char r = static_cast<unsigned char>(glm::ceil(mRGB.r * 255));
+	unsigned char g = static_cast<unsigned char>(glm::ceil(mRGB.g * 255));
+	unsigned char b = static_cast<unsigned char>(glm::ceil(mRGB.b * 255));
+
+	return glm::vec<3, unsigned char>(r, g, b); 
 }
+float Color::GetR() const { return mRGB.r; }
+float Color::GetG() const { return mRGB.g; }
+float Color::GetB() const { return mRGB.b; }
 
 Color Color::operator*(const Color& rhs)
 {
 	glm::vec3 floats = GetColor();
 	glm::vec3 rhsFloats = rhs.GetColor();
-
-	return Color(floats.r * rhsFloats.r, floats.g * rhsFloats.g, floats.b * rhsFloats.b);
+	return Color(floats * rhsFloats);
 }
 
 

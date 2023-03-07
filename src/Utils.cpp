@@ -3,6 +3,8 @@
 #include <glm/gtc/constants.hpp>
 #include "Utils.h"
 #include "Material.h"
+#include "GraphicsManager.h"
+#include "SceneManager.h"
 
 glm::vec3 Utils::GetVector(const char** info)
 {
@@ -162,9 +164,38 @@ int Utils::GetInt(char** info)
     return val;
 }
 
-std::string Utils::GetFile(const char** info)
+int Utils::GetInt(const char* info)
 {
-    return std::string();
+    if (info == nullptr)
+        return -1;
+
+    int val = 0;
+    std::string number;
+    char* end{};
+
+    while (*info != '(' && *info != ',' && *info != ')' && *info != '\0' && *info != '\n')
+    {
+        if (*info == ' ')
+        {
+            info++;
+            continue;
+        }
+
+        number.push_back(*info);
+        info++;
+    }
+
+    val = std::atoi(number.c_str());
+
+    return val;
+}
+
+std::string Utils::GetFile(const char* info)
+{
+    if (info == nullptr)
+        return std::string("info is null");
+
+    return GetFilename(info);
 }
 
 Material* Utils::ParseMaterial(std::ifstream& file)
@@ -220,7 +251,45 @@ std::string Utils::GetFilename(const std::string& path)
 
 void Utils::LoadConfig(const std::string& path)
 {
-    //load the configurations
+    //stream to read from the file
+    std::ifstream inFile(path, std::ios::in);
+    char buffer[80] = { '\0' };
+    //checking if it was opened
+    if (!inFile)
+        std::cerr << "ERROR WHILE TRYING TO OPEN " << path << " FILE\n";
+
+    std::vector<Object> objects;
+    //reading the code from the file and adding it to the string
+    while (inFile.good())
+    {
+        inFile.getline(buffer, 80);
+        if (!inFile.eof())
+        {
+            if (buffer[0] != '\0' && buffer[0] != '#')
+            {
+                std::string line(buffer);
+                size_t found = line.find(' ');
+
+                if (found != line.npos)
+                {
+                    std::string type = line.substr(0, found);
+
+                    if (type.compare("WIDTH") == 0)
+                        GraphicsManager.SetWidth(GetInt(line.substr(found + 1u).c_str()));
+                    else if (type.compare("HEIGHT") == 0)
+                        GraphicsManager.SetHeight(GetInt(line.substr(found + 1u).c_str()));
+                    else if (type.compare("SAMPLES") == 0)
+                        GraphicsManager.SetSamples(GetInt(line.substr(found + 1u).c_str()));
+                    else if (type.compare("BOUNCES") == 0)
+                        Raytracer.SetBounces(GetInt(line.substr(found + 1u).c_str()));
+                    else if (type.compare("SCENE") == 0)
+                        SceneManager.SetDisplayScene(GetFile(line.substr(found + 1u).c_str()));
+                }
+            }
+        }
+    }
+    //closing the file
+    inFile.close();
 }
 
 glm::vec3 Utils::GetRandomVector() { return  glm::sphericalRand(1.0F); }

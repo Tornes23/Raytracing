@@ -100,6 +100,26 @@ Scene* SceneManagerClass::GetScene()
 
 int SceneManagerClass::GetDisplayScene(){ return mDisplayScene;}
 
+void SceneManagerClass::SetDisplayScene(int index)
+{
+    if (mDisplayScene < 0)
+        mDisplayScene = 0;
+    if (mDisplayScene > mScenes.size())
+        mDisplayScene = (int)mScenes.size();
+    else
+        mDisplayScene = index;
+}
+
+void SceneManagerClass::SetDisplayScene(const std::string& filename)
+{
+    for (int i = 0; i < mScenes.size(); i++) {
+        if (mScenes[i]->mName == filename) {
+            mDisplayScene = i;
+            break;
+        }
+    }
+}
+
 void SceneManagerClass::FreeScenes()
 {
     for (int i = 0; i < mScenes.size(); i++)

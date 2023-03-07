@@ -8,23 +8,20 @@
 #include "Geometry.h"
 #include "Raytracer.h"
 #include "Scene.h"
+#include "Utils.h"
 #ifdef MULTITHREAD
 #include "ThreadPool.h"
 #endif
 
 int main(int argc, char ** argv)
 {
-    const int WIDTH  = 500;
-    const int HEIGHT = 500;
-#ifdef MULTITHREAD
-    ThreadPool.Init();
-#endif // MULTITHREAD
-    GraphicsManager.Init(WIDTH, HEIGHT);
-
-
-    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
 
     std::string inputDirectory= "./scenes/";
+    //Loading the scene
+    SceneManager.LoadScenes(inputDirectory.data());
+
+    Utils::LoadConfig("CONFIG.txt");
+    
     std::string inputFile = "input.txt";
     std::string screenshotName = "vergasos.png";
     bool        takeScreenshot = false;
@@ -37,9 +34,13 @@ int main(int argc, char ** argv)
         takeScreenshot = true;
     }
 	
-    //Loading the scene
-    SceneManager.LoadScenes(inputDirectory.data());
+#ifdef MULTITHREAD
+    ThreadPool.Init();
+#endif // MULTITHREAD
+    GraphicsManager.Init();
 
+    glm::ivec2 size = GraphicsManager.GetSize();
+    sf::RenderWindow window(sf::VideoMode(size.x, size.y), "SFML works!");
 
     bool reload = false;
 
@@ -95,13 +96,11 @@ int main(int argc, char ** argv)
             GraphicsManager.Update();
             window.draw(GraphicsManager.GetSprite());
             window.display();
-            GraphicsManager.Clear();
         }
         if (reload)
         {
-            SceneManager.FreeScenes();
-            SceneManager.LoadScenes(inputDirectory.data());
             GraphicsManager.SetRenderNormals(false);
+            GraphicsManager.Clear();
             reload = false;
         }
 		

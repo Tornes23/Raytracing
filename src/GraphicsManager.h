@@ -17,7 +17,7 @@
 class GraphicsManagerClass
 {
 public:
-	void Init(int width, int height);
+	void Init();
 	void ShutDown();
 	void Update();
 	void Clear();
@@ -27,6 +27,7 @@ public:
 	void ParseAmbient(const char* info);
 	void GetScreenshot(std::string name);
 	void AddLight(const Light& light);
+	void IncrementSampleCount();
 
 	glm::vec2 GetNDC(const glm::vec2& xy);
 	glm::vec3 GetPixelWorld(const glm::vec2& ndc, bool one_cam = true);
@@ -38,6 +39,7 @@ public:
 	const sf::Texture& GetTexture();
 	const FrameBuffer& GetFrameBuffer();
 	std::vector<Light>& GetLights();
+	glm::ivec2 GetSize();
 
 	bool SwapBuffers();
 	bool RenderNormals();
@@ -86,8 +88,8 @@ private:
 	sf::Image   mImage;
 	sf::Texture mTexture;
 	sf::Sprite  mSprite;
-	int  mSamples = 2;
-	int  mSampleCount = 1;
+	int  mSamples = 10;
+	int  mSampleCount = 0;
 
 #ifdef MULTITHREAD
 	glm::ivec2 mBatchSize{50,50};

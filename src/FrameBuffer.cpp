@@ -11,30 +11,28 @@ void FrameBuffer::Init(int w, int h)
 {
     width     = w;
     height    = h;
-    int size  = 3 * width * height;
-    imageData = new unsigned char[size];
-    Clear(0, 0, 0);
+    int size  = width * height;
+    mBuffer = new glm::vec3[size];
+    Clear();
 }
 
 void FrameBuffer::Free()
 {
-    delete[] imageData;
+    delete[] mBuffer;
 }
 
-void FrameBuffer::Clear(unsigned char r, unsigned char g, unsigned char b)
+void FrameBuffer::Clear(const glm::vec3& color)
 {
     for (int x = 0; x < width; x++)
     {
         for (int y = 0; y < height; y++)
         {
-            imageData[(y * width + x) * 3 + 0] = r;
-            imageData[(y * width + x) * 3 + 1] = g;
-            imageData[(y * width + x) * 3 + 2] = b;
+            SetPixel(x, y, color);
         }
     }
 }
 
-void FrameBuffer::ClearBatch(int startX, int startY, int endX, int endY, unsigned char r, unsigned char g, unsigned char b)
+void FrameBuffer::ClearBatch(int startX, int startY, int endX, int endY, const glm::vec3& color)
 {
     //DEBUG
     //std::cout << "clearing batch = [" << startX << ", " << startY << ", " << endX << ", " << endY << "]\n";
@@ -43,32 +41,35 @@ void FrameBuffer::ClearBatch(int startX, int startY, int endX, int endY, unsigne
     {
         for (int y = startY; y < endY; y++)
         {
-            imageData[(y * width + x) * 3 + 0] = r;
-            imageData[(y * width + x) * 3 + 1] = g;
-            imageData[(y * width + x) * 3 + 2] = b;
+            mBuffer[(y * width + x)] = color;
         }
     }
 }
 
-void FrameBuffer::SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b)
+void FrameBuffer::SetPixel(int x, int y, const glm::vec3& color)
 {
     if (x >= 0 && y >= 0 && x < width && y < height)
     {
-        imageData[(y * width + x) * 3 + 0] = r;
-        imageData[(y * width + x) * 3 + 1] = g;
-        imageData[(y * width + x) * 3 + 2] = b;
+        mBuffer[(y * width + x)] = color;
     }
 }
 
-void FrameBuffer::AddToPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b)
+void FrameBuffer::AddToPixel(int x, int y, const glm::vec3& color)
 {
     if (x >= 0 && y >= 0 && x < width && y < height)
-    {
+        mBuffer[(y * width + x)] += color;
+}
 
-        imageData[(y * width + x) * 3 + 0] = (unsigned char)glm::clamp<int>(imageData[(y * width + x) * 3 + 0] + r, 0, 255);
-        imageData[(y * width + x) * 3 + 1] = (unsigned char)glm::clamp<int>(imageData[(y * width + x) * 3 + 1] + g, 0, 255);
-        imageData[(y * width + x) * 3 + 2] = (unsigned char)glm::clamp<int>(imageData[(y * width + x) * 3 + 2] + b, 0, 255);
-    }
+void FrameBuffer::SetPixel(int x, int y, const Color& color)
+{
+    if (x >= 0 && y >= 0 && x < width && y < height)
+        SetPixel(x, y, color.GetColor());
+}
+
+void FrameBuffer::AddToPixel(int x, int y, const Color& color)
+{
+    if (x >= 0 && y >= 0 && x < width && y < height)
+        AddToPixel(x, y, color.GetColor());
 }
 
 void FrameBuffer::Normalize(int startX, int startY, int endX, int endY, int factor)
@@ -76,25 +77,39 @@ void FrameBuffer::Normalize(int startX, int startY, int endX, int endY, int fact
 
     //DEBUG
     //std::cout << "normalizing batch = [" << startX << ", " << startY << ", " << width << ", " << height << "]\n";
-
+    //std::cout << "normalizin factor = " << factor << "\n";
+    //int x = 229;
+    //int y = 196;
     for (int x = startX; x < endX; x++)
     {
         for (int y = startY; y < endY; y++)
         {
-            imageData[(y * width + x) * 3 + 0] /= (unsigned char)factor;
-            imageData[(y * width + x) * 3 + 1] /= (unsigned char)factor;
-            imageData[(y * width + x) * 3 + 2] /= (unsigned char)factor;
+              //this is wrong dunno why it works
+    //        std::cout << "Color Before in pixel = (" << mBuffer[(y * width + x)].r << ", "<< mBuffer[(y * width + x)].g << ", " << mBuffer[(y * width + x)].b << ")\n";
+              mBuffer[(y * width + x)] /= 2;
+    //        std::cout << "Color After in pixel = (" << mBuffer[(y * width + x)].r << ", "<< mBuffer[(y * width + x)].g << ", " << mBuffer[(y * width + x)].b << ")\n";
         }
     }
 }
 
-void FrameBuffer::GetPixel(int x, int y, unsigned char & r, unsigned char & g, unsigned char & b)
+Color FrameBuffer::GetPixel(int x, int y)
 {
     if (x >= 0 && y >= 0 && x < width && y < height)
     {
-        r = imageData[(y * width + x) * 3 + 0];
-        g = imageData[(y * width + x) * 3 + 1];
-        b = imageData[(y * width + x) * 3 + 2];
+        return mBuffer[(y * width + x)];
+    }
+
+    return Color::Black;
+}
+
+void FrameBuffer::SwapBuffers()
+{
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            SetPixel(x, y, mBuffer[(y * width + x)]);
+        }
     }
 }
 
@@ -108,9 +123,8 @@ void FrameBuffer::ConvertFrameBufferToSFMLImage(sf::Image & image)
     {
         for (int y = 0; y < h; y++)
         {
-            unsigned char r, b, g;
-            FrameBuffer::GetPixel(x, y, r, g, b);
-            image.setPixel(x, y, sf::Color(r, g, b));
+            glm::vec<3, unsigned char> color = FrameBuffer::GetPixel(x, y).ToRGB();
+            image.setPixel(x, y, sf::Color(color.r, color.g, color.b));
         }
     }
 }

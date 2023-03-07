@@ -13,10 +13,9 @@
 void GraphicsManagerClass::Render() { 
 	if (!SwapBuffers()) return;
 
-	for (int s = 0; s < mSamples; s++) {
-		RenderBatch(0, 0, mWidth, mHeight);
-	}
-	mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSampleCount); 
+	RenderBatch(0, 0, mWidth, mHeight);
+	
+	mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSampleCount + 1); 
 }
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int height)
@@ -24,8 +23,8 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 	//DEBUG
 	//std::cout << "rendering batch = [" << startX << ", " << startY << ", " << width << ", " << height << "]\n";
 	//std::cout << "Id of thread executing this thread is = " << std::this_thread::get_id() << "\n";
-	//int x = 115;
-	//int y = 258;
+	//int x = 229;
+	//int y = 196;
 	for (int x = startX; x < width; x++)
 	{
 		for (int y = startY; y < height; y++)
@@ -44,16 +43,15 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 				if (mRenderNormals)
 				{
 					Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * ambient);
-					mFrameBuffer.AddToPixel(x, y, result.mR, result.mG, result.mB);
+					mFrameBuffer.AddToPixel(x, y, result);
 				}
 				else
 				{
-					Color result = info.mColor;
-					mFrameBuffer.AddToPixel(x, y, result.mR, result.mG, result.mB);
+					mFrameBuffer.AddToPixel(x, y, info.mColor);
 				}
 			}
 			else
-				mFrameBuffer.AddToPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
+				mFrameBuffer.AddToPixel(x, y, ambient);
 		
 		}
 	}
@@ -65,16 +63,14 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 }
 
 
-void GraphicsManagerClass::Init(int width, int height)
+void GraphicsManagerClass::Init()
 {
-	mFrameBuffer.Init(width, height);
-	SetWidth(width);
-	SetHeight(height);
-	SetAspectRatio((float)width/ height);
+	mFrameBuffer.Init(mWidth, mHeight);
+	SetAspectRatio((float)mWidth/ mHeight);
 
 	// Generate image and texture to display
-	mTexture.create(width, height);
-	mImage.create(width, height, sf::Color::Black);
+	mTexture.create(mWidth, mHeight);
+	mImage.create(mWidth, mHeight, sf::Color::Black);
 #ifdef MULTITHREAD
 	//mBatchSize.x = std::ceil(mWidth / ThreadPool.ThreadCount()) + 1;
 	//mBatchSize.y = std::ceil(mHeight / ThreadPool.ThreadCount()) + 1;
@@ -89,7 +85,8 @@ void GraphicsManagerClass::ShutDown()
 
 void GraphicsManagerClass::Update()
 {
-	mSampleCount++;
+	mFrameBuffer.SwapBuffers();
+	IncrementSampleCount();
 	mFrameBuffer.ConvertFrameBufferToSFMLImage(mImage);
 	mTexture.update(mImage);
 	mSprite.setTexture(mTexture);
@@ -110,11 +107,12 @@ void GraphicsManagerClass::Clear() {
 		{
 			int startX = x * mBatchSize.x;
 			int startY = y * mBatchSize.y;
-			ThreadPool.Submit(&FrameBuffer::ClearBatch, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, 0, 0, 0);
+			ThreadPool.Submit(&FrameBuffer::ClearBatch, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, glm::vec3(0.0F));
 		}
 	}
 #else
 	mFrameBuffer.Clear();
+	mSampleCount = 0;
 #endif // MULTITHREAD
 
 }
@@ -124,6 +122,21 @@ void GraphicsManagerClass::CreateLight(const char* info){ mLights.push_back(Ligh
 void GraphicsManagerClass::ParseAmbient(const char* info){ mAmbientLights.push_back(Color(Utils::GetVector(&info))); }
 void GraphicsManagerClass::GetScreenshot(std::string name) { mImage.saveToFile(name); }
 void GraphicsManagerClass::AddLight(const Light& light) { mLights.push_back(light); }
+void GraphicsManagerClass::IncrementSampleCount()
+{
+#ifdef MULTITHREAD
+	{
+		//std::mutex mutex;
+		//std::unique_lock<std::mutex> lock(mutex);
+		//if (!mbSampleIncremented)
+		//	mSampleCount++;
+	}
+#else
+	mSampleCount++;
+	//DEBUG
+	//std::cout << "Sample count  = " << mSampleCount << "\n";
+#endif // MULTITHREAD
+}
 glm::vec2 GraphicsManagerClass::GetNDC(const glm::vec2& xy)
 {
 	float x = ((xy.x + 0.5F) - (mWidth / 2.0F)) / (mWidth / 2.0F);
@@ -182,9 +195,8 @@ const sf::Image& GraphicsManagerClass::GetImage() { return mImage; }
 const sf::Sprite& GraphicsManagerClass::GetSprite() { return mSprite; }
 const sf::Texture& GraphicsManagerClass::GetTexture() { return mTexture; }
 std::vector<Light>& GraphicsManagerClass::GetLights() { return mLights; }
-
-bool GraphicsManagerClass::SwapBuffers() { return mSampleCount <= mSamples; }
-
+glm::ivec2 GraphicsManagerClass::GetSize() { return glm::ivec2(mWidth, mHeight); }
+bool GraphicsManagerClass::SwapBuffers() { return mSampleCount < mSamples; }
 bool GraphicsManagerClass::RenderNormals(){ return mRenderNormals; }
 int GraphicsManagerClass::GetSampleCount() { return mSamples; }
 void GraphicsManagerClass::SetWidth(int width) { mWidth = width; }
@@ -205,22 +217,20 @@ void GraphicsManagerClass::BatchedRender()
 	int xBatches = mWidth / mBatchSize.x;
 	int yBatches = mHeight / mBatchSize.y;
 
-	ThreadPool.SetTaskCount(mSamples * xBatches * yBatches);
+	ThreadPool.SetTaskCount(xBatches * yBatches);
 	//
 	//for each thread call render for the wanted coords
-	for (int s = 0; s < mSamples; s++) {
 	
-		for (int x = 0; x < xBatches; x++)
+	for (int x = 0; x < xBatches; x++)
+	{
+		for (int y = 0; y < yBatches; y++)
 		{
-			for (int y = 0; y < yBatches; y++)
-			{
-				//DEBUG
-				//int x = 0;
-				//int y = 0;
-				int startX = x * mBatchSize.x;
-				int startY = y * mBatchSize.y;
-				ThreadPool.Submit(&GraphicsManagerClass::RenderBatch, &GetInstance(), startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
-			}
+			//DEBUG
+			//int x = 0;
+			//int y = 0;
+			int startX = x * mBatchSize.x;
+			int startY = y * mBatchSize.y;
+			ThreadPool.Submit(&GraphicsManagerClass::RenderBatch, &GetInstance(), startX, startY, startX + mBatchSize.x, startY + mBatchSize.y);
 		}
 	}
 
@@ -232,7 +242,7 @@ void GraphicsManagerClass::BatchedRender()
 		{
 			int startX = x * mBatchSize.x;
 			int startY = y * mBatchSize.y;
-			ThreadPool.Submit(&FrameBuffer::Normalize, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, mSamples);
+			ThreadPool.Submit(&FrameBuffer::Normalize, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, mSampleCount);
 		}
 	}
 

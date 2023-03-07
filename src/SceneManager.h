@@ -14,6 +14,8 @@ public:
 
 	Scene* GetScene();
 	int GetDisplayScene();
+	void SetDisplayScene(int index = 0);
+	void SetDisplayScene(const std::string& filename);
 
 	void FreeScenes();
 	//singleton stuff

@@ -1,5 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <glm/vec3.hpp>
+#include "Color.h"
 
 class FrameBuffer
 {
@@ -7,12 +9,18 @@ class FrameBuffer
     void Init(int w, int h);
     void Free();
 
-    void Clear(unsigned char r = 0, unsigned char g = 0, unsigned char b = 0);
-    void ClearBatch(int startX, int startY, int endX, int endY, unsigned char r = 0, unsigned char g = 0, unsigned char b = 0);
-    void SetPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b);
-    void AddToPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b);
+    void Clear(const glm::vec3& color = glm::vec3(0.0F));
+    void ClearBatch(int startX, int startY, int endX, int endY, const glm::vec3& color = glm::vec3(0.0F));
+
+    void SetPixel(int x, int y, const glm::vec3& color);
+    void AddToPixel(int x, int y, const glm::vec3& color);
+    void SetPixel(int x, int y, const Color& color);
+    void AddToPixel(int x, int y, const Color& color);
+
     void Normalize(int startX, int startY, int endX, int endY, int factor);
-    void GetPixel(int x, int y, unsigned char & r, unsigned char & g, unsigned char & b);
+    Color GetPixel(int x, int y);
+    void SwapBuffers();
+
     int  GetWidth() { return width; }
     int  GetHeight() { return height; }
 
@@ -21,5 +29,5 @@ class FrameBuffer
   private:
     int             width;
     int             height;
-    unsigned char * imageData;
+    glm::vec3 *     mBuffer;
 };
