@@ -11,11 +11,12 @@
 
 
 void GraphicsManagerClass::Render() { 
-	
+	if (!SwapBuffers()) return;
+
 	for (int s = 0; s < mSamples; s++) {
 		RenderBatch(0, 0, mWidth, mHeight);
 	}
-	mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSamples); 
+	mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSampleCount); 
 }
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int height)
@@ -52,7 +53,7 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int he
 				}
 			}
 			else
-				mFrameBuffer.SetPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
+				mFrameBuffer.AddToPixel(x, y, ambient.mR, ambient.mG, ambient.mB);
 		
 		}
 	}
@@ -88,6 +89,7 @@ void GraphicsManagerClass::ShutDown()
 
 void GraphicsManagerClass::Update()
 {
+	mSampleCount++;
 	mFrameBuffer.ConvertFrameBufferToSFMLImage(mImage);
 	mTexture.update(mImage);
 	mSprite.setTexture(mTexture);
@@ -180,6 +182,8 @@ const sf::Image& GraphicsManagerClass::GetImage() { return mImage; }
 const sf::Sprite& GraphicsManagerClass::GetSprite() { return mSprite; }
 const sf::Texture& GraphicsManagerClass::GetTexture() { return mTexture; }
 std::vector<Light>& GraphicsManagerClass::GetLights() { return mLights; }
+
+bool GraphicsManagerClass::SwapBuffers() { return mSampleCount <= mSamples; }
 
 bool GraphicsManagerClass::RenderNormals(){ return mRenderNormals; }
 int GraphicsManagerClass::GetSampleCount() { return mSamples; }

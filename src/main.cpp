@@ -90,11 +90,13 @@ int main(int argc, char ** argv)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
             takeScreenshot = true;
 		
-        // Show image on screen
-        GraphicsManager.Update();
-        window.draw(GraphicsManager.GetSprite());
-        window.display();
-        GraphicsManager.Clear();
+        if (GraphicsManager.SwapBuffers()) {
+            // Show image on screen
+            GraphicsManager.Update();
+            window.draw(GraphicsManager.GetSprite());
+            window.display();
+            GraphicsManager.Clear();
+        }
         if (reload)
         {
             SceneManager.FreeScenes();

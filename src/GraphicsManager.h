@@ -39,6 +39,7 @@ public:
 	const FrameBuffer& GetFrameBuffer();
 	std::vector<Light>& GetLights();
 
+	bool SwapBuffers();
 	bool RenderNormals();
 	int GetSampleCount();
 
@@ -85,7 +86,8 @@ private:
 	sf::Image   mImage;
 	sf::Texture mTexture;
 	sf::Sprite  mSprite;
-	int  mSamples = 1;
+	int  mSamples = 2;
+	int  mSampleCount = 1;
 
 #ifdef MULTITHREAD
 	glm::ivec2 mBatchSize{50,50};
