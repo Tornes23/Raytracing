@@ -84,10 +84,7 @@ void FrameBuffer::Normalize(int startX, int startY, int endX, int endY, int fact
     {
         for (int y = startY; y < endY; y++)
         {
-              //this is wrong dunno why it works
-    //        std::cout << "Color Before in pixel = (" << mBuffer[(y * width + x)].r << ", "<< mBuffer[(y * width + x)].g << ", " << mBuffer[(y * width + x)].b << ")\n";
-              mBuffer[(y * width + x)] /= 2;
-    //        std::cout << "Color After in pixel = (" << mBuffer[(y * width + x)].r << ", "<< mBuffer[(y * width + x)].g << ", " << mBuffer[(y * width + x)].b << ")\n";
+              mBuffer[(y * width + x)] /= factor;
         }
     }
 }
@@ -118,7 +115,8 @@ void FrameBuffer::ConvertFrameBufferToSFMLImage(sf::Image & image)
 {
     int w = FrameBuffer::GetWidth();
     int h = FrameBuffer::GetHeight();
-
+    //int x = 229;
+    //int y = 196;
     for (int x = 0; x < w; x++)
     {
         for (int y = 0; y < h; y++)

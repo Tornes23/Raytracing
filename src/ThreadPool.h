@@ -45,6 +45,7 @@ public:
 	void AddTaskFinished();
 	void ResetFinishedTasks();
 	void SetTaskCount(int count);
+	bool HasFinished();
 	
 	// Submit a function to be executed asynchronously by the pool
 	template<typename F, typename...Args>

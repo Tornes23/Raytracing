@@ -66,6 +66,8 @@ void ThreadPoolClass::ResetFinishedTasks() { mFinishedTasks = 0; }
 
 void ThreadPoolClass::SetTaskCount(int count) { mGivenTasks = count; }
 
+bool ThreadPoolClass::HasFinished() { return mFinishedTasks >= mGivenTasks; }
+
 int ThreadPoolClass::ThreadCount() { return mThreads.size(); }
 
 

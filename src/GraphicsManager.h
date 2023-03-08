@@ -21,6 +21,7 @@ public:
 	void ShutDown();
 	void Update();
 	void Clear();
+	void Normalize();
 
 	void CreateCamera(const char* info);
 	void CreateLight(const char* info);
@@ -90,6 +91,8 @@ private:
 	sf::Sprite  mSprite;
 	int  mSamples = 10;
 	int  mSampleCount = 0;
+	bool  mbNormalized = false;
+	bool  mbSampleIncremented = false;
 
 #ifdef MULTITHREAD
 	glm::ivec2 mBatchSize{50,50};
