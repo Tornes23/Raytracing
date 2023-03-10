@@ -6,6 +6,7 @@
 #include "Scene.h"
 #include "Raytracer.h"
 #ifdef MULTITHREAD
+#include <Windows.h>
 #include "ThreadPool.h"
 #endif // MULTITHREAD
 
@@ -84,14 +85,12 @@ void GraphicsManagerClass::Update()
 		IncrementSampleCount();
 	else 
 		Normalize();
-	
-	mFrameBuffer.ConvertFrameBufferToSFMLImage(mImage);
-	mTexture.update(mImage);
-	mSprite.setTexture(mTexture);
 }
 
 void GraphicsManagerClass::Clear() {
 #ifdef MULTITHREAD
+
+	if (!ThreadPool.HasFinished()) return;
 
 	int xBatches = mWidth / mBatchSize.x;
 	int yBatches = mHeight / mBatchSize.y;
@@ -108,6 +107,7 @@ void GraphicsManagerClass::Clear() {
 			ThreadPool.Submit(&FrameBuffer::ClearBatch, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, glm::vec3(0.0F));
 		}
 	}
+	mSampleCount = 0;
 #else
 	mFrameBuffer.Clear();
 	mSampleCount = 0;
@@ -118,13 +118,12 @@ void GraphicsManagerClass::Clear() {
 void GraphicsManagerClass::Normalize()
 {
 #ifdef MULTITHREAD
-	if (!ThreadPool.HasFinished()) return;
 
 	if (!mbNormalized) {
+		if (!ThreadPool.HasFinished()) return;
 		mbNormalized = true;
 		int xBatches = mWidth / mBatchSize.x;
 		int yBatches = mHeight / mBatchSize.y;
-		mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSamples);
 		ThreadPool.SetTaskCount(xBatches * yBatches);
 
 		for (int x = 0; x < xBatches; x++)
@@ -133,17 +132,23 @@ void GraphicsManagerClass::Normalize()
 			{
 				int startX = x * mBatchSize.x;
 				int startY = y * mBatchSize.y;
-				ThreadPool.Submit(&FrameBuffer::Normalize, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, mSampleCount);
+				ThreadPool.Submit(&FrameBuffer::Normalize, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, mSamples);
 			}
 		}
 	}
-
 #else
 	if (!mbNormalized) {
 		mbNormalized = true;
 		mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSamples);
 	}
 #endif // MULTITHREAD
+}
+
+void GraphicsManagerClass::UpdateTextures()
+{
+	mFrameBuffer.ConvertFrameBufferToSFMLImage(mImage);
+	mTexture.update(mImage);
+	mSprite.setTexture(mTexture);
 }
 
 void GraphicsManagerClass::CreateCamera(const char* info){ mCameras.push_back(Camera(info)); }
@@ -155,9 +160,8 @@ void GraphicsManagerClass::IncrementSampleCount()
 {
 #ifdef MULTITHREAD
 	if (ThreadPool.HasFinished()) {
+		ThreadPool.Wait();
 		mSampleCount++;
-		ThreadPool.SetTaskCount(0);
-		ThreadPool.ResetFinishedTasks();
 	}
 
 #else
@@ -225,7 +229,6 @@ const sf::Sprite& GraphicsManagerClass::GetSprite() { return mSprite; }
 const sf::Texture& GraphicsManagerClass::GetTexture() { return mTexture; }
 std::vector<Light>& GraphicsManagerClass::GetLights() { return mLights; }
 glm::ivec2 GraphicsManagerClass::GetSize() { return glm::ivec2(mWidth, mHeight); }
-bool GraphicsManagerClass::SwapBuffers() { return mSampleCount < mSamples; }
 bool GraphicsManagerClass::RenderNormals(){ return mRenderNormals; }
 int GraphicsManagerClass::GetSampleCount() { return mSamples; }
 void GraphicsManagerClass::SetWidth(int width) { mWidth = width; }
@@ -234,6 +237,7 @@ void GraphicsManagerClass::ToggleRenderNormals() { mRenderNormals = !mRenderNorm
 void GraphicsManagerClass::SetSamples(int count) { mSamples = count; }
 void GraphicsManagerClass::SetHeight(int height) { mHeight = height; }
 void GraphicsManagerClass::SetAspectRatio(float ratio) { mAspectRatio = ratio;  }
+bool GraphicsManagerClass::SwapBuffers() { return mSampleCount <= mSamples; }
 
 #ifdef MULTITHREAD
 #include "ThreadPool.h"
@@ -241,9 +245,12 @@ glm::ivec2 GraphicsManagerClass::GetBatchSize() { return mBatchSize; }
 
 void GraphicsManagerClass::BatchedRender()
 {
+	if (!SwapBuffers()) return;
 	if (!ThreadPool.HasFinished()) return;
+
 	int xBatches = mWidth / mBatchSize.x;
 	int yBatches = mHeight / mBatchSize.y;
+	ThreadPool.SetTaskCount(xBatches * yBatches);
 
 	//for each thread call render for the wanted coords
 	for (int x = 0; x < xBatches; x++)
@@ -259,7 +266,6 @@ void GraphicsManagerClass::BatchedRender()
 		}
 	}
 
-	ThreadPool.SetTaskCount(xBatches * yBatches);
 }
 #endif // MULTITHREAD
 

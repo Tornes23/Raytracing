@@ -63,7 +63,13 @@ int main(int argc, char ** argv)
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+        {
             window.close();
+#ifdef MULTITHREAD
+            ThreadPool.ShutDown();
+#endif // MULTITHREAD
+        }
+
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F2))
             GraphicsManager.ToggleRenderNormals();
@@ -77,12 +83,16 @@ int main(int argc, char ** argv)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F4))
             SceneManager.PrevScene();
 
+
+        //update sample count here
+        GraphicsManager.Update();
 #ifdef MULTITHREAD
         //each thread will take care of the rendering of each batch
         GraphicsManager.BatchedRender();
 #else
         GraphicsManager.Render();
 #endif // MULTITHREAD
+
 
         // Fill framebuffer
         sf::Time elapsed = clock.getElapsedTime();
@@ -91,7 +101,7 @@ int main(int argc, char ** argv)
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
             takeScreenshot = true;
 		
-        GraphicsManager.Update();
+        GraphicsManager.UpdateTextures();
         window.draw(GraphicsManager.GetSprite());
         window.display();
 

@@ -31,6 +31,7 @@ void ThreadPoolClass::ShutDown(){
 
 void ThreadPoolClass::Wait()
 {
+	if (mGivenTasks == 0) return;
 	//DEBUG
 	//std::cout << "Given tasks are = " << mGivenTasks << "\n";
 	//std::cout << "Finished tasks are = " << mFinishedTasks << "\n";
@@ -69,6 +70,8 @@ void ThreadPoolClass::SetTaskCount(int count) { mGivenTasks = count; }
 bool ThreadPoolClass::HasFinished() { return mFinishedTasks >= mGivenTasks; }
 
 int ThreadPoolClass::ThreadCount() { return mThreads.size(); }
+
+std::thread::id ThreadPoolClass::GetMainThreadID() { return mMainThread; }
 
 
 Worker::Worker(const int id) : mID(id), mbWorking(false) { }

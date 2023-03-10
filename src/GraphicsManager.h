@@ -22,6 +22,7 @@ public:
 	void Update();
 	void Clear();
 	void Normalize();
+	void UpdateTextures();
 
 	void CreateCamera(const char* info);
 	void CreateLight(const char* info);

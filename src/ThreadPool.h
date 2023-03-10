@@ -55,6 +55,7 @@ public:
 	auto Submit(F T::* f, T1* obj, Args&&... args)->std::future<decltype((std::declval<T>().*f)(args...))>;
 
 	int ThreadCount();
+	std::thread::id GetMainThreadID();
 
 private:
 	ThreadPoolClass() : mbShutDown(false), mGivenTasks(0), mFinishedTasks(0) {}
