@@ -10,6 +10,7 @@ enum class GeometryTypes
 {
 	Triangle,
 	Plane,
+	BOX,
 	AABB,
 	Sphere,
 	Polygon,

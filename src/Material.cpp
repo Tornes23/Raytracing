@@ -16,6 +16,7 @@ void Metal::ParseData(const char** info)
 
 Ray Metal::BounceRay(const glm::vec3& normal, const glm::vec3& cp)
 {
+
     return Ray(normal, cp);
 }
 

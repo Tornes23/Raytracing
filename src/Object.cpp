@@ -19,6 +19,9 @@ Object::Object(const char* info, GeometryTypes type)
 	case GeometryTypes::Plane:
 		//mModel = new Plane();
 		break;
+	case GeometryTypes::BOX:
+		mModel = new Box(&info);
+		break;
 	case GeometryTypes::AABB:
 		mModel = new AABB(&info);
 		break;
@@ -32,7 +35,7 @@ Object::Object(const char* info, GeometryTypes type)
 		mModel = new Model(&info);
 		break;
 	default:
-		mModel = new AABB(&info);
+		mModel = new Sphere(&info);
 		break;
 	}
 	mbLight = false;

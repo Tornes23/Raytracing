@@ -69,7 +69,7 @@ void ThreadPoolClass::SetTaskCount(int count) { mGivenTasks = count; }
 
 bool ThreadPoolClass::HasFinished() { return mFinishedTasks >= mGivenTasks; }
 
-int ThreadPoolClass::ThreadCount() { return mThreads.size(); }
+int ThreadPoolClass::ThreadCount() { return (int)mThreads.size(); }
 
 std::thread::id ThreadPoolClass::GetMainThreadID() { return mMainThread; }
 

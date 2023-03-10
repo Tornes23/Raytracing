@@ -1,6 +1,6 @@
 
 # 3 big spheres
-MESH ../meshes/suzanne.obj
+MESH ./meshes/suzanne.obj
 (0.0,0.4,0.0) (0.0,-50.0,0.0) 0.4
 DIFFUSE (0.8,0.95,0.9)
 

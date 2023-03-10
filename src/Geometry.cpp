@@ -1,4 +1,5 @@
 #include <iostream>
+#define TINYOBJLOADER_IMPLEMENTATION
 #include <TinyOBJ/tiny_obj_loader.h>
 #include <glm/gtx/transform.hpp>
 #include "Geometry.h"
@@ -43,7 +44,7 @@ bool Sphere::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactI
 	return true;
 }
 
-AABB::AABB(const glm::vec3& length, const glm::vec3& width, const glm::vec3& height)
+Box::Box(const glm::vec3& length, const glm::vec3& width, const glm::vec3& height)
 {
 	mVectors.resize(3);
 
@@ -53,7 +54,7 @@ AABB::AABB(const glm::vec3& length, const glm::vec3& width, const glm::vec3& hei
 
 }
 
-AABB::AABB(const char** info)
+Box::Box(const char** info)
 {
 	mVectors.resize(3);
 
@@ -62,7 +63,7 @@ AABB::AABB(const char** info)
 	mVectors[2] = Utils::GetVector(info);//height
 }
 
-bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info)
+bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info)
 {
 	bool all = true;
 	glm::vec2 mainInterval(0.0F, std::numeric_limits<float>::max());
@@ -148,7 +149,7 @@ bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2&
 {
 	float raydot = glm::dot(ray.mV, mNormal);
 	float epsilon = std::numeric_limits<float>::epsilon();
-	if(raydot < std::numeric_limits<float>::epsilon() && -std::numeric_limits<float>::epsilon() < raydot)
+	if(raydot < epsilon && -epsilon < raydot)
 		return false;
 
 	//glm::vec3 cp = glm::normalize(ray.mP0 - point);
@@ -230,12 +231,143 @@ Mesh::Mesh(const std::string& obj)
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
 
-	std::string warn;
 	std::string err;
 
-	//bool valid = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, obj.c_str());
+	bool valid = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, obj.c_str());
+	if (valid)
+	{
+			mTriangles.resize(shapes[0].mesh.num_face_vertices.size());
+			//triangulate
+			auto mesh = shapes[0].mesh;
+			int index = 0;
+			for (size_t i = 0; i < mesh.indices.size(); i += 3) {
+				Triangle tri;
+				
+				int index0 = mesh.indices[i].vertex_index * 3;
+				int index1 = mesh.indices[i + 1].vertex_index * 3;
+				int index2 = mesh.indices[i + 2].vertex_index * 3;
 
-	//triangulate
+				tri.mV0 = glm::vec3(attrib.vertices[index0 + 0], 
+									attrib.vertices[index0 + 1],
+									attrib.vertices[index0 + 2]);
+
+				tri.mV1 = glm::vec3(attrib.vertices[index1 + 0], 
+									attrib.vertices[index1 + 1],
+									attrib.vertices[index1 + 2]);
+
+				tri.mV2 = glm::vec3(attrib.vertices[index2 + 0], 
+									attrib.vertices[index2 + 1],
+									attrib.vertices[index2 + 2]);
+
+				mTriangles[index] = tri;
+				index++;
+			}
+	}
 }
 
 bool ContactInfo::IsValid() { return (mT0 >= 0.0F && mT1 >= 0.0F && mTI >= 0.0F); }
+
+AABB::AABB(const glm::vec3& width, const glm::vec3& height, const glm::vec3& length)
+{
+	mVectors.resize(3);
+
+	mVectors[0] = length;
+	mVectors[1] = width;
+	mVectors[2] = height;
+}
+
+AABB::AABB(const char** info)
+{
+	mVectors.resize(3);
+
+	mVectors[0] = Utils::GetVector(info);//length
+	mVectors[1] = Utils::GetVector(info);//width
+	mVectors[2] = Utils::GetVector(info);//height
+}
+
+bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info)
+{
+	bool all = true;
+	glm::vec2 mainInterval(0.0F, std::numeric_limits<float>::max());
+
+	glm::vec3 cp = glm::normalize(ray.mP0 - corner);
+	std::vector<Plane> planes(6);
+	std::vector<glm::vec3> displacements(6);
+
+	planes[0] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[2])));//front plane
+	planes[1] = Plane(-planes[0].mNormal);// back plane
+	planes[2] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[1])));//left plane
+	planes[3] = Plane(-planes[2].mNormal);//right plane
+	planes[4] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[0])));// bot plane
+	planes[5] = Plane(-planes[4].mNormal);//top plane
+
+	displacements[0] = glm::vec3(0.0F);//front plane
+	displacements[1] = mVectors[1];// back plane
+	displacements[2] = glm::vec3(0.0F);//left plane
+	displacements[3] = mVectors[0];// right plane
+	displacements[4] = glm::vec3(0.0F);//bottom plane
+	displacements[5] = mVectors[2];// top plane
+
+	ContactInfo temp;
+	int indexMin = 0;
+	int indexMax = 0;
+	for (int i = 0; i < 6; i++)
+	{
+		glm::vec2 interval(0.0F, std::numeric_limits<float>::max());
+		float raydot = glm::dot(ray.mV, planes[i].mNormal);
+		glm::vec3 point = corner + displacements[i];
+		if (raydot == 0.0F || !planes[i].CheckIntersection(ray, point, interval))
+		{
+			all = false;
+			break;
+		}
+
+		if (mainInterval.x < interval.x)
+			indexMin = i;
+
+		mainInterval.x = glm::max(mainInterval.x, interval.x);
+		mainInterval.y = glm::min(mainInterval.y, interval.y);
+
+		if (interval.x == 0.0f && mainInterval.y < interval.y)
+			indexMax = i;
+
+		if (mainInterval.y < mainInterval.x)
+		{
+			all = false;
+			break;
+		}
+
+	}
+
+	if (!all)
+		return false;
+
+	if (mainInterval.x == 0.0F)
+	{
+		info.mT0 = mainInterval.y;
+		info.mT1 = mainInterval.x;
+		info.mTI = mainInterval.y;
+		info.mNormal = planes[indexMax].mNormal;
+	}
+	else
+	{
+		info.mT0 = mainInterval.x;
+		info.mT1 = mainInterval.y;
+		info.mTI = mainInterval.x;
+		info.mNormal = planes[indexMin].mNormal;
+	}
+
+	info.mContact = ray.mP0 + info.mTI * ray.mV;
+
+
+	if (glm::dot(info.mNormal, ray.mV) > 0)
+		info.mNormal = -info.mNormal;
+
+
+	return true;
+}
+
+bool Triangle::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
+{
+	return false;
+}

@@ -54,7 +54,7 @@ public:
 	template<typename F, class T, class T1, typename...Args>
 	auto Submit(F T::* f, T1* obj, Args&&... args)->std::future<decltype((std::declval<T>().*f)(args...))>;
 
-	int ThreadCount();
+	 ThreadCount();
 	std::thread::id GetMainThreadID();
 
 private:

@@ -38,13 +38,14 @@ struct Geometry
 struct Triangle : Geometry
 {
     //constructor
+    Triangle() {}
     Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2) : mV0(v0), mV1(v1), mV2(v2) {}
     bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info);
 
     //necessary data
-    glm::vec3 mV0;
-    glm::vec3 mV1;
-    glm::vec3 mV2;
+    glm::vec3 mV0 = glm::vec3(0.0F);
+    glm::vec3 mV1 = glm::vec3(0.0F);
+    glm::vec3 mV2 = glm::vec3(0.0F);
 };
 
 struct Mesh
@@ -94,12 +95,25 @@ struct Plane : Geometry
 
 };
 
+
 struct AABB : Geometry
 {
     //constructor
 
     AABB(const glm::vec3& width, const glm::vec3& height, const glm::vec3& length);
     AABB(const char** info = nullptr);
+    bool CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info);
+
+    //necessary data
+    std::vector<glm::vec3> mVectors;
+};
+
+struct Box : Geometry
+{
+    //constructor
+
+    Box(const glm::vec3& width, const glm::vec3& height, const glm::vec3& length);
+    Box(const char** info = nullptr);
     bool CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info);
 
     //necessary data

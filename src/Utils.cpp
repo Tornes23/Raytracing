@@ -223,7 +223,7 @@ Material* Utils::ParseMaterial(std::ifstream& file)
             }
             if (type.compare("METAl") == 0)
             {
-                parsed = new Diffuse();
+                parsed = new Metal();
                 parsed->ParseData(&info);
             }
             if (type.compare("DIELECTRIC") == 0)
