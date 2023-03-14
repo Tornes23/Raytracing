@@ -27,7 +27,13 @@ struct Object
 	bool CheckIntersection(const Ray& ray, ContactInfo& info);
 	bool CheckRayPath(const Ray& ray, ContactInfo& info);
 	void Destroy();
+
+	void SetPos(const glm::vec3& pos);
+	void SetRot(const glm::vec3& rotation);
+	void SetSca(float scale);
 	glm::vec3 mPos{0.0F, 0.0F, 0.0F};
+	glm::vec3 mRot{0.0F, 0.0F, 0.0F};
+	float mScale = 1.0;
 
 	//the corresponding Geometry
 	Geometry* mModel = nullptr;

@@ -214,10 +214,10 @@ bool Polygon::CheckIntersection(const Ray& ray, const glm::vec3& center, Contact
 	return false;
 }
 
-Model::Model(const char** info)
+Model::Model(const char** info, const glm::mat4x4& m2w)
 {
 	std::string file = *info;
-	mModel = std::make_shared<Mesh>(Mesh(file));
+	mModel = std::make_shared<Mesh>(Mesh(file, m2w));
 }
 
 bool Model::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
@@ -262,6 +262,49 @@ Mesh::Mesh(const std::string& obj)
 				mTriangles[index] = tri;
 				index++;
 			}
+	}
+}
+
+Mesh::Mesh(const std::string& obj, const glm::mat4x4& m2w)
+{
+	tinyobj::attrib_t attrib;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+
+	std::string err;
+
+	bool valid = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, obj.c_str());
+	if (valid)
+	{
+		mTriangles.resize(shapes[0].mesh.num_face_vertices.size());
+		//triangulate
+		auto mesh = shapes[0].mesh;
+		int index = 0;
+		for (size_t i = 0; i < mesh.indices.size(); i += 3) {
+			Triangle tri;
+
+			int index0 = mesh.indices[i].vertex_index * 3;
+			int index1 = mesh.indices[i + 1].vertex_index * 3;
+			int index2 = mesh.indices[i + 2].vertex_index * 3;
+
+			tri.mV0 = m2w * glm::vec4(attrib.vertices[index0 + 0],
+				attrib.vertices[index0 + 1],
+				attrib.vertices[index0 + 2],
+				1.0F);
+
+			tri.mV1 = m2w * glm::vec4(attrib.vertices[index1 + 0],
+				attrib.vertices[index1 + 1],
+				attrib.vertices[index1 + 2],
+				1.0F);
+
+			tri.mV2 = m2w * glm::vec4(attrib.vertices[index2 + 0],
+				attrib.vertices[index2 + 1],
+				attrib.vertices[index2 + 2],
+				1.0F);
+
+			mTriangles[index] = tri;
+			index++;
+		}
 	}
 }
 

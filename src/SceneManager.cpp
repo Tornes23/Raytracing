@@ -57,8 +57,15 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
                             objects.push_back(Object(line.substr(found + 1u).c_str(), GeometryTypes::BOX));
                         if (type.compare("POLYGON") == 0)
                             objects.push_back(Object(line.substr(found + 1u).c_str(), GeometryTypes::Polygon));
-                        if (type.compare("MESH") == 0)
+                        if (type.compare("MESH") == 0) {
+                            inFile.getline(buffer, 80);
+                            const char* trs = buffer;
+                            Object obj;
+                            obj.SetPos(Utils::GetVector(&trs));
+                            obj.SetRot(Utils::GetVector(&trs));
+                            obj.SetSca(Utils::GetFloat(&trs));
                             objects.push_back(Object(line.substr(found + 1u).c_str(), GeometryTypes::Model));
+                        }
 
                         objects.back().mMaterial = Utils::ParseMaterial(inFile);
                     }
