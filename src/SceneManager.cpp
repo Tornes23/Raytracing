@@ -27,6 +27,7 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
     if (!inFile)
         std::cerr << "ERROR WHILE TRYING TO OPEN " << to_load << " FILE\n";
 
+    std::string scene = Utils::GetFilename(to_load);
     std::vector<Object> objects;
     //reading the code from the file and adding it to the string
     while (inFile.good())
@@ -48,7 +49,7 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
                     else if (type.compare("AMBIENT") == 0)
                         GraphicsManager.ParseAmbient(line.substr(found + 1u).c_str());
                     else if (type.compare("LIGHT") == 0)
-                        GraphicsManager.CreateLight(line.substr(found + 1u).c_str());
+                        GraphicsManager.CreateLight(line.substr(found + 1u).c_str(), scene);
                     else
                     {
                         if (type.compare("SPHERE") == 0)
@@ -76,10 +77,10 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
         }
     }
     
-    for (auto& obj : GraphicsManager.GetLights())
+    for (auto& obj : GraphicsManager.GetLights(scene))
         objects.push_back(Object(obj));
 
-    mScenes.push_back(new Scene(objects, Utils::GetFilename(to_load)));
+    mScenes.push_back(new Scene(objects, scene));
     //closing the file
     inFile.close();
 	//load stuff

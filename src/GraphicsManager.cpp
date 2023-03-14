@@ -12,7 +12,7 @@
 #endif // MULTITHREAD
 
 
-void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; /*RenderBatch(226, 285, 1, 1); */RenderBatch(0, 0, mWidth, mHeight); }
+void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; /*RenderBatch(32, 268, 33, 269);*/ RenderBatch(0, 0, mWidth, mHeight); }
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int endY)
 {
@@ -42,9 +42,7 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 					mFrameBuffer.AddToPixel(x, y, result);
 				}
 				else
-				{
 					mFrameBuffer.AddToPixel(x, y, info.mColor);
-				}
 			}
 			else
 				mFrameBuffer.AddToPixel(x, y, ambient);
@@ -151,10 +149,10 @@ void GraphicsManagerClass::UpdateTextures()
 }
 
 void GraphicsManagerClass::CreateCamera(const char* info){ mCameras.push_back(Camera(info)); }
-void GraphicsManagerClass::CreateLight(const char* info){ mLights.push_back(Light(info));}
+void GraphicsManagerClass::CreateLight(const char* info, const std::string& scene){ mLights[scene].push_back(Light(info));}
 void GraphicsManagerClass::ParseAmbient(const char* info){ mAmbientLights.push_back(Color(Utils::GetVector(&info))); }
 void GraphicsManagerClass::GetScreenshot(std::string name) { mImage.saveToFile(name); }
-void GraphicsManagerClass::AddLight(const Light& light) { mLights.push_back(light); }
+void GraphicsManagerClass::AddLight(const Light& light, const std::string& scene) { mLights[scene].push_back(light); }
 void GraphicsManagerClass::IncrementSampleCount()
 {
 #ifdef MULTITHREAD
@@ -224,7 +222,7 @@ const FrameBuffer& GraphicsManagerClass::GetFrameBuffer() { return mFrameBuffer;
 const sf::Image& GraphicsManagerClass::GetImage() { return mImage; }
 const sf::Sprite& GraphicsManagerClass::GetSprite() { return mSprite; }
 const sf::Texture& GraphicsManagerClass::GetTexture() { return mTexture; }
-std::vector<Light>& GraphicsManagerClass::GetLights() { return mLights; }
+std::vector<Light>& GraphicsManagerClass::GetLights(const std::string& key) { return mLights[key]; }
 glm::ivec2 GraphicsManagerClass::GetSize() { return glm::ivec2(mWidth, mHeight); }
 bool GraphicsManagerClass::RenderNormals(){ return mRenderNormals; }
 int GraphicsManagerClass::GetTotalSamples() { return mSamples; }
@@ -236,7 +234,6 @@ void GraphicsManagerClass::SetSamples(int count) { mSamples = count; }
 void GraphicsManagerClass::SetHeight(int height) { mHeight = height; }
 void GraphicsManagerClass::SetAspectRatio(float ratio) { mAspectRatio = ratio;  }
 bool GraphicsManagerClass::SwapBuffers() { return mSampleCount <= mSamples; }
-
 #ifdef MULTITHREAD
 #include "ThreadPool.h"
 glm::ivec2 GraphicsManagerClass::GetBatchSize() { return mBatchSize; }

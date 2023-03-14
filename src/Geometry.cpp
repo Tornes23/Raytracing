@@ -321,7 +321,7 @@ Mesh::Mesh(const std::string& obj, const glm::mat4x4& m2w)
 	}
 }
 
-bool ContactInfo::IsValid() { return (mT0 >= 0.0F && mT1 >= 0.0F && mTI >= 0.0F); }
+bool ContactInfo::IsValid() { return mTI != std::numeric_limits<float>::max() && mTI >= 0.0F; }
 
 AABB::AABB(const glm::vec3& width, const glm::vec3& height, const glm::vec3& length)
 {

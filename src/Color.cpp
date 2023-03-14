@@ -76,9 +76,9 @@ void Color::SetColor(const std::vector<float>& c)
 glm::vec3 Color::GetColor() const{ return mRGB; }
 glm::vec<3, unsigned char> Color::ToRGB(int divisor) const { 
 
-	unsigned char r = (unsigned char)glm::clamp<float>(glm::ceil((mRGB.r / (divisor + 1)) * 255), 0, 255);
-	unsigned char g = (unsigned char)glm::clamp<float>(glm::ceil((mRGB.g / (divisor + 1)) * 255), 0, 255);
-	unsigned char b = (unsigned char)glm::clamp<float>(glm::ceil((mRGB.b / (divisor + 1)) * 255), 0, 255);
+	unsigned char r = (unsigned char)glm::clamp<float>(glm::ceil((mRGB.r / divisor) * 255), 0, 255);
+	unsigned char g = (unsigned char)glm::clamp<float>(glm::ceil((mRGB.g / divisor) * 255), 0, 255);
+	unsigned char b = (unsigned char)glm::clamp<float>(glm::ceil((mRGB.b / divisor) * 255), 0, 255);
 
 	return glm::vec<3, unsigned char>(r, g, b); 
 }

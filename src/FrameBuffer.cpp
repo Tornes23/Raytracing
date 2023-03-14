@@ -1,5 +1,6 @@
 #include <iostream>
 #include <glm/glm.hpp>
+#include "GraphicsManager.h"
 #include "FrameBuffer.h"
 #ifdef MULTITHREAD
 #include <mutex>
@@ -113,6 +114,8 @@ void FrameBuffer::SwapBuffers()
 // Convert the custom framebuffer to SFML format
 void FrameBuffer::ConvertFrameBufferToSFMLImage(sf::Image & image, int samples)
 {
+    if (!GraphicsManager.SwapBuffers()) samples--;
+
     int w = FrameBuffer::GetWidth();
     int h = FrameBuffer::GetHeight();
     //int x = 229;

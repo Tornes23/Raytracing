@@ -11,17 +11,17 @@ ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
 
     ContactInfo info = FindClosestObj(ray, objs);
 
-    if (info.mCollidedWith->mbLight) {
-        result.mT0 = 1.0F;
-        result.mT1 = 1.0F;
-        result.mTI = 1.0F;
-        result.mColor = info.mColor;
-        return result;
-    }
-
     if (info.IsValid()) {
+        
+        if (info.mCollidedWith->mbLight) {
+            result.mTI = 1.0F;
+            result.mColor = info.mColor;
+            return result;
+        }
+
         result = info;
         result.mColor = result.mColor * RayCast(info.mCollidedWith->mMaterial->BounceRay(info.mNormal, info.mContact), objs, 1).mColor;
+        auto test = result.mColor.ToRGB(GraphicsManager.GetSampleCount());
     }
             
     return result;
@@ -51,7 +51,9 @@ ContactInfo RayTracer::FindClosestObj(const Ray& ray, std::vector<Object>& objs)
         minInfo.mColor = objs[minIndex].mMaterial->mColor;
     }
 
-    minInfo.mCollidedWith = &objs[minIndex];
+    if(minIndex >= 0)
+        minInfo.mCollidedWith = &objs[minIndex];
+
 
     return minInfo;
 }
@@ -62,14 +64,13 @@ ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs, int bo
     if (bounce > mBounces) return result;
 
     ContactInfo info = FindClosestObj(ray, objs);
+    if(info.IsValid()){
 
-    if (info.mCollidedWith->mbLight) {
-        result.mTI = 1.0F;
-        result.mColor = info.mColor;
-        return result;
-    }
-
-    if (info.IsValid()) {
+        if (info.mCollidedWith->mbLight) {
+            result.mTI = 1.0F;
+            result.mColor = info.mColor;
+            return result;
+        }
         result = info;
         result.mColor = result.mColor * RayCast(info.mCollidedWith->mMaterial->BounceRay(info.mNormal, info.mContact), objs, bounce + 1).mColor;
     }

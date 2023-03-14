@@ -25,10 +25,10 @@ public:
 	void UpdateTextures();
 
 	void CreateCamera(const char* info);
-	void CreateLight(const char* info);
+	void CreateLight(const char* info, const std::string& scene);
 	void ParseAmbient(const char* info);
 	void GetScreenshot(std::string name);
-	void AddLight(const Light& light);
+	void AddLight(const Light& light, const std::string& scene);
 	void IncrementSampleCount();
 
 	glm::vec2 GetNDC(const glm::vec2& xy);
@@ -40,7 +40,7 @@ public:
 	const sf::Sprite& GetSprite();
 	const sf::Texture& GetTexture();
 	const FrameBuffer& GetFrameBuffer();
-	std::vector<Light>& GetLights();
+	std::vector<Light>& GetLights(const std::string& key);
 	glm::ivec2 GetSize();
 
 	bool SwapBuffers();
@@ -79,7 +79,7 @@ private:
 	GraphicsManagerClass() {}
 
 	std::vector<Camera> mCameras;
-	std::vector<Light> mLights;
+	std::map<std::string , std::vector<Light>> mLights;
 	std::map<std::string, std::shared_ptr<Material>> mMaterials;
 	std::vector<Color> mAmbientLights;
 	int mWidth = 0;

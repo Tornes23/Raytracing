@@ -54,13 +54,7 @@ int main(int argc, char ** argv)
         while (Window.GetSFWindow().pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
-            {
                 Window.CloseWindow();
-#ifdef MULTITHREAD
-                ThreadPool.ShutDown();
-#endif // MULTITHREAD
-
-            }
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
@@ -71,6 +65,8 @@ int main(int argc, char ** argv)
 #endif // MULTITHREAD
         }
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
+            takeScreenshot = true;
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F2))
             GraphicsManager.ToggleRenderNormals();
@@ -95,9 +91,6 @@ int main(int argc, char ** argv)
 #endif // MULTITHREAD
 
         Window.Update();
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
-            takeScreenshot = true;
 		
         GraphicsManager.UpdateTextures();
         Window.Draw(GraphicsManager.GetSprite());
@@ -117,6 +110,9 @@ int main(int argc, char ** argv)
         }
     }
 
+#ifdef MULTITHREAD
+    ThreadPool.ShutDown();
+#endif // MULTITHREAD
     GraphicsManager.ShutDown();
     SceneManager.FreeScenes();
 
