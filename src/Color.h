@@ -25,7 +25,7 @@ public:
 	void SetColor(const std::vector<double>& c);
 	void SetColor(const std::vector<float>& c);
 	glm::vec3 GetColor() const;
-	glm::vec<3, unsigned char> ToRGB() const;
+	glm::vec<3, unsigned char> ToRGB(int divisor = 1) const;
 	float GetR() const;
 	float GetG() const;
 	float GetB() const;

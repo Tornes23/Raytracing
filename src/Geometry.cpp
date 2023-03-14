@@ -206,12 +206,25 @@ Polygon::Polygon(const char** info)
 	for (int i = 0; i < vertices; i++)
 		mVertices[i] = Utils::GetVector(info);
 
-	//triangulate
+	Triangulate();
 }
 
 bool Polygon::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
 {
 	return false;
+}
+
+void Polygon::Triangulate()
+{
+	for (size_t i = 0; i < mVertices.size(); i++)
+	{
+		//Triangle tri;
+		//tri.mV0 = mVertices[i];
+		//tri.mV1 = mVertices[i];
+		//tri.mV2 = mVertices[i];
+		//
+		//mTriangles.push_back(tri);
+	}
 }
 
 Model::Model(const char** info, const glm::mat4x4& m2w)

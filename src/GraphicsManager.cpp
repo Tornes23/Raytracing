@@ -5,24 +5,25 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "Raytracer.h"
+
 #ifdef MULTITHREAD
 #include <Windows.h>
 #include "ThreadPool.h"
 #endif // MULTITHREAD
 
 
-void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; RenderBatch(0, 0, mWidth, mHeight); }
+void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; /*RenderBatch(226, 285, 1, 1); */RenderBatch(0, 0, mWidth, mHeight); }
 
-void GraphicsManagerClass::RenderBatch(int startX, int startY, int width, int height)
+void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int endY)
 {
 	//DEBUG
 	//std::cout << "rendering batch = [" << startX << ", " << startY << ", " << width << ", " << height << "]\n";
 	//std::cout << "Id of thread executing this thread is = " << std::this_thread::get_id() << "\n";
 	//int x = 229;
 	//int y = 196;
-	for (int x = startX; x < width; x++)
+	for (int x = startX; x < endX; x++)
 	{
-		for (int y = startY; y < height; y++)
+		for (int y = startY; y < endY; y++)
 		{
 			int currScene = SceneManager.GetDisplayScene();
 			glm::vec2 ndc = GetNDC({ x,y });
@@ -83,8 +84,6 @@ void GraphicsManagerClass::Update()
 {
 	if (GraphicsManager.SwapBuffers())
 		IncrementSampleCount();
-	else 
-		Normalize();
 }
 
 void GraphicsManagerClass::Clear() {
@@ -146,7 +145,7 @@ void GraphicsManagerClass::Normalize()
 
 void GraphicsManagerClass::UpdateTextures()
 {
-	mFrameBuffer.ConvertFrameBufferToSFMLImage(mImage);
+	mFrameBuffer.ConvertFrameBufferToSFMLImage(mImage, mSampleCount);
 	mTexture.update(mImage);
 	mSprite.setTexture(mTexture);
 }
@@ -166,8 +165,6 @@ void GraphicsManagerClass::IncrementSampleCount()
 
 #else
 	mSampleCount++;
-	//DEBUG
-	//std::cout << "Sample count  = " << mSampleCount << "\n";
 #endif // MULTITHREAD
 }
 glm::vec2 GraphicsManagerClass::GetNDC(const glm::vec2& xy)
@@ -230,7 +227,8 @@ const sf::Texture& GraphicsManagerClass::GetTexture() { return mTexture; }
 std::vector<Light>& GraphicsManagerClass::GetLights() { return mLights; }
 glm::ivec2 GraphicsManagerClass::GetSize() { return glm::ivec2(mWidth, mHeight); }
 bool GraphicsManagerClass::RenderNormals(){ return mRenderNormals; }
-int GraphicsManagerClass::GetSampleCount() { return mSamples; }
+int GraphicsManagerClass::GetTotalSamples() { return mSamples; }
+int GraphicsManagerClass::GetSampleCount() { return mSampleCount; }
 void GraphicsManagerClass::SetWidth(int width) { mWidth = width; }
 void GraphicsManagerClass::SetRenderNormals(bool render) { mRenderNormals = render; }
 void GraphicsManagerClass::ToggleRenderNormals() { mRenderNormals = !mRenderNormals; }

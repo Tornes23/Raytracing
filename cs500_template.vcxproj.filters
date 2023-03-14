@@ -58,6 +58,9 @@
     <Filter Include="Source Files\GFX\FrameBuffer">
       <UniqueIdentifier>{0b65a223-3326-4941-90e9-92ae8e08ee62}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Window">
+      <UniqueIdentifier>{6b5100e8-7ed8-486d-838f-5efacfed57ff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -101,6 +104,9 @@
     </ClCompile>
     <ClCompile Include="src\FrameBuffer.cpp">
       <Filter>Source Files\GFX\FrameBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Window.cpp">
+      <Filter>Source Files\Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -146,5 +152,49 @@
     <ClInclude Include="src\FrameBuffer.h">
       <Filter>Source Files\GFX\FrameBuffer</Filter>
     </ClInclude>
+    <ClInclude Include="src\Window.h">
+      <Filter>Source Files\Window</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="scenes\A1.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\A1_Box.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\A2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\A2_Box.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\A3.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\A3_Box.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\A3_Suzanne.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\A4_Box_Transmission.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\A4_BunnyGlass_Diffuse.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\A4_BunnyGlass_Transmission.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\A4_Suzanne.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="scenes\ufo.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="CONFIG.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

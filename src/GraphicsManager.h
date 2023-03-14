@@ -45,6 +45,7 @@ public:
 
 	bool SwapBuffers();
 	bool RenderNormals();
+	int GetTotalSamples();
 	int GetSampleCount();
 
 	void SetWidth(int width);
@@ -55,7 +56,7 @@ public:
 	void SetSamples(int count = 1);
 
 	void Render();
-	void RenderBatch(int startX, int startY, int width, int height);
+	void RenderBatch(int startX, int startY, int endX, int endY);
 
 
 

@@ -177,6 +177,7 @@
     <ClCompile Include="src\SceneManager.cpp" />
     <ClCompile Include="src\ThreadPool.cpp" />
     <ClCompile Include="src\Utils.cpp" />
+    <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Camera.h" />
@@ -193,6 +194,22 @@
     <ClInclude Include="src\TaskQueue.h" />
     <ClInclude Include="src\ThreadPool.h" />
     <ClInclude Include="src\Utils.h" />
+    <ClInclude Include="src\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CONFIG.txt" />
+    <Text Include="scenes\A1.txt" />
+    <Text Include="scenes\A1_Box.txt" />
+    <Text Include="scenes\A2.txt" />
+    <Text Include="scenes\A2_Box.txt" />
+    <Text Include="scenes\A3.txt" />
+    <Text Include="scenes\A3_Box.txt" />
+    <Text Include="scenes\A3_Suzanne.txt" />
+    <Text Include="scenes\A4_Box_Transmission.txt" />
+    <Text Include="scenes\A4_BunnyGlass_Diffuse.txt" />
+    <Text Include="scenes\A4_BunnyGlass_Transmission.txt" />
+    <Text Include="scenes\A4_Suzanne.txt" />
+    <Text Include="scenes\ufo.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

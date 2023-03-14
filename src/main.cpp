@@ -9,6 +9,7 @@
 #include "Raytracer.h"
 #include "Scene.h"
 #include "Utils.h"
+#include "Window.h"
 #ifdef MULTITHREAD
 #include "ThreadPool.h"
 #endif
@@ -40,21 +41,21 @@ int main(int argc, char ** argv)
     GraphicsManager.Init();
 
     glm::ivec2 size = GraphicsManager.GetSize();
-    sf::RenderWindow window(sf::VideoMode(size.x, size.y), "SFML works!");
+    Window.Init(GraphicsManager.GetSize());
 
     bool reload = false;
 
     // Init the clock
     sf::Clock clock;
-    while (window.isOpen())
+    while (Window.IsOpen())
     {
         // Handle input
         sf::Event event;
-        while (window.pollEvent(event))
+        while (Window.GetSFWindow().pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
             {
-                window.close();
+                Window.CloseWindow();
 #ifdef MULTITHREAD
                 ThreadPool.ShutDown();
 #endif // MULTITHREAD
@@ -64,7 +65,7 @@ int main(int argc, char ** argv)
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
         {
-            window.close();
+            Window.CloseWindow();
 #ifdef MULTITHREAD
             ThreadPool.ShutDown();
 #endif // MULTITHREAD
@@ -93,17 +94,14 @@ int main(int argc, char ** argv)
         GraphicsManager.Render();
 #endif // MULTITHREAD
 
-
-        // Fill framebuffer
-        sf::Time elapsed = clock.getElapsedTime();
-        int      time    = static_cast<int>(elapsed.asSeconds());
+        Window.Update();
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
             takeScreenshot = true;
 		
         GraphicsManager.UpdateTextures();
-        window.draw(GraphicsManager.GetSprite());
-        window.display();
+        Window.Draw(GraphicsManager.GetSprite());
+        Window.Display();
 
         if (reload)
         {

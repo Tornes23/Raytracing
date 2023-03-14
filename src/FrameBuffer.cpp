@@ -111,7 +111,7 @@ void FrameBuffer::SwapBuffers()
 }
 
 // Convert the custom framebuffer to SFML format
-void FrameBuffer::ConvertFrameBufferToSFMLImage(sf::Image & image)
+void FrameBuffer::ConvertFrameBufferToSFMLImage(sf::Image & image, int samples)
 {
     int w = FrameBuffer::GetWidth();
     int h = FrameBuffer::GetHeight();
@@ -121,7 +121,7 @@ void FrameBuffer::ConvertFrameBufferToSFMLImage(sf::Image & image)
     {
         for (int y = 0; y < h; y++)
         {
-            glm::vec<3, unsigned char> color = FrameBuffer::GetPixel(x, y).ToRGB();
+            glm::vec<3, unsigned char> color = FrameBuffer::GetPixel(x, y).ToRGB(samples);
             image.setPixel(x, y, sf::Color(color.r, color.g, color.b));
         }
     }

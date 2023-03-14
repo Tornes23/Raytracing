@@ -70,6 +70,7 @@ struct Polygon : Geometry
     //constructor
     Polygon(const char** info = nullptr);
     bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info);
+    void Triangulate();
     std::vector<glm::vec3> mVertices;
     std::vector<Triangle> mTriangles;
 };

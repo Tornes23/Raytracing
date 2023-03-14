@@ -24,7 +24,7 @@ class FrameBuffer
     int  GetWidth() { return width; }
     int  GetHeight() { return height; }
 
-    void ConvertFrameBufferToSFMLImage(sf::Image & image);
+    void ConvertFrameBufferToSFMLImage(sf::Image & image, int samples = 1);
 
   private:
     int             width;
