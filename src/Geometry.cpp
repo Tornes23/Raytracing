@@ -72,11 +72,11 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 	std::vector<Plane> planes(6);
 	std::vector<glm::vec3> displacements(6);
 
-	planes[0] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[2])));//front plane
+	planes[0] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[0])));//front plane
 	planes[1] = Plane(-planes[0].mNormal);// back plane
 	planes[2] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[1])));//left plane
 	planes[3] = Plane(-planes[2].mNormal);//right plane
-	planes[4] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[0])));// bot plane
+	planes[4] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[0])));// bot plane
 	planes[5] = Plane(-planes[4].mNormal);//top plane
 
 	displacements[0] = glm::vec3(0.0F);//front plane
