@@ -1,0 +1,271 @@
+#version 430
+        
+layout(rgba8, binding=0) uniform image2D outTexture;
+layout(r32ui, binding=1) uniform uimage2D sampleCountTexture;
+layout(r32f,  binding=2) uniform image2D noiseTexture;
+
+layout (local_size_x = 32, local_size_y = 32) in;
+
+const float Infinity = 1.0f / 0.0f;
+const float Epsilon = 0.001f;
+
+// Shapes **********************************************************
+struct Ray
+{
+	vec3 p; // ray origin
+	vec3 d; // ray direction
+};
+
+struct Material
+{
+    vec4 color; // RGB: material color
+                // A: Integer part is material type (0/1/2/3)
+                //    Fractional part is the material parameter 
+};
+
+struct Sphere
+{
+	vec4 c;  // XYZ: sphere center / W: sphere radius
+    Material mat;
+};
+
+struct Triangle
+{
+	vec4 p;  // point in triangle (V0)
+    vec4 a;  // edge vector of triangle (V1 - V0)
+    vec4 b;  // edge vector of triangle (V2 - V0)
+    Material mat;
+};
+
+// Intersection Data **************************************************
+struct IntersectData
+{
+    vec3  ip;      // Intersection point
+    float it;      // Intersection time
+    vec3  normal;  // Intersection normal
+    vec3  color;   // Material color of intersected object
+    int   type;    // Material type of intersected object 
+                   // 0: LIGHT / 1: DIFFUSE / 2: METAL / 3: DIELECTRIC
+    float param;   // Material parameter only used for METAL and DIELECTRIC
+                   //   METAL: roughness 
+                   //   DIELECTRIC: index of refraction
+};
+
+// Scene data *********************************************************
+layout(std430, binding = 0) buffer SceneSpheres
+{
+    Sphere spheres[];
+};
+uniform int NumSpheres;
+
+layout(std430, binding = 1) buffer SceneTriangles
+{
+    Triangle triangles[];
+};
+uniform int NumTriangles;
+
+// random number generator ********************************************
+// taken from iq :)
+float seed;	//seed initialized in main
+float Random01() { return fract(sin(seed++)*43758.5453123); }
+// ********************************************************************
+
+// Returns a random value on the surface of the sphere
+vec3 RandSphereSurface()
+{
+    float PI    = 3.141592f;
+    float theta = (Random01() * 2.0f - 1.0f) * 2.0f * PI;
+    float phi   = acos(Random01() * 2.0f - 1.0f);
+
+    float x = sin(phi) * cos(theta);
+    float y = sin(phi) * sin(theta);
+    float z = cos(phi);
+
+    return vec3 (x,y,z);
+}
+
+// Returns a random value in the volume of the sphere
+vec3 RandSphere()
+{
+    vec3 randVec = vec3(Random01(),Random01(),Random01());
+
+    randVec = 2.0f * randVec - 1.0f;
+
+    while (dot(randVec, randVec) > 1.0f)
+    {
+        randVec = vec3(Random01(),Random01(),Random01());
+        randVec = 2.0f * randVec - 1.0f;
+    }
+
+    return randVec;
+}
+
+// 6. TODO: Find intersection time for the given ray and the plane created by p (point) and n (normal)
+float Intersects(in Ray r, in vec3 p, in vec3 n)
+{
+    return Infinity;
+}
+
+// 7. TODO: Test intersection between ray and triangle
+// Returns true when intersection found (extra data in interesectData)
+bool Intersects(in Ray r, in Triangle triangle, out IntersectData intersectData)
+{
+    // default intersection data (ignored when no intersection)
+    intersectData.ip     = vec3(0.0f);
+    intersectData.it     = Infinity;
+    intersectData.normal = vec3(0.0f);
+    intersectData.color  = triangle.mat.color.rgb;
+    intersectData.type   = int(triangle.mat.color.w);
+    intersectData.param  = fract(triangle.mat.color.w);
+
+    // No intersection with the triangle
+    return false;
+}
+
+// 3. TODO: Test intersection between ray and sphere
+// Returns true when intersection found (extra data in interesectData)
+bool Intersects(in Ray r, in Sphere sphere, out IntersectData intersectData)
+{
+
+    float a = dot(r.d, r.d);
+	vec3 cp = r.p - sphere.c.xyz;
+	float b = 2.0 * dot(r.d, cp);
+	float c = dot(cp, cp) - (sphere.c.w * sphere.c.w);
+	float discriminant = (b * b) - 4.0 * a * c;
+
+	if (a == 0.0) return false;
+	if (discriminant < 0.0) return false;
+
+	float t0 = (-b - sqrt(discriminant)) / 2.0f * a;
+	float t1 = (-b + sqrt(discriminant)) / 2.0f * a;
+    float tI = Infinity;
+
+	if (t0 < 0.0 && t1 < 0.0) return false;
+
+	if (t0 >= 0.0 && t1 >= 0.0)
+		tI = min(t0, t1);//probably can be changed to t0 sin is going to be lower always
+	if (t0 >= 0.0 && t1 < 0.0)
+		tI = t0;
+	if (t0 < 0.0 && t1 >= 0.0)
+		tI = t1;
+
+
+    // default intersection data (ignored when no intersection)
+    intersectData.ip     = r.p + r.d * tI;
+    intersectData.it     = tI;
+    intersectData.normal = normalize(intersectData.ip - sphere.c.xyz);
+    intersectData.color  = sphere.mat.color.rgb;
+    intersectData.type   = int(sphere.mat.color.w);
+    intersectData.param  = fract(sphere.mat.color.w);
+
+	if (dot(intersectData.normal, r.d) > 0)
+		intersectData.normal = -intersectData.normal;
+
+    // No intersection with sphere  
+    return true;
+}
+
+// Returns closest intersection of the ray with the whole scene
+IntersectData IntersectScene(in Ray ray)
+{
+    IntersectData closestID;
+
+    closestID.it = Infinity; // initialize to infinity
+    closestID.color = vec3(0.0f);
+
+    // Check intersection with every sphere
+    for(int i = 0; i < NumSpheres; i++)
+    {
+        IntersectData id;
+        if(Intersects(ray, spheres[i], id) && id.it < closestID.it)
+        {
+            closestID = id;
+        }
+    }
+    // Check intersection with every triangle
+    for(int i = 0; i < NumTriangles; i++)
+    {
+        IntersectData id;
+        if(Intersects(ray, triangles[i], id) && id.it < closestID.it)
+        {
+            closestID = id;
+        }
+    }
+
+    return closestID;
+}
+
+// Traces a path following ray bounces
+vec3 RayCast(in Ray ray, in int maxDepth)
+{
+    vec3 color = vec3(1.0f);
+    Ray newRay = ray;
+    for(int b = 0; b < maxDepth; b++)
+    {
+        IntersectData iD = IntersectScene(newRay);
+        
+        if(iD.it == Infinity)
+            return vec3(0);
+        if(iD.type == 0) // LIGHT
+        {
+            return color * iD.color;
+        }
+        else if(iD.type == 1) // DIFFUSE
+        {
+            // 4. TODO: implement Diffuse material bounce
+            newRay.p = iD.ip + (iD.normal * Epsilon);
+            newRay.d = iD.normal + RandSphere();
+            color *= iD.color;
+        }
+        else if(iD.type == 2) // METAL
+        {
+            // 5. TODO: implement Metal material bounce
+            vec3 reflected = reflect();
+            color *= iD.color;
+        }
+    }
+        
+    return vec3(0);
+}
+
+
+// ********************************************************************
+// Uniform data *******************************************************
+uniform vec3 camPos;
+uniform vec3 view;
+uniform vec3 up;
+uniform float focal;
+uniform float time;
+uniform int NumSamples = 1;
+uniform int MaxDepth   = 10;
+
+void main() 
+{
+    ivec2 pixelPos = ivec2(gl_GlobalInvocationID.xy);
+    vec2 resolution = imageSize(outTexture);
+    seed = imageLoad(noiseTexture, pixelPos).r + time;
+
+    // 1. TODO: Compute NDC coordinate from pixel position
+
+    float x = -((pixelPos.x + 0.5) - (resolution.x / 2.0)) / (resolution.x / 2.0);
+	float y = ((pixelPos.y + 0.5) - (resolution.y / 2.0)) / (resolution.y / 2.0);
+    vec2 ndc = vec2(x, y);
+
+    // 2. TODO: Compute rays target in world space from NDC coordinates (preserve aspect ratio)
+    vec3 target = camPos + (focal * normalize(view) + ndc.x * (normalize(cross(up, view)) / 2.0) + ndc.y * (normalize(up) / (2.0 * (resolution.x / resolution.y))));
+    
+    // Generate pixel ray
+    Ray ray;
+    ray.p = camPos;
+    ray.d = normalize(target - camPos);
+
+    // Ray cast to get new samples and average result
+    vec3 newColor = vec3(0);
+    for (uint i = 0; i < NumSamples; i++) 
+        newColor += RayCast(ray, MaxDepth) / NumSamples;
+        
+    // 8. TODO: Use previous sample information reading from old image (sample count and color)
+                
+    // Save result to output image
+    imageStore(outTexture, pixelPos, vec4(newColor, 1));
+}

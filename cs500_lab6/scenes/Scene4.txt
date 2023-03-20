@@ -1,0 +1,26 @@
+# 3 big spheres
+MESH ./meshes/diamond.obj
+(0.0,0.25,0.0) (0.0,-50.0,37.0) 0.5
+DIELECTRIC (0.8,0.95,0.8) 0.6
+
+SPHERE (0.6,0.5,0.9) 0.5
+DIFFUSE (0.87,0.88,0.71) 
+
+SPHERE (-0.4,0.5,-1) 0.5
+METAL (0.88,0.72,0.4) 0.2
+
+# small spheres
+SPHERE (0.5,0.3,-0.7) 0.3
+DIFFUSE (0.4,0.6,0.72) 
+
+# floor spheres
+SPHERE (0.0,-500.0,0.0) 500 
+DIFFUSE (0.74,0.33,0.2) 
+
+# light spheres
+SPHERE (5.0,2.0,0.0) 2
+LIGHT  (4,4,4) 
+
+AMBIENT (1.0,1.0,1.0)
+
+CAMERA (-1.0,0.6,1.5) (0,0.5,0) (0,1,0) 1
