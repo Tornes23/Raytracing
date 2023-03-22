@@ -20,7 +20,7 @@ ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
         }
 
         result = info;
-        result.mColor = result.mColor * RayCast(info.mCollidedWith->mMaterial->BounceRay(info.mNormal, info.mContact), objs, 1).mColor;
+        result.mColor = result.mColor * RayCast(info.mCollidedWith->mMaterial->BounceRay(ray.mV, info.mNormal, info.mContact), objs, 1).mColor;
         auto test = result.mColor.ToRGB(GraphicsManager.GetSampleCount());
     }
             
@@ -72,7 +72,7 @@ ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs, int bo
             return result;
         }
         result = info;
-        result.mColor = result.mColor * RayCast(info.mCollidedWith->mMaterial->BounceRay(info.mNormal, info.mContact), objs, bounce + 1).mColor;
+        result.mColor = result.mColor * RayCast(info.mCollidedWith->mMaterial->BounceRay(ray.mV, info.mNormal, info.mContact), objs, bounce + 1).mColor;
     }
 
     return result;

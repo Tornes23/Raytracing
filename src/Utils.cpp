@@ -221,7 +221,7 @@ Material* Utils::ParseMaterial(std::ifstream& file)
                 parsed = new Diffuse();
                 parsed->ParseData(&info);
             }
-            if (type.compare("METAl") == 0)
+            if (type.compare("METAL") == 0)
             {
                 parsed = new Metal();
                 parsed->ParseData(&info);

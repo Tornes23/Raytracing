@@ -25,7 +25,6 @@ struct Object
 	Object(const Object& obj);
 	Object(const Light& light);
 	bool CheckIntersection(const Ray& ray, ContactInfo& info);
-	bool CheckRayPath(const Ray& ray, ContactInfo& info);
 	void Destroy();
 
 	void SetPos(const glm::vec3& pos);

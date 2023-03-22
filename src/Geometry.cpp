@@ -2,6 +2,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <TinyOBJ/tiny_obj_loader.h>
 #include <glm/gtx/transform.hpp>
+#include <glm/mat2x2.hpp>
 #include "Geometry.h"
 #include "Utils.h"
 #include "GraphicsManager.h"
@@ -179,7 +180,7 @@ bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, ContactInf
 	if (dot == 0.0F)
 		return false;
 
-	glm::vec3 cp = glm::normalize(ray.mP0 - point);
+	glm::vec3 cp = ray.mP0 - point;
 	float time = -glm::dot(cp, mNormal) / dot;
 
 	if (time < 0.0F)
@@ -254,25 +255,24 @@ Mesh::Mesh(const std::string& obj)
 			auto mesh = shapes[0].mesh;
 			int index = 0;
 			for (size_t i = 0; i < mesh.indices.size(); i += 3) {
-				Triangle tri;
 				
 				int index0 = mesh.indices[i].vertex_index * 3;
 				int index1 = mesh.indices[i + 1].vertex_index * 3;
 				int index2 = mesh.indices[i + 2].vertex_index * 3;
 
-				tri.mV0 = glm::vec3(attrib.vertices[index0 + 0], 
+				glm::vec3 v0 = glm::vec3(attrib.vertices[index0 + 0], 
 									attrib.vertices[index0 + 1],
 									attrib.vertices[index0 + 2]);
 
-				tri.mV1 = glm::vec3(attrib.vertices[index1 + 0], 
+				glm::vec3 v1 = glm::vec3(attrib.vertices[index1 + 0],
 									attrib.vertices[index1 + 1],
 									attrib.vertices[index1 + 2]);
 
-				tri.mV2 = glm::vec3(attrib.vertices[index2 + 0], 
+				glm::vec3 v2 = glm::vec3(attrib.vertices[index2 + 0],
 									attrib.vertices[index2 + 1],
 									attrib.vertices[index2 + 2]);
 
-				mTriangles[index] = tri;
+				mTriangles[index] = Triangle(v0, v1, v2);
 				index++;
 			}
 	}
@@ -294,28 +294,27 @@ Mesh::Mesh(const std::string& obj, const glm::mat4x4& m2w)
 		auto mesh = shapes[0].mesh;
 		int index = 0;
 		for (size_t i = 0; i < mesh.indices.size(); i += 3) {
-			Triangle tri;
 
 			int index0 = mesh.indices[i].vertex_index * 3;
 			int index1 = mesh.indices[i + 1].vertex_index * 3;
 			int index2 = mesh.indices[i + 2].vertex_index * 3;
 
-			tri.mV0 = m2w * glm::vec4(attrib.vertices[index0 + 0],
+			glm::vec3 v0 = m2w * glm::vec4(attrib.vertices[index0 + 0],
 				attrib.vertices[index0 + 1],
 				attrib.vertices[index0 + 2],
 				1.0F);
 
-			tri.mV1 = m2w * glm::vec4(attrib.vertices[index1 + 0],
+			glm::vec3 v1 = m2w * glm::vec4(attrib.vertices[index1 + 0],
 				attrib.vertices[index1 + 1],
 				attrib.vertices[index1 + 2],
 				1.0F);
 
-			tri.mV2 = m2w * glm::vec4(attrib.vertices[index2 + 0],
+			glm::vec3 v2 = m2w * glm::vec4(attrib.vertices[index2 + 0],
 				attrib.vertices[index2 + 1],
 				attrib.vertices[index2 + 2],
 				1.0F);
 
-			mTriangles[index] = tri;
+			mTriangles[index] = Triangle(v0, v1, v2);
 			index++;
 		}
 	}
@@ -423,7 +422,60 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 	return true;
 }
 
+Triangle::Triangle(const char** info)
+{
+}
+
+Triangle::Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool edges)
+{
+	mV0 = v0;
+	mA = v1 - mV0;
+	mB = v2 - mV0;
+
+	if(edges){
+		mA = v1;
+		mB = v2;
+	}
+}
+
 bool Triangle::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
 {
-	return false;
+	glm::vec3 normal = glm::normalize(glm::cross(mA, mB));
+	if (glm::dot(normal, ray.mV) > 0)
+		normal = -normal;
+
+	Plane p(normal);
+
+	ContactInfo temp;
+	bool intersection = p.CheckIntersection(ray, mV0, temp);
+
+	// No intersection with the triangle
+	if (!intersection) return false;
+
+	glm::vec3 intersection_point = ray.mP0 + (ray.mV * temp.mTI);
+	glm::vec3 cPi = intersection_point - mV0;
+
+	float aa = glm::dot(mA, mA);
+	float bb = glm::dot(mB, mB);
+	float ab = glm::dot(mA, mB);
+	float ba = glm::dot(mB, mA);
+	float divisor = 1.0F / ((aa * bb) - (ab * ba));
+
+	glm::mat2x2 m(bb, -ab, -ba, aa);
+	m /= divisor;
+
+	glm::vec2 alpha_beta = m * glm::vec2(glm::dot(cPi, mA), glm::dot(cPi, mB));
+
+	// No intersection with the triangle
+	if (alpha_beta.x < 0.0 || alpha_beta.y < 0.0 || (alpha_beta.x + alpha_beta.y) > 1.0) return false;
+
+	// default intersection data (ignored when no intersection)
+	info.mContact = intersection_point;
+	info.mTI = temp.mTI;
+	info.mNormal = normal;
+	info.mT0 = 1.0F;
+	info.mT1 = 1.0F;
+
+	// intersection with the triangle
+	return true;
 }

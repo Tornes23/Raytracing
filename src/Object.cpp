@@ -79,11 +79,6 @@ bool Object::CheckIntersection(const Ray& ray, ContactInfo& info)
 	return intersected;
 }
 
-bool Object::CheckRayPath(const Ray& ray, ContactInfo& info)
-{
-	return false;
-}
-
 void Object::Destroy()
 {
 	if (mModel != nullptr)

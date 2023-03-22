@@ -39,13 +39,13 @@ struct Geometry
 struct Triangle : Geometry
 {
     //constructor
-    Triangle() {}
-    Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2) : mV0(v0), mV1(v1), mV2(v2) {}
+    Triangle(const char** info = nullptr);
+    Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool edges = false);
     bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info);
     //necessary data
     glm::vec3 mV0 = glm::vec3(0.0F);
-    glm::vec3 mV1 = glm::vec3(0.0F);
-    glm::vec3 mV2 = glm::vec3(0.0F);
+    glm::vec3 mA = glm::vec3(0.0F);
+    glm::vec3 mB = glm::vec3(0.0F);
 };
 
 struct Mesh
@@ -88,13 +88,13 @@ struct Model : Geometry
 struct Plane : Geometry
 {
     //constructor
-    Plane(const glm::vec3& norm = glm::vec3(0.0F)) : mNormal(norm) {}
+    Plane(const glm::vec3& norm = glm::vec3(0.0F), const glm::vec3& p = glm::vec3(0.0F)) : mNormal(norm), mP(p) {}
     bool CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2& interval);
     bool CheckIntersection(const Ray& ray, const glm::vec3& point, ContactInfo& info);
 
     //necessary data
     glm::vec3 mNormal;
-
+    glm::vec3 mP;
 };
 
 
