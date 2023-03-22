@@ -18,6 +18,6 @@ namespace Utils
 
 	std::string GetFilename(const std::string& path);
 	void LoadConfig(const std::string& path);
-	glm::vec3 GetRandomVector();
+	glm::vec3 GetRandomVector(float radius);
 
 }

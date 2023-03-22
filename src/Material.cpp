@@ -5,7 +5,7 @@ void Diffuse::ParseData(const char** info) { mColor = Color(Utils::GetVector(inf
 
 Ray Diffuse::BounceRay(const glm::vec3& incidence, const glm::vec3& normal, const glm::vec3& cp)
 {
-    return Ray(cp + (normal * Raytracer.GetEpsilon()), normal + Utils::GetRandomVector());
+    return Ray(cp + (normal * Raytracer.GetEpsilon()), normal + Utils::GetRandomVector(1.0F));
 }
 
 void Metal::ParseData(const char** info)
@@ -17,15 +17,17 @@ void Metal::ParseData(const char** info)
 Ray Metal::BounceRay(const glm::vec3& incidence, const glm::vec3& normal, const glm::vec3& cp)
 {
     glm::vec3 reflected = glm::reflect(incidence, normal);
-    glm::vec3 candidate = reflected + (Utils::GetRandomVector() * mRoughness);
+    glm::vec3 candidate = reflected;
 
-    if(glm::dot(candidate, normal) < 0) candidate = reflected + (Utils::GetRandomVector() * mRoughness);
+    if (mRoughness > 0.0F)
+        candidate += Utils::GetRandomVector(mRoughness);
+
+    float epsilon = Raytracer.GetEpsilon();
+    if(glm::dot(candidate, candidate) < (epsilon)) return Ray(cp, glm::vec3(0.0F));
     
-    candidate = glm::normalize(candidate);
-
-    glm::vec3 p = cp + (candidate * Raytracer.GetEpsilon());
-    glm::vec3 v = candidate;
-    return Ray(v, p);
+    glm::vec3 p = cp + (normal * Raytracer.GetEpsilon());
+    glm::vec3 v = glm::normalize(candidate);
+    return Ray(p, v);
 }
 
 void Dielectric::ParseData(const char** info)
