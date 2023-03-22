@@ -147,4 +147,9 @@
       <Filter>Source Files\GFX\FrameBuffer</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="CONFIG.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

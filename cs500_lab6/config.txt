@@ -2,4 +2,4 @@ Width		1280
 Height		720
 NumSamples  10
 MaxDepth    10
-Scene       ./scenes/Scene1.txt
+Scene       ./scenes/Scene2.txt

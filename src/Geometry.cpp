@@ -239,3 +239,44 @@ Mesh::Mesh(const std::string& obj)
 }
 
 bool ContactInfo::IsValid() { return (mT0 >= 0.0F && mT1 >= 0.0F && mTI >= 0.0F); }
+
+bool Triangle::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
+{
+	glm::vec3 normal = glm::normalize(glm::cross(triangle.a.xyz, triangle.b.xyz));
+	float plane_time = Intersects(r, triangle.p.xyz, normal);
+
+	// No intersection with the triangle
+	if (plane_time == Infinity) return false;
+
+	vec3 intersection_point = r.p + (r.d * plane_time);
+
+	vec3 cPi = intersection_point - triangle.p.xyz;
+
+	float aa = dot(triangle.a.xyz, triangle.a.xyz);
+	float bb = dot(triangle.b.xyz, triangle.b.xyz);
+	float ab = dot(triangle.a.xyz, triangle.b.xyz);
+	float ba = dot(triangle.b.xyz, triangle.a.xyz);
+	float divisor = 1.0F / ((aa * bb) - (ab * ba));
+
+	mat2 m;
+	m[0] = vec2(bb, -ba);
+	m[1] = vec2(-ab, aa);
+
+	m /= divisor;
+
+	vec2 alpha_beta = m * vec2(dot(cPi, triangle.a.xyz), dot(cPi, triangle.b.xyz));
+
+	// No intersection with the triangle
+	if (alpha_beta.x < 0.0 || alpha_beta.y < 0.0 || (alpha_beta.x + alpha_beta.y) > 1.0) return false;
+
+	// default intersection data (ignored when no intersection)
+	info.ip = intersection_point;
+	info.it = plane_time;
+	info.normal = normal;
+	info.color = triangle.mat.color.rgb;
+	info.type = int(triangle.mat.color.w);
+	info.param = fract(triangle.mat.color.w);
+
+	// intersection with the triangle
+	return true;
+}

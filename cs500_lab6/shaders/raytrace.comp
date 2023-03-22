@@ -103,23 +103,61 @@ vec3 RandSphere()
 // 6. TODO: Find intersection time for the given ray and the plane created by p (point) and n (normal)
 float Intersects(in Ray r, in vec3 p, in vec3 n)
 {
-    return Infinity;
+    float dotted = dot(r.d, n);
+	if (dotted == 0.0)
+		return Infinity;
+
+	vec3 cp = r.p - p;
+	float time = -dot(cp, n) / dotted;
+
+	if (time < 0.0)
+		return Infinity;
+
+    return time;
 }
 
 // 7. TODO: Test intersection between ray and triangle
 // Returns true when intersection found (extra data in interesectData)
 bool Intersects(in Ray r, in Triangle triangle, out IntersectData intersectData)
 {
+    vec3 normal = normalize(cross(triangle.a.xyz, triangle.b.xyz));
+    if(dot(normal, r.d) > 0)
+        normal = -normal;
+    float plane_time = Intersects(r, triangle.p.xyz, normal);
+
+    // No intersection with the triangle
+    if(plane_time == Infinity) return false;
+
+    vec3 intersection_point = r.p + (r.d * plane_time);
+    vec3 cPi = intersection_point - triangle.p.xyz;
+
+    float aa = dot(triangle.a.xyz, triangle.a.xyz);
+    float bb = dot(triangle.b.xyz, triangle.b.xyz);
+    float ab = dot(triangle.a.xyz, triangle.b.xyz);
+    float ba = dot(triangle.b.xyz, triangle.a.xyz);
+    float divisor = 1.0F / ((aa * bb) - (ab * ba));
+
+    mat2 m;
+    m[0] = vec2(bb, -ab);
+    m[1] = vec2(-ba, aa);
+
+    m /= divisor;
+    
+    vec2 alpha_beta = m * vec2(dot(cPi, triangle.a.xyz), dot(cPi, triangle.b.xyz));
+
+    // No intersection with the triangle
+    if(alpha_beta.x < 0.0 || alpha_beta.y < 0.0 || (alpha_beta.x + alpha_beta.y) > 1.0) return false;
+
     // default intersection data (ignored when no intersection)
-    intersectData.ip     = vec3(0.0f);
-    intersectData.it     = Infinity;
-    intersectData.normal = vec3(0.0f);
+    intersectData.ip     = intersection_point;
+    intersectData.it     = plane_time;
+    intersectData.normal = normal;
     intersectData.color  = triangle.mat.color.rgb;
     intersectData.type   = int(triangle.mat.color.w);
     intersectData.param  = fract(triangle.mat.color.w);
 
-    // No intersection with the triangle
-    return false;
+    // intersection with the triangle
+    return true;
 }
 
 // 3. TODO: Test intersection between ray and sphere
@@ -220,7 +258,16 @@ vec3 RayCast(in Ray ray, in int maxDepth)
         else if(iD.type == 2) // METAL
         {
             // 5. TODO: implement Metal material bounce
-            vec3 reflected = reflect();
+            vec3 reflected = reflect(ray.d, iD.normal);
+
+            if(iD.param > 0)
+                reflected = (reflected + RandSphere()) * iD.param;
+
+            vec3 offseted = normalize(reflected);
+
+            newRay.p = iD.ip + (offseted * Epsilon);
+            newRay.d = offseted;
+
             color *= iD.color;
         }
     }
@@ -265,7 +312,9 @@ void main()
         newColor += RayCast(ray, MaxDepth) / NumSamples;
         
     // 8. TODO: Use previous sample information reading from old image (sample count and color)
-                
+    
+    //BIG OOF
+    
     // Save result to output image
     imageStore(outTexture, pixelPos, vec4(newColor, 1));
 }

@@ -194,6 +194,9 @@
     <ClInclude Include="src\ThreadPool.h" />
     <ClInclude Include="src\Utils.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="CONFIG.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
