@@ -12,7 +12,7 @@
 #endif // MULTITHREAD
 
 
-void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; /*RenderBatch(0, 0, 1, 1);*/ RenderBatch(0, 0, mWidth, mHeight); }
+void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; /*RenderBatch(250, 125, 251, 126);*/ RenderBatch(0, 0, mWidth, mHeight); }
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int endY)
 {
@@ -38,14 +38,18 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 			{
 				if (mRenderNormals)
 				{
-					Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F) * ambient);
+					Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F));
 					mFrameBuffer.AddToPixel(x, y, result);
 				}
 				else
 					mFrameBuffer.AddToPixel(x, y, info.mColor);
 			}
-			else
+			else {
+				//DEBUG
+				//std::cout << "Pixel:(" << x << ", " << y << ")\n Failed!";
+
 				mFrameBuffer.AddToPixel(x, y, ambient);
+			}
 		
 		}
 	}

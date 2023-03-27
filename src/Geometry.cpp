@@ -71,21 +71,13 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 
 	glm::vec3 cp = glm::normalize(ray.mP0 - corner);
 	std::vector<Plane> planes(6);
-	std::vector<glm::vec3> displacements(6);
 
-	planes[0] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[0])));//front plane
-	planes[1] = Plane(-planes[0].mNormal);// back plane
-	planes[2] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[1])));//left plane
-	planes[3] = Plane(-planes[2].mNormal);//right plane
-	planes[4] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[0])));// bot plane
-	planes[5] = Plane(-planes[4].mNormal);//top plane
-
-	displacements[0] = glm::vec3(0.0F);//front plane
-	displacements[1] = mVectors[1];// back plane
-	displacements[2] = glm::vec3(0.0F);//left plane
-	displacements[3] = mVectors[0];// right plane
-	displacements[4] = glm::vec3(0.0F);//bottom plane
-	displacements[5] = mVectors[2];// top plane
+	planes[0] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[2])), corner);//actually bot
+	planes[1] = Plane(-planes[0].mNormal, corner + mVectors[1]);// actually top
+	planes[2] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[1])), corner);//left plane
+	planes[3] = Plane(-planes[2].mNormal, corner + mVectors[0]);//right plane
+	planes[4] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[0])), corner);// actually back
+	planes[5] = Plane(-planes[4].mNormal, corner + mVectors[2]);//actually front
 
 	ContactInfo temp;
 	int indexMin = 0;
@@ -94,9 +86,10 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 	{
 		glm::vec2 interval(0.0F, std::numeric_limits<float>::max());
 		float raydot = glm::dot(ray.mV, planes[i].mNormal);
-		glm::vec3 point = corner + displacements[i];
-		if (raydot == 0.0F || !planes[i].CheckIntersection(ray, point, interval))
+		if (raydot == 0.0F || !planes[i].CheckIntersection(ray, interval))
 		{
+			//DEBUG
+			//std::cout << "\n\n" << (i == 0 ? "Bot" : i == 1 ? "Top" : i == 2 ? "Left" : i == 3 ? "Right" : i == 4 ? "Back" : "Front ") << " Plane Failed Intersection test\n\n";
 			all = false;
 			break;
 		}
@@ -139,10 +132,11 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 	info.mContact = ray.mP0 + info.mTI * ray.mV;
 
 
-	if (glm::dot(info.mNormal, ray.mV) > 0)
+	if (glm::dot(info.mNormal, ray.mV) < 0)
 		info.mNormal = -info.mNormal;
 
-
+	//DEBUG
+	//std::cout << "when valid intersection normal is = (" << info.mNormal.x << ", " << info.mNormal.y << ", " << info.mNormal.z << ")\n";
 	return true;
 }
 
@@ -157,6 +151,36 @@ bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2&
 	glm::vec3 cp = ray.mP0 - point;
 	float dot = glm::dot(cp, mNormal);
 	float time = -dot / raydot;
+
+	if (raydot <= 0.0F)
+	{
+		if (dot >= 0.0F)
+			interval.x = time;
+	}
+	else
+	{
+		if (dot < 0.0F)
+			interval.y = time;
+		else
+			return false;
+	}
+
+	return true;
+}
+
+bool Plane::CheckIntersection(const Ray& ray, glm::vec2& interval)
+{
+	float raydot = glm::dot(ray.mV, mNormal);
+	float epsilon = std::numeric_limits<float>::epsilon();
+	if (raydot < epsilon && -epsilon < raydot)
+		return false;
+
+	//glm::vec3 cp = glm::normalize(ray.mP0 - point);
+	glm::vec3 cp = ray.mP0 - mP;
+	float dot = glm::dot(cp, mNormal);
+	float time = -dot / raydot;
+
+	if (time < 0.0F) return false;
 
 	if (raydot <= 0.0F)
 	{

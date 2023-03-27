@@ -53,8 +53,13 @@ int main(int argc, char ** argv)
         sf::Event event;
         while (Window.GetSFWindow().pollEvent(event))
         {
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed) {
                 Window.CloseWindow();
+#ifdef MULTITHREAD
+                ThreadPool.ShutDown();
+#endif // MULTITHREAD
+            }
+
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))

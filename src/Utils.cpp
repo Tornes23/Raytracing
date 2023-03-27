@@ -292,4 +292,5 @@ void Utils::LoadConfig(const std::string& path)
     inFile.close();
 }
 
-glm::vec3 Utils::GetRandomVector(float radius) { return  glm::sphericalRand(radius); }
+glm::vec3 Utils::GetRandomVector() { return  glm::sphericalRand(1.0F); }
+glm::vec3 Utils::GetRandomVector(float radius) { return  glm::ballRand(radius); }

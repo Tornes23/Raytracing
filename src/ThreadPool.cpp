@@ -22,6 +22,7 @@ void ThreadPoolClass::Init() {
 
 void ThreadPoolClass::ShutDown(){
 
+	if (mThreads.empty()) return;
 	mbShutDown = true;
 	mConditionalLock.notify_all();
 	

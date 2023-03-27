@@ -90,6 +90,7 @@ struct Plane : Geometry
     //constructor
     Plane(const glm::vec3& norm = glm::vec3(0.0F), const glm::vec3& p = glm::vec3(0.0F)) : mNormal(norm), mP(p) {}
     bool CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2& interval);
+    bool CheckIntersection(const Ray& ray, glm::vec2& interval);
     bool CheckIntersection(const Ray& ray, const glm::vec3& point, ContactInfo& info);
 
     //necessary data

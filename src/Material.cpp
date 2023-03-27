@@ -5,7 +5,7 @@ void Diffuse::ParseData(const char** info) { mColor = Color(Utils::GetVector(inf
 
 Ray Diffuse::BounceRay(const glm::vec3& incidence, const glm::vec3& normal, const glm::vec3& cp)
 {
-    return Ray(cp + (normal * Raytracer.GetEpsilon()), normal + Utils::GetRandomVector(1.0F));
+    return Ray(cp + (normal * Raytracer.GetEpsilon()), normal + Utils::GetRandomVector());
 }
 
 void Metal::ParseData(const char** info)

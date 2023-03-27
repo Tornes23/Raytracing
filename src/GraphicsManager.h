@@ -86,6 +86,7 @@ private:
 	int mHeight = 0;
 	float mAspectRatio = 0.0F;
 	float mRenderNormals = false;
+	//float mRenderNormals = true;
 	FrameBuffer mFrameBuffer;
 
 	sf::Image   mImage;
