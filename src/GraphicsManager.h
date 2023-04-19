@@ -51,6 +51,7 @@ public:
 	void SetWidth(int width);
 	void SetHeight(int height);
 	void SetAspectRatio(float ratio);
+	void SetAspectRatio();
 	void SetRenderNormals(bool render);
 	void ToggleRenderNormals();
 	void SetSamples(int count = 1);
