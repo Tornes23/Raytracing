@@ -13,8 +13,6 @@ struct ContactInfo
 {
     glm::vec3 mContact = glm::vec3(0.0F);
     glm::vec3 mNormal = glm::vec3(0.0F);
-    float mT0 = -1.0F;
-    float mT1 = -1.0F;
     float mTI = -1.0F;
     Object* mCollidedWith = nullptr;
     Color mColor = Color::Black;

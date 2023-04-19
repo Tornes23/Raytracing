@@ -24,17 +24,17 @@ bool Sphere::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactI
 	if (a == 0.0F) return false;
 	if (discriminant < 0.0F) return false;
 
-	info.mT0 = (-b - glm::sqrt(discriminant)) / 2.0f * a;
-	info.mT1 = (-b + glm::sqrt(discriminant)) / 2.0f * a;
+	float mT0 = (-b - glm::sqrt(discriminant)) / 2.0f * a;
+	float mT1 = (-b + glm::sqrt(discriminant)) / 2.0f * a;
 
-	if (info.mT0 < 0.0F && info.mT1 < 0.0F) return false;
+	if (mT0 < 0.0F && mT1 < 0.0F) return false;
 
-	if (info.mT0 >= 0.0F && info.mT1 >= 0.0F)
-		info.mTI = glm::min(info.mT0, info.mT1);//probablu can be changed to t0 sin is going to be lower always
-	if (info.mT0 >= 0.0F && info.mT1 < 0.0F)
-		info.mTI = info.mT0;
-	if (info.mT0 < 0.0F && info.mT1 >= 0.0F)
-		info.mTI = info.mT1;
+	if (mT0 >= 0.0F && mT1 >= 0.0F)
+		info.mTI = glm::min(mT0, mT1);//probablu can be changed to t0 sin is going to be lower always
+	if (mT0 >= 0.0F && mT1 < 0.0F)
+		info.mTI = mT0;
+	if (mT0 < 0.0F && mT1 >= 0.0F)
+		info.mTI = mT1;
 
 	info.mContact = ray.mP0 + ray.mV * info.mTI;
 	info.mNormal = glm::normalize(info.mContact - center);
@@ -66,12 +66,9 @@ Box::Box(const char** info)
 
 bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info)
 {
-	bool all = true;
 	glm::vec2 mainInterval(0.0F, std::numeric_limits<float>::max());
 
-	glm::vec3 cp = glm::normalize(ray.mP0 - corner);
 	std::vector<Plane> planes(6);
-
 	planes[0] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[2])), corner);//actually bot
 	planes[1] = Plane(-planes[0].mNormal, corner + mVectors[1]);// actually top
 	planes[2] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[1])), corner);//left plane
@@ -80,55 +77,43 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 	planes[5] = Plane(-planes[4].mNormal, corner + mVectors[2]);//actually front
 
 	ContactInfo temp;
-	int indexMin = 0;
-	int indexMax = 0;
+	int indexY = 0;
+	int indexX = 0;
 	for (int i = 0; i < 6; i++)
 	{
+
 		glm::vec2 interval(0.0F, std::numeric_limits<float>::max());
 		float raydot = glm::dot(ray.mV, planes[i].mNormal);
-		if (raydot == 0.0F || !planes[i].CheckIntersection(ray, interval))
-		{
-			//DEBUG
-			//std::cout << "\n\n" << (i == 0 ? "Bot" : i == 1 ? "Top" : i == 2 ? "Left" : i == 3 ? "Right" : i == 4 ? "Back" : "Front ") << " Plane Failed Intersection test\n\n";
-			all = false;
-			break;
-		}
+		if (raydot == 0.0F)
+			continue;
 
+		if (!planes[i].CheckIntersection(ray, interval))
+			continue;
+
+
+		if (interval.x == 0 && mainInterval.y > interval.y)
+			indexY = i;
 		if (mainInterval.x < interval.x)
-			indexMin = i;
+			indexX = i;
 
 		mainInterval.x = glm::max(mainInterval.x, interval.x);
 		mainInterval.y = glm::min(mainInterval.y, interval.y);
 
-		if (interval.x == 0.0f && mainInterval.y < interval.y)
-			indexMax = i;
-
 		if (mainInterval.y < mainInterval.x)
-		{
-			all = false;
-			break;
-		}
+			return false;
 
 	}
 
-	if(!all)
-		return false;
+	info.mTI = mainInterval.x;
 
-	if (mainInterval.x == 0.0F)
-	{
-		info.mT0 = mainInterval.y;
-		info.mT1 = mainInterval.x;
+	if (mainInterval.x == 0.0F) {
 		info.mTI = mainInterval.y;
-		info.mNormal = planes[indexMax].mNormal;
+		info.mNormal = planes[indexY].mNormal;
 	}
-	else
-	{
-		info.mT0 = mainInterval.x;
-		info.mT1 = mainInterval.y;
-		info.mTI = mainInterval.x;
-		info.mNormal = planes[indexMin].mNormal;
+	else {
+		info.mNormal = planes[indexX].mNormal;
 	}
-	
+
 	info.mContact = ray.mP0 + info.mTI * ray.mV;
 
 
@@ -423,15 +408,11 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 
 	if (mainInterval.x == 0.0F)
 	{
-		info.mT0 = mainInterval.y;
-		info.mT1 = mainInterval.x;
 		info.mTI = mainInterval.y;
 		info.mNormal = planes[indexMax].mNormal;
 	}
 	else
 	{
-		info.mT0 = mainInterval.x;
-		info.mT1 = mainInterval.y;
 		info.mTI = mainInterval.x;
 		info.mNormal = planes[indexMin].mNormal;
 	}
@@ -497,8 +478,6 @@ bool Triangle::CheckIntersection(const Ray& ray, const glm::vec3& center, Contac
 	info.mContact = intersection_point;
 	info.mTI = temp.mTI;
 	info.mNormal = normal;
-	info.mT0 = 1.0F;
-	info.mT1 = 1.0F;
 
 	// intersection with the triangle
 	return true;
