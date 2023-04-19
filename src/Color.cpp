@@ -26,9 +26,9 @@ Color::Color(float c)
 Color::Color(const std::vector<double>& c)
 {
 	//setting the values
-	mRGB.r = c[0];
-	mRGB.g = c[1];
-	mRGB.b = c[2];
+	mRGB.r = (float)c[0];
+	mRGB.g = (float)c[1];
+	mRGB.b = (float)c[2];
 }
 
 Color::Color(const std::vector<float>& c)
