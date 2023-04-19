@@ -65,7 +65,7 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 void GraphicsManagerClass::Init()
 {
 	mFrameBuffer.Init(mWidth, mHeight);
-	SetAspectRatio((float)mWidth/ mHeight);
+	SetAspectRatio();
 
 	// Generate image and texture to display
 	mTexture.create(mWidth, mHeight);
@@ -237,6 +237,7 @@ void GraphicsManagerClass::ToggleRenderNormals() { mRenderNormals = !mRenderNorm
 void GraphicsManagerClass::SetSamples(int count) { mSamples = count; }
 void GraphicsManagerClass::SetHeight(int height) { mHeight = height; }
 void GraphicsManagerClass::SetAspectRatio(float ratio) { mAspectRatio = ratio;  }
+void GraphicsManagerClass::SetAspectRatio() { mAspectRatio = (float)mWidth / mHeight; }
 bool GraphicsManagerClass::SwapBuffers() { return mSampleCount <= mSamples; }
 #ifdef MULTITHREAD
 #include "ThreadPool.h"

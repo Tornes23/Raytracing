@@ -40,7 +40,6 @@ int main(int argc, char ** argv)
 #endif // MULTITHREAD
     GraphicsManager.Init();
 
-    glm::ivec2 size = GraphicsManager.GetSize();
     Window.Init(GraphicsManager.GetSize());
 
     bool reload = false;

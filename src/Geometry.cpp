@@ -24,17 +24,17 @@ bool Sphere::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactI
 	if (a == 0.0F) return false;
 	if (discriminant < 0.0F) return false;
 
-	info.mT0 = (-b - glm::sqrt(discriminant)) / 2.0f * a;
-	info.mT1 = (-b + glm::sqrt(discriminant)) / 2.0f * a;
+	float mT0 = (-b - glm::sqrt(discriminant)) / 2.0f * a;
+	float mT1 = (-b + glm::sqrt(discriminant)) / 2.0f * a;
 
-	if (info.mT0 < 0.0F && info.mT1 < 0.0F) return false;
+	if (mT0 < 0.0F && mT1 < 0.0F) return false;
 
-	if (info.mT0 >= 0.0F && info.mT1 >= 0.0F)
-		info.mTI = glm::min(info.mT0, info.mT1);//probablu can be changed to t0 sin is going to be lower always
-	if (info.mT0 >= 0.0F && info.mT1 < 0.0F)
-		info.mTI = info.mT0;
-	if (info.mT0 < 0.0F && info.mT1 >= 0.0F)
-		info.mTI = info.mT1;
+	if (mT0 >= 0.0F && mT1 >= 0.0F)
+		info.mTI = glm::min(mT0, mT1);//probablu can be changed to t0 sin is going to be lower always
+	if (mT0 >= 0.0F && mT1 < 0.0F)
+		info.mTI = mT0;
+	if (mT0 < 0.0F && mT1 >= 0.0F)
+		info.mTI = mT1;
 
 	info.mContact = ray.mP0 + ray.mV * info.mTI;
 	info.mNormal = glm::normalize(info.mContact - center);
@@ -408,15 +408,11 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 
 	if (mainInterval.x == 0.0F)
 	{
-		info.mT0 = mainInterval.y;
-		info.mT1 = mainInterval.x;
 		info.mTI = mainInterval.y;
 		info.mNormal = planes[indexMax].mNormal;
 	}
 	else
 	{
-		info.mT0 = mainInterval.x;
-		info.mT1 = mainInterval.y;
 		info.mTI = mainInterval.x;
 		info.mNormal = planes[indexMin].mNormal;
 	}
@@ -482,8 +478,6 @@ bool Triangle::CheckIntersection(const Ray& ray, const glm::vec3& center, Contac
 	info.mContact = intersection_point;
 	info.mTI = temp.mTI;
 	info.mNormal = normal;
-	info.mT0 = 1.0F;
-	info.mT1 = 1.0F;
 
 	// intersection with the triangle
 	return true;

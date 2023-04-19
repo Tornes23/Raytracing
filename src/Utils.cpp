@@ -284,6 +284,8 @@ void Utils::LoadConfig(const std::string& path)
                         Raytracer.SetBounces(GetInt(line.substr(found + 1u).c_str()));
                     else if (type.compare("SCENE") == 0)
                         SceneManager.SetDisplayScene(GetFile(line.substr(found + 1u).c_str()));
+                    else if (type.compare("NORMALS") == 0)
+                        GraphicsManager.SetRenderNormals((bool)GetInt(line.substr(found + 1u).c_str()));
                 }
             }
         }
