@@ -86,10 +86,8 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 		//if (raydot == 0.0F)
 		//	continue;
 
-		if (!planes[i].CheckIntersection(ray, interval)) {
-			//std::cout << "Failed intersection with plane\n";
+		if (!planes[i].CheckIntersection(ray, interval)) 
 			return false;
-		}
 
 		if (mainInterval.x < interval.x)
 			closestPlaneIndx = i;
@@ -101,10 +99,8 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 		mainInterval.x = glm::max(mainInterval.x, interval.x);
 		mainInterval.y = glm::min(mainInterval.y, interval.y);
 
-		if (mainInterval.y < mainInterval.x) {
-			//std::cout << "Failed interval y greater than x\n";
+		if (mainInterval.y < mainInterval.x) 
 			return false;
-		}
 
 	}
 
@@ -119,10 +115,6 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 	}
 
 	info.mContact = ray.mP0 + info.mTI * ray.mV;
-
-
-	if (glm::dot(info.mNormal, ray.mV) < 0)
-		info.mNormal = -info.mNormal;
 
 	//DEBUG
 	//std::cout << "when valid intersection normal is = (" << info.mNormal.x << ", " << info.mNormal.y << ", " << info.mNormal.z << ")\n";
