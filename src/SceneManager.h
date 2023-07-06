@@ -30,7 +30,7 @@ public:
 private:
 	SceneManagerClass() {}
 
-	int mDisplayScene = 2;
+	int mDisplayScene = -1;
 	std::vector<Scene*> mScenes;
 };
 
