@@ -86,7 +86,7 @@ private:
 	int mWidth = 0;
 	int mHeight = 0;
 	float mAspectRatio = 0.0F;
-	float mRenderNormals = false;
+	bool mRenderNormals = false;
 	//float mRenderNormals = true;
 	FrameBuffer mFrameBuffer;
 

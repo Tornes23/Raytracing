@@ -12,7 +12,7 @@
 #endif // MULTITHREAD
 
 
-void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; /*RenderBatch(370, 180, 371, 181);*/ RenderBatch(0, 0, mWidth, mHeight); }
+void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; /*RenderBatch(370, 180, 371, 181); */RenderBatch(0, 0, mWidth, mHeight); }
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int endY)
 {
@@ -21,6 +21,8 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 	//std::cout << "Id of thread executing this thread is = " << std::this_thread::get_id() << "\n";
 	//int x = 229;
 	//int y = 196;
+	const float oldWeight = (mSampleCount - 1.0f) / mSampleCount;
+	const float newWeight = 1.0f / mSampleCount;
 	for (int x = startX; x < endX; x++)
 	{
 		for (int y = startY; y < endY; y++)
@@ -34,23 +36,28 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 			Color ambient = GetAmbient(currScene);
 
 			ContactInfo info = Raytracer.Cast(ray, scene->mObjects);
-			if (info.IsValid())
-			{
-				if (mRenderNormals)
-				{
-					Color result(Color((info.mNormal + glm::vec3(1.0F)) / 2.0F));
-					mFrameBuffer.AddToPixel(x, y, result);
-				}
-				else
-					mFrameBuffer.AddToPixel(x, y, info.mColor);
-			}
-			else {
-				//DEBUG
-				//std::cout << "Pixel:(" << x << ", " << y << ")\n Failed!";
 
-				mFrameBuffer.AddToPixel(x, y, ambient);
+			Color pixelColor = mFrameBuffer.GetColorFromPixel(x,y);
+			Color rayColor = info.IsValid() ? info.mColor : ambient;
+			//std::cout << "Pixel color at sample: " << mSampleCount << " is:" << pixelColor.GetDebugString() << std::endl;
+			//std::cout << "Ray color at sample: " << mSampleCount << " is:" << rayColor.GetDebugString() << std::endl;
+			if (mRenderNormals)
+			{
+				rayColor = Color((info.mNormal + glm::vec3(1.0F)) / 2.0F);
 			}
-		
+
+			// mix the color
+			Color addedColor{
+				pixelColor.GetR() * oldWeight + rayColor.GetR() * newWeight,
+				pixelColor.GetG() * oldWeight + rayColor.GetG() * newWeight,
+				pixelColor.GetB() * oldWeight + rayColor.GetB() * newWeight
+			};
+	
+			//Color addedColor = pixelColor * rayColor;
+			//std::cout << "Set Color at sample: " << mSampleCount << " is:" << addedColor.GetDebugString() << std::endl;
+
+			mFrameBuffer.SetPixel(x, y, addedColor);
+			//mFrameBuffer.AddToPixel(x, y, addedColor);
 		}
 	}
 
@@ -189,7 +196,7 @@ glm::vec3 GraphicsManagerClass::GetPixelWorld(const glm::vec2& ndc, bool one_cam
 
 	pixel += mCameras[currScene].mFocal * glm::normalize(mCameras[currScene].mTarget - mCameras[currScene].mPos)
 		  + ndc.x * (mCameras[currScene].mRight / 2.0F) 
-		  + ndc.y * (mCameras[currScene].mUp / (2.0F * mAspectRatio));
+		  + ndc.y * (mCameras[currScene].mUp / ((2.0F * mWidth) / mHeight));
 
 	return pixel;
 }

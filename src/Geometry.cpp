@@ -21,19 +21,18 @@ bool Sphere::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactI
 	float c = glm::dot(cp, cp) - (mRadius * mRadius);
 	float discriminant = (b * b) - 4.0F * a * c;
 
-	if (a == 0.0F) return false;
 	if (discriminant < 0.0F) return false;
 
-	float mT0 = (-b - glm::sqrt(discriminant)) / 2.0f * a;
-	float mT1 = (-b + glm::sqrt(discriminant)) / 2.0f * a;
+	const float sqrDiscriminant = glm::sqrt(discriminant);
+
+	float mT0 = (-b - sqrDiscriminant) / (2.0f * a);
+	float mT1 = (-b + sqrDiscriminant) / (2.0f * a);
 
 	if (mT0 < 0.0F && mT1 < 0.0F) return false;
 
-	if (mT0 >= 0.0F && mT1 >= 0.0F)
-		info.mTI = glm::min(mT0, mT1);//probablu can be changed to t0 sin is going to be lower always
-	if (mT0 >= 0.0F && mT1 < 0.0F)
+	if (mT0 > 0.0F)
 		info.mTI = mT0;
-	if (mT0 < 0.0F && mT1 >= 0.0F)
+	else if (mT1 > 0.0F)
 		info.mTI = mT1;
 
 	info.mContact = ray.mP0 + ray.mV * info.mTI;

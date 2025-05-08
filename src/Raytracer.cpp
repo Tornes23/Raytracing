@@ -21,8 +21,11 @@ ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
         Ray bounced = info.mCollidedWith->mMaterial->BounceRay(ray.mV, info.mNormal, info.mContact);
 
         if (bounced.mV == glm::vec3(0.0F)) return result;
-
-        result.mColor = result.mColor * RayCast(bounced, objs, 0).mColor;
+		//std::cout << "[CAST]In bounce number: 0 result color is:" << result.mColor.GetDebugString() << std::endl;
+        ContactInfo recursion = RayCast(bounced, objs, 1);
+		//std::cout << "[CAST]After ALL Recursion returned color is:" << recursion.mColor.GetDebugString() << std::endl;
+        result.mColor = result.mColor * recursion.mColor;
+		//std::cout << "[CAST]After Multiplying result color is:" << result.mColor.GetDebugString() << std::endl;
     }
 
     return result;
@@ -62,7 +65,11 @@ ContactInfo RayTracer::FindClosestObj(const Ray& ray, std::vector<Object>& objs)
 ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs, int bounce){
 
     ContactInfo result;
-    if (bounce > mBounces) return result;
+    if (bounce > mBounces)
+    {
+        std::cout << "Early out on bounce number:" << bounce << std::endl;
+        return result;
+    }
 
     ContactInfo info = FindClosestObj(ray, objs);
     if(info.IsValid()){
@@ -76,9 +83,12 @@ ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs, int bo
         Ray bounced = info.mCollidedWith->mMaterial->BounceRay(ray.mV, info.mNormal, info.mContact);
 
         if (bounced.mV == glm::vec3(0.0F)) return result;
-
-        result.mColor = result.mColor * RayCast(bounced, objs, bounce + 1).mColor;
-    }
+		//std::cout << "[RAYCAST]In bounce number: " << bounce << " result color is:" << result.mColor.GetDebugString() << std::endl;
+		ContactInfo recursion = RayCast(bounced, objs, bounce + 1);
+		//std::cout << "[RAYCAST]After Recursion returned color is:" << recursion.mColor.GetDebugString() << std::endl;
+		result.mColor = result.mColor * recursion.mColor;
+		//std::cout << "[RAYCAST]After Multiplying result color is:" << result.mColor.GetDebugString() << std::endl;
+	}
 
     return result;
 }

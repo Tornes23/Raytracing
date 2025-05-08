@@ -90,7 +90,7 @@ void FrameBuffer::Normalize(int startX, int startY, int endX, int endY, int fact
     }
 }
 
-Color FrameBuffer::GetPixel(int x, int y)
+Color FrameBuffer::GetColorFromPixel(int x, int y)
 {
     if (x >= 0 && y >= 0 && x < width && y < height)
     {
@@ -114,7 +114,7 @@ void FrameBuffer::SwapBuffers()
 // Convert the custom framebuffer to SFML format
 void FrameBuffer::ConvertFrameBufferToSFMLImage(sf::Image & image, int samples)
 {
-    if (!GraphicsManager.SwapBuffers()) samples--;
+    //if (!GraphicsManager.SwapBuffers()) samples--;
 
     int w = FrameBuffer::GetWidth();
     int h = FrameBuffer::GetHeight();
@@ -124,7 +124,7 @@ void FrameBuffer::ConvertFrameBufferToSFMLImage(sf::Image & image, int samples)
     {
         for (int y = 0; y < h; y++)
         {
-            glm::vec<3, unsigned char> color = FrameBuffer::GetPixel(x, y).ToRGB(samples);
+            glm::vec<3, unsigned char> color = GetColorFromPixel(x, y).ToRGB(samples);
             image.setPixel(x, y, sf::Color(color.r, color.g, color.b));
         }
     }

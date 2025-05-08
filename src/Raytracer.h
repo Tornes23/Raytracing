@@ -33,7 +33,7 @@ public:
 private:
 	RayTracer() {}
 	int mBounces = 1;
-	float mEpsilon = 0.01F;
+	float mEpsilon = 0.0001F;
 };
 
 #define Raytracer (RayTracer::GetInstance())

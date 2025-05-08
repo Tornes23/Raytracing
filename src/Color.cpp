@@ -1,4 +1,5 @@
 #include <glm/glm.hpp>
+#include <string>
 #include "Color.h"
 
 //setting the static variables
@@ -91,6 +92,18 @@ Color Color::operator*(const Color& rhs)
 	glm::vec3 floats = GetColor();
 	glm::vec3 rhsFloats = rhs.GetColor();
 	return Color(floats * rhsFloats);
+}
+
+std::string Color::GetDebugString() const
+{
+	std::string debugString("(");
+	debugString += std::to_string(mRGB.r);
+	debugString += ",";
+	debugString += std::to_string(mRGB.g);
+	debugString += ",";
+	debugString += std::to_string(mRGB.b);
+	debugString += ")";
+	return debugString;
 }
 
 

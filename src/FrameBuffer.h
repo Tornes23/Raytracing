@@ -18,7 +18,7 @@ class FrameBuffer
     void AddToPixel(int x, int y, const Color& color);
 
     void Normalize(int startX, int startY, int endX, int endY, int factor);
-    Color GetPixel(int x, int y);
+    Color GetColorFromPixel(int x, int y);
     void SwapBuffers();
 
     int  GetWidth() { return width; }
@@ -29,5 +29,5 @@ class FrameBuffer
   private:
     int             width;
     int             height;
-    glm::vec3 *     mBuffer;
+    glm::vec3*      mBuffer;
 };

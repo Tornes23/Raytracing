@@ -24,7 +24,7 @@ int main(int argc, char ** argv)
     Utils::LoadConfig("CONFIG.txt");
     
     std::string inputFile = "input.txt";
-    std::string screenshotName = "vergasos.png";
+    std::string screenshotName = "output.png";
     bool        takeScreenshot = false;
 
     if (argc > 1)
