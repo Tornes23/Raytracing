@@ -7,28 +7,7 @@
 
 ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
 {
-    ContactInfo result;
-
-    ContactInfo info = FindClosestObj(ray, objs);
-    if (info.IsValid()) {
-
-        if (info.mCollidedWith->mbLight) {
-            result = info;
-            result.mColor = info.mColor;
-            return result;
-        }
-        result = info;
-        Ray bounced = info.mCollidedWith->mMaterial->BounceRay(ray.mV, info.mNormal, info.mContact);
-
-        if (bounced.mV == glm::vec3(0.0F)) return result;
-		//std::cout << "[CAST]In bounce number: 0 result color is:" << result.mColor.GetDebugString() << std::endl;
-        ContactInfo recursion = RayCast(bounced, objs, 1);
-		//std::cout << "[CAST]After ALL Recursion returned color is:" << recursion.mColor.GetDebugString() << std::endl;
-        result.mColor = result.mColor * recursion.mColor;
-		//std::cout << "[CAST]After Multiplying result color is:" << result.mColor.GetDebugString() << std::endl;
-    }
-
-    return result;
+    return RayCast(ray, objs, 1);
 }
 
 ContactInfo RayTracer::FindClosestObj(const Ray& ray, std::vector<Object>& objs)
@@ -67,7 +46,7 @@ ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs, int bo
     ContactInfo result;
     if (bounce > mBounces)
     {
-        std::cout << "Early out on bounce number:" << bounce << std::endl;
+        //std::cout << "Early out on bounce number:" << bounce << std::endl;
         return result;
     }
 

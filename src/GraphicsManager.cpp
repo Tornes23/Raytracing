@@ -12,7 +12,7 @@
 #endif // MULTITHREAD
 
 
-void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; /*RenderBatch(370, 180, 371, 181); */RenderBatch(0, 0, mWidth, mHeight); }
+void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; /*RenderBatch(370, 180, 371, 181);*/ RenderBatch(0, 0, mWidth, mHeight); }
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int endY)
 {
@@ -21,8 +21,6 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 	//std::cout << "Id of thread executing this thread is = " << std::this_thread::get_id() << "\n";
 	//int x = 229;
 	//int y = 196;
-	const float oldWeight = (mSampleCount - 1.0f) / mSampleCount;
-	const float newWeight = 1.0f / mSampleCount;
 	for (int x = startX; x < endX; x++)
 	{
 		for (int y = startY; y < endY; y++)
@@ -47,17 +45,13 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 			}
 
 			// mix the color
-			Color addedColor{
-				pixelColor.GetR() * oldWeight + rayColor.GetR() * newWeight,
-				pixelColor.GetG() * oldWeight + rayColor.GetG() * newWeight,
-				pixelColor.GetB() * oldWeight + rayColor.GetB() * newWeight
-			};
+			Color addedColor = pixelColor * rayColor;
 	
 			//Color addedColor = pixelColor * rayColor;
 			//std::cout << "Set Color at sample: " << mSampleCount << " is:" << addedColor.GetDebugString() << std::endl;
 
-			mFrameBuffer.SetPixel(x, y, addedColor);
-			//mFrameBuffer.AddToPixel(x, y, addedColor);
+			//mFrameBuffer.SetPixel(x, y, addedColor);
+			mFrameBuffer.AddToPixel(x, y, rayColor);
 		}
 	}
 
