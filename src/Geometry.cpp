@@ -63,60 +63,118 @@ Box::Box(const char** info)
 	mVectors[2] = Utils::GetVector(info);//height
 }
 
+//bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info)
+//{
+//	glm::vec2 mainInterval(0.0F, std::numeric_limits<float>::max());
+//
+//	std::vector<Plane> planes(6);
+//	planes[0] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[2])), corner);//actually front
+//	planes[1] = Plane(-planes[0].mNormal, corner + mVectors[1]);// actually back
+//	planes[2] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[2])), corner);//left plane
+//	planes[3] = Plane(-planes[2].mNormal, corner + mVectors[0]);//right plane
+//	planes[4] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[0])), corner);// actually bottom
+//	planes[5] = Plane(-planes[4].mNormal, corner + mVectors[2]);//actually top
+//
+//	ContactInfo temp;
+//	int indexMax = -1;
+//	int closestPlaneIndx = -1;
+//	for (int i = 0; i < 6; i++)
+//	{
+//		glm::vec2 interval(0.0F, std::numeric_limits<float>::max());
+//		//float raydot = glm::dot(ray.mV, planes[i].mNormal);
+//		//if (raydot == 0.0F)
+//		//	continue;
+//
+//		if (!planes[i].CheckIntersection(ray, interval)) 
+//			return false;
+//
+//		if (mainInterval.x < interval.x)
+//			closestPlaneIndx = i;
+//
+//		if (mainInterval.x == 0 && mainInterval.y > interval.y)
+//			indexMax = i;
+//
+//
+//		mainInterval.x = glm::max(mainInterval.x, interval.x);
+//		mainInterval.y = glm::min(mainInterval.y, interval.y);
+//
+//		if (mainInterval.y < mainInterval.x) 
+//			return false;
+//
+//	}
+//
+//	info.mTI = mainInterval.x;
+//
+//	if (mainInterval.x == 0.0F) {
+//		info.mTI = mainInterval.y;
+//		info.mNormal = planes[indexMax].mNormal;
+//	}
+//	else {
+//		info.mNormal = planes[closestPlaneIndx].mNormal;
+//	}
+//
+//	info.mContact = ray.mP0 + info.mTI * ray.mV;
+//
+//	//DEBUG
+//	//std::cout << "when valid intersection normal is = (" << info.mNormal.x << ", " << info.mNormal.y << ", " << info.mNormal.z << ")\n";
+//	return true;
+//}
+
+
 bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo& info)
 {
 	glm::vec2 mainInterval(0.0F, std::numeric_limits<float>::max());
 
+	// Define planes
 	std::vector<Plane> planes(6);
-	planes[0] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[2])), corner);//actually front
-	planes[1] = Plane(-planes[0].mNormal, corner + mVectors[1]);// actually back
-	planes[2] = Plane(glm::normalize(glm::cross(mVectors[2], mVectors[1])), corner);//left plane
-	planes[3] = Plane(-planes[2].mNormal, corner + mVectors[0]);//right plane
-	planes[4] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[0])), corner);// actually bot
-	planes[5] = Plane(-planes[4].mNormal, corner + mVectors[2]);//actually top
+	planes[0] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[2])), corner); // front
+	planes[1] = Plane(-planes[0].mNormal, corner + mVectors[1]);                      // back
+	planes[2] = Plane(glm::normalize(glm::cross(mVectors[1], mVectors[2])), corner); // left
+	planes[3] = Plane(-planes[2].mNormal, corner + mVectors[0]);                      // right
+	planes[4] = Plane(glm::normalize(glm::cross(mVectors[0], mVectors[1])), corner); // bottom
+	planes[5] = Plane(-planes[4].mNormal, corner + mVectors[2]);                      // top
 
-	ContactInfo temp;
-	int indexMax = -1;
-	int closestPlaneIndx = -1;
-	for (int i = 0; i < 6; i++)
+	int bestEntryPlane = -1;
+	int bestExitPlane = -1;
+
+	for (int i = 0; i < 6; ++i)
 	{
 		glm::vec2 interval(0.0F, std::numeric_limits<float>::max());
-		//float raydot = glm::dot(ray.mV, planes[i].mNormal);
-		//if (raydot == 0.0F)
-		//	continue;
 
-		if (!planes[i].CheckIntersection(ray, interval)) 
+		if (!planes[i].CheckIntersection(ray, interval))
 			return false;
 
-		if (mainInterval.x < interval.x)
-			closestPlaneIndx = i;
+		// Update the main interval and keep track of contributing planes
+		if (interval.x > mainInterval.x) {
+			mainInterval.x = interval.x;
+			bestEntryPlane = i;
+		}
+		if (interval.y < mainInterval.y) {
+			mainInterval.y = interval.y;
+			bestExitPlane = i;
+		}
 
-		if (interval.x == 0 && mainInterval.y > interval.y)
-			indexMax = i;
-
-
-		mainInterval.x = glm::max(mainInterval.x, interval.x);
-		mainInterval.y = glm::min(mainInterval.y, interval.y);
-
-		if (mainInterval.y < mainInterval.x) 
+		// Early exit if intervals do not overlap
+		if (mainInterval.y < mainInterval.x)
 			return false;
-
 	}
 
-	info.mTI = mainInterval.x;
-
-	if (mainInterval.x == 0.0F) {
-		info.mTI = mainInterval.y;
-		info.mNormal = planes[indexMax].mNormal;
+	// Select correct intersection point and normal
+	if (mainInterval.x > 0.0F) {
+		info.mTI = mainInterval.x;
+		info.mNormal = planes[bestEntryPlane].mNormal;
 	}
 	else {
-		info.mNormal = planes[closestPlaneIndx].mNormal;
+		info.mTI = mainInterval.y;
+		info.mNormal = planes[bestExitPlane].mNormal;
 	}
 
 	info.mContact = ray.mP0 + info.mTI * ray.mV;
 
-	//DEBUG
-	//std::cout << "when valid intersection normal is = (" << info.mNormal.x << ", " << info.mNormal.y << ", " << info.mNormal.z << ")\n";
+	// Ensure normal points against incoming ray
+	if (glm::dot(info.mNormal, ray.mV) > 0.0F)
+		info.mNormal = -info.mNormal;
+
 	return true;
 }
 
@@ -148,27 +206,52 @@ bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2&
 	return true;
 }
 
+//bool Plane::CheckIntersection(const Ray& ray, glm::vec2& interval)
+//{
+//	float raydot = glm::dot(ray.mV, mNormal);
+//
+//	glm::vec3 cp = ray.mP0 - mP;
+//	float dot = glm::dot(cp, mNormal);
+//	float time = -dot / raydot;
+//
+//	if (time < 0.0F) return false;
+//
+//	if (raydot <= 0.0F)
+//	{
+//		if (dot >= 0.0F)
+//			interval.x = time;
+//	}
+//	else
+//	{
+//		if (dot < 0.0F)
+//			interval.y = time;
+//		else
+//			return false;
+//	}
+//
+//	return true;
+//}
+
 bool Plane::CheckIntersection(const Ray& ray, glm::vec2& interval)
 {
 	float raydot = glm::dot(ray.mV, mNormal);
+	float epsilon = 1e-6f;
+
+	// Parallel check: ray is parallel to plane
+	if (std::abs(raydot) < epsilon)
+		return false;
 
 	glm::vec3 cp = ray.mP0 - mP;
-	float dot = glm::dot(cp, mNormal);
-	float time = -dot / raydot;
+	float dist = glm::dot(cp, mNormal);
+	float time = -dist / raydot;
 
-	if (time < 0.0F) return false;
-
-	if (raydot <= 0.0F)
-	{
-		if (dot >= 0.0F)
-			interval.x = time;
+	if (raydot < 0.0f) {
+		// Ray enters the half-space
+		interval.x = time;
 	}
-	else
-	{
-		if (dot < 0.0F)
-			interval.y = time;
-		else
-			return false;
+	else {
+		// Ray exits the half-space
+		interval.y = time;
 	}
 
 	return true;
