@@ -1,19 +1,19 @@
-## 3 big spheres
-#SPHERE (0.0,0.5,0.0) 0.5
-#DIFFUSE (0.45,0.78,0.66) 
-#
-#SPHERE (0.6,0.5,0.8) 0.5
-#DIFFUSE (0.87,0.88,0.71) 
-#
-#SPHERE (-0.6,0.5,-0.8) 0.5
-#DIFFUSE (0.88,0.72,0.4) 
-#
-## 2 small spheres
-#SPHERE (-0.5,0.3,0.8) 0.3
-#DIFFUSE (0.4,0.7,0.32) 
-#
-#SPHERE (0.5,0.3,-1) 0.3
-#DIFFUSE (0.4,0.6,0.72) 
+# 3 big spheres
+SPHERE (0.0,0.5,0.0) 0.5
+DIFFUSE (0.45,0.78,0.66) 
+
+SPHERE (0.6,0.5,0.8) 0.5
+DIFFUSE (0.87,0.88,0.71) 
+
+SPHERE (-0.6,0.5,-0.8) 0.5
+DIFFUSE (0.88,0.72,0.4) 
+
+# 2 small spheres
+SPHERE (-0.5,0.3,0.8) 0.3
+DIFFUSE (0.4,0.7,0.32) 
+
+SPHERE (0.5,0.3,-1) 0.3
+DIFFUSE (0.4,0.6,0.72) 
 
 #format, corner, length(X axis), width(Z axis), height(Y axis)
 BOX (-1.2,0.0,0.5) (0.65,0,-0.3) (-0.1,0,-0.2) (0,0.6,0)
