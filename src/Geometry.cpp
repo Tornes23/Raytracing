@@ -81,9 +81,6 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 	for (int i = 0; i < 6; i++)
 	{
 		glm::vec2 interval(0.0F, std::numeric_limits<float>::max());
-		//float raydot = glm::dot(ray.mV, planes[i].mNormal);
-		//if (raydot == 0.0F)
-		//	continue;
 
 		if (!planes[i].CheckIntersection(ray, interval)) 
 			return false;
@@ -113,11 +110,15 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 		info.mNormal = planes[closestPlaneIndx].mNormal;
 	}
 
+	if (glm::dot(info.mNormal, ray.mV) > 0)
+		info.mNormal = -info.mNormal;
+	
 	info.mContact = ray.mP0 + info.mTI * ray.mV;
 
 	//DEBUG
 	//std::cout << "when valid intersection normal is = (" << info.mNormal.x << ", " << info.mNormal.y << ", " << info.mNormal.z << ")\n";
 	return true;
+
 }
 
 bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2& interval)
@@ -150,13 +151,11 @@ bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2&
 
 bool Plane::CheckIntersection(const Ray& ray, glm::vec2& interval)
 {
-	float raydot = glm::dot(ray.mV, mNormal);
-
 	glm::vec3 cp = ray.mP0 - mP;
-	float dot = glm::dot(cp, mNormal);
-	float time = -dot / raydot;
 
-	if (time < 0.0F) return false;
+	float dot = glm::dot(cp, mNormal);
+	float raydot = glm::dot(ray.mV, mNormal);
+	float time = -dot / raydot;
 
 	if (raydot <= 0.0F)
 	{
@@ -165,7 +164,7 @@ bool Plane::CheckIntersection(const Ray& ray, glm::vec2& interval)
 	}
 	else
 	{
-		if (dot < 0.0F)
+		if (dot <= 0.0F)
 			interval.y = time;
 		else
 			return false;
