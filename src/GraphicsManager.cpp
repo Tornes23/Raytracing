@@ -12,7 +12,7 @@
 #endif // MULTITHREAD
 
 
-//void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; RenderBatch(100, 280, 101, 281); }
+//void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; RenderBatch(40, 150, 41, 151); }
 void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; RenderBatch(0, 0, mWidth, mHeight); }
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int endY)
@@ -20,8 +20,6 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 	//DEBUG
 	//std::cout << "rendering batch = [" << startX << ", " << startY << ", " << width << ", " << height << "]\n";
 	//std::cout << "Id of thread executing this thread is = " << std::this_thread::get_id() << "\n";
-	//int x = 229;
-	//int y = 196;
 	for (int x = startX; x < endX; x++)
 	{
 		for (int y = startY; y < endY; y++)
@@ -38,8 +36,6 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 
 			Color pixelColor = mFrameBuffer.GetColorFromPixel(x,y);
 			Color rayColor = info.IsValid() ? info.mColor : ambient;
-			//std::cout << "Pixel color at sample: " << mSampleCount << " is:" << pixelColor.GetDebugString() << std::endl;
-			//std::cout << "Ray color at sample: " << mSampleCount << " is:" << rayColor.GetDebugString() << std::endl;
 			if (mRenderNormals)
 			{
 				rayColor = Color((info.mNormal + glm::vec3(1.0F)) / 2.0F);
@@ -48,10 +44,6 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 			// mix the color
 			Color addedColor = pixelColor * rayColor;
 	
-			//Color addedColor = pixelColor * rayColor;
-			//std::cout << "Set Color at sample: " << mSampleCount << " is:" << addedColor.GetDebugString() << std::endl;
-
-			//mFrameBuffer.SetPixel(x, y, addedColor);
 			mFrameBuffer.AddToPixel(x, y, rayColor);
 		}
 	}
@@ -72,11 +64,6 @@ void GraphicsManagerClass::Init()
 	// Generate image and texture to display
 	mTexture.create(mWidth, mHeight);
 	mImage.create(mWidth, mHeight, sf::Color::Black);
-#ifdef MULTITHREAD
-	//mBatchSize.x = std::ceil(mWidth / ThreadPool.ThreadCount()) + 1;
-	//mBatchSize.y = std::ceil(mHeight / ThreadPool.ThreadCount()) + 1;
-#endif // MULTITHREAD
-
 }
 
 void GraphicsManagerClass::ShutDown()

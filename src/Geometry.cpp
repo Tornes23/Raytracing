@@ -211,19 +211,36 @@ Polygon::Polygon(const char** info)
 
 bool Polygon::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
 {
-	return false;
+	for (int i = 0; i < mTriangles.size(); i++)
+	{
+		ContactInfo temp;
+		float minTime = std::numeric_limits<float>::max();
+		if (mTriangles[i].CheckIntersection(ray, glm::vec3(0.0f), temp))
+		{
+			if (temp.mTI >= 0.0f && temp.mTI < minTime)
+			{
+				minTime = temp.mTI;
+				info.mTI = temp.mTI;
+				info.mNormal = mTriangles[i].mNormal;
+			}
+		}
+	}
+
+	if (info.mTI < 0.0f)
+	{
+		return false;
+	}
+
+	info.mContact = ray.mP0 + ray.mV * info.mTI;
+
+	return true;
 }
 
 void Polygon::Triangulate()
 {
-	for (size_t i = 0; i < mVertices.size(); i++)
+	for (size_t i = 0; i < mVertices.size() - 2; i++)
 	{
-		//Triangle tri;
-		//tri.mV0 = mVertices[i];
-		//tri.mV1 = mVertices[i];
-		//tri.mV2 = mVertices[i];
-		//
-		//mTriangles.push_back(tri);
+		mTriangles.push_back(Triangle(mVertices[i], mVertices[i + 1], mVertices[i + 2]));
 	}
 }
 
@@ -419,56 +436,73 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 
 Triangle::Triangle(const char** info)
 {
+
 }
 
-Triangle::Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool edges)
+Triangle::Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool definedInEdges)
 {
-	mV0 = v0;
-	mA = v1 - mV0;
-	mB = v2 - mV0;
+	mDefinedInEdges = definedInEdges;
 
-	if(edges){
-		mA = v1;
-		mB = v2;
+	mV0 = v0;
+	mV1.mEdge = v1 - v0;
+	mV2.mEdge = v2 - v0;
+
+	mNormal = glm::normalize(glm::cross(mV1.mEdge, mV2.mEdge));
+	mInverseMatrix = glm::inverse(glm::mat2(glm::dot(mV1.mEdge, mV1.mEdge), glm::dot(mV1.mEdge, mV2.mEdge), 
+											glm::dot(mV1.mEdge, mV2.mEdge), glm::dot(mV2.mEdge, mV2.mEdge)));
+	
+	if (!mDefinedInEdges)
+	{
+		mV1.mVertex = v1;
+		mV2.mVertex= v2;
 	}
 }
 
 bool Triangle::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
 {
-	glm::vec3 normal = glm::normalize(glm::cross(mA, mB));
+	glm::vec3 normal = mNormal;
 	if (glm::dot(normal, ray.mV) > 0)
 		normal = -normal;
 
-	Plane p(normal);
+	Plane p(normal, mV0);
 
-	ContactInfo temp;
-	bool intersection = p.CheckIntersection(ray, mV0, temp);
+	glm::vec2 interval{0.0, std::numeric_limits<float>::max()};
+	bool intersection = p.CheckIntersection(ray, interval);
 
 	// No intersection with the triangle
 	if (!intersection) return false;
 
-	glm::vec3 intersection_point = ray.mP0 + (ray.mV * temp.mTI);
+	if (interval.x <= Raytracer.GetEpsilon())
+	{
+		info.mTI = interval.y;
+	}
+	else
+	{
+		info.mTI = interval.x;
+	}
+
+	glm::vec3 intersection_point = ray.mP0 + (ray.mV * info.mTI);
 	glm::vec3 cPi = intersection_point - mV0;
+	glm::vec3 edgeA;
+	glm::vec3 edgeB;
 
-	float aa = glm::dot(mA, mA);
-	float bb = glm::dot(mB, mB);
-	float ab = glm::dot(mA, mB);
-	float ba = glm::dot(mB, mA);
-	float divisor = 1.0F / ((aa * bb) - (ab * ba));
+	GetEdgesFromVertices(edgeA, edgeB);
 
-	glm::mat2x2 m(bb, -ab, -ba, aa);
-	m /= divisor;
-
-	glm::vec2 alpha_beta = m * glm::vec2(glm::dot(cPi, mA), glm::dot(cPi, mB));
+	glm::vec2 alpha_beta = mInverseMatrix * glm::vec2(glm::dot(cPi, edgeA), glm::dot(cPi, edgeB));
 
 	// No intersection with the triangle
 	if (alpha_beta.x < 0.0 || alpha_beta.y < 0.0 || (alpha_beta.x + alpha_beta.y) > 1.0) return false;
 
 	// default intersection data (ignored when no intersection)
 	info.mContact = intersection_point;
-	info.mTI = temp.mTI;
 	info.mNormal = normal;
 
 	// intersection with the triangle
 	return true;
+}
+
+void Triangle::GetEdgesFromVertices(glm::vec3& edgeA, glm::vec3& edgeB)
+{
+	edgeA = mV1.mVertex - mV0;
+	edgeB = mV2.mVertex - mV0;
 }

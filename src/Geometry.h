@@ -38,12 +38,24 @@ struct Triangle : Geometry
 {
     //constructor
     Triangle(const char** info = nullptr);
-    Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool edges = false);
+	Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool definedInEdges = false);
     bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info);
+    void GetEdgesFromVertices(glm::vec3& edgeA, glm::vec3& edgeB);
     //necessary data
+    union EdgeVertexUnion
+    {
+        glm::vec3 mVertex;
+        glm::vec3 mEdge;
+    };
+
     glm::vec3 mV0 = glm::vec3(0.0F);
-    glm::vec3 mA = glm::vec3(0.0F);
-    glm::vec3 mB = glm::vec3(0.0F);
+    EdgeVertexUnion mV1;
+    EdgeVertexUnion mV2;
+
+    glm::vec3 mNormal = glm::vec3(0.0F);
+    glm::mat2 mInverseMatrix = glm::mat2(0.0f);
+
+    bool mDefinedInEdges = false;
 };
 
 struct Mesh

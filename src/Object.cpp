@@ -22,7 +22,7 @@ Object::Object(const char* info, GeometryTypes type)
 	switch (type)
 	{
 	case GeometryTypes::Triangle:
-		//mModel = new Triangle();
+		mModel = new Triangle(&info);
 		break;
 	case GeometryTypes::Plane:
 		//mModel = new Plane();
