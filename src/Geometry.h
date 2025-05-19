@@ -41,6 +41,8 @@ struct Triangle : Geometry
 	Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2, bool definedInEdges = false);
     bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info);
     void GetEdgesFromVertices(glm::vec3& edgeA, glm::vec3& edgeB);
+    Triangle ApplyMatrix(const glm::mat4x4& mat);
+
     //necessary data
     union EdgeVertexUnion
     {

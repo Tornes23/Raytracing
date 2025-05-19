@@ -215,14 +215,12 @@ bool Polygon::CheckIntersection(const Ray& ray, const glm::vec3& center, Contact
 	{
 		ContactInfo temp;
 		float minTime = std::numeric_limits<float>::max();
-		if (mTriangles[i].CheckIntersection(ray, glm::vec3(0.0f), temp))
+		mTriangles[i].CheckIntersection(ray, glm::vec3(0.0f), temp);
+		if (temp.mTI >= 0.0f && temp.mTI < minTime)
 		{
-			if (temp.mTI >= 0.0f && temp.mTI < minTime)
-			{
-				minTime = temp.mTI;
-				info.mTI = temp.mTI;
-				info.mNormal = mTriangles[i].mNormal;
-			}
+			minTime = temp.mTI;
+			info.mTI = temp.mTI;
+			info.mNormal = mTriangles[i].mNormal;
 		}
 	}
 
@@ -252,7 +250,27 @@ Model::Model(const char** info, const glm::mat4x4& m2w)
 
 bool Model::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
 {
-	return false;
+	for (int i = 0; i < mModel->mTriangles.size(); i++)
+	{
+		ContactInfo temp;
+		float minTime = std::numeric_limits<float>::max();
+		mModel->mTriangles[i].CheckIntersection(ray, glm::vec3(0.0f), temp);
+		if (temp.mTI >= 0.0f && temp.mTI < minTime)
+		{
+			minTime = temp.mTI;
+			info.mTI = temp.mTI;
+			info.mNormal = mModel->mTriangles[i].mNormal;
+		}
+	}
+
+	if (info.mTI < 0.0f)
+	{
+		return false;
+	}
+
+	info.mContact = ray.mP0 + ray.mV * info.mTI;
+
+	return true;
 }
 
 Mesh::Mesh(const std::string& obj)
@@ -311,24 +329,13 @@ Mesh::Mesh(const std::string& obj, const glm::mat4x4& m2w)
 		int index = 0;
 		for (size_t i = 0; i < mesh.indices.size(); i += 3) {
 
-			int index0 = mesh.indices[i].vertex_index * 3;
-			int index1 = mesh.indices[i + 1].vertex_index * 3;
-			int index2 = mesh.indices[i + 2].vertex_index * 3;
+			int index0 = mesh.indices[i    ].vertex_index;
+			int index1 = mesh.indices[i + 1].vertex_index;
+			int index2 = mesh.indices[i + 2].vertex_index;
 
-			glm::vec3 v0 = m2w * glm::vec4(attrib.vertices[index0 + 0],
-				attrib.vertices[index0 + 1],
-				attrib.vertices[index0 + 2],
-				1.0F);
-
-			glm::vec3 v1 = m2w * glm::vec4(attrib.vertices[index1 + 0],
-				attrib.vertices[index1 + 1],
-				attrib.vertices[index1 + 2],
-				1.0F);
-
-			glm::vec3 v2 = m2w * glm::vec4(attrib.vertices[index2 + 0],
-				attrib.vertices[index2 + 1],
-				attrib.vertices[index2 + 2],
-				1.0F);
+			glm::vec3 v0 = m2w * glm::vec4(attrib.vertices[index0]);
+			glm::vec3 v1 = m2w * glm::vec4(attrib.vertices[index1]);
+			glm::vec3 v2 = m2w * glm::vec4(attrib.vertices[index2]);
 
 			mTriangles[index] = Triangle(v0, v1, v2);
 			index++;
@@ -505,4 +512,13 @@ void Triangle::GetEdgesFromVertices(glm::vec3& edgeA, glm::vec3& edgeB)
 {
 	edgeA = mV1.mVertex - mV0;
 	edgeB = mV2.mVertex - mV0;
+}
+
+Triangle Triangle::ApplyMatrix(const glm::mat4x4& mat)
+{
+	glm::vec4 v0(mV0, 1.0f);
+	glm::vec4 v1(mV1.mVertex, 1.0f);
+	glm::vec4 v2(mV2.mVertex, 1.0f);
+
+	return Triangle(mat * v0, mat * v1, mat * v2);
 }
