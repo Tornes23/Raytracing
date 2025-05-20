@@ -32,10 +32,30 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 			Scene* scene = SceneManager.GetScene();
 			Color ambient = GetAmbient(currScene);
 
-			ContactInfo info = Raytracer.Cast(ray, scene->mObjects);
+			ContactInfo info = Raytracer.RayCast(ray, scene->mObjects, 0);
+
+			if (mMSAASamples > 0)
+			{
+
+				for (int i = 0; i < mMSAASamples; i++)
+				{
+					// Generating a random subpixel sample coords
+					glm::vec2 randNDC = GetRandomSubPixelNDC({ x,y });
+					// the world position of the pixel with the random subsampling
+					glm::vec3 subSamplePixelworld = GetPixelWorld(randNDC);
+					// the ray will go through that position in the world
+					Ray subSampleRay(camPos, glm::normalize(subSamplePixelworld - camPos));
+					//make the anti aliasing sample
+					ContactInfo iterationResult = Raytracer.RayCast(subSampleRay, scene->mObjects, 0);
+					info.mColor += iterationResult.mColor;
+				}
+
+				info.mColor /= mMSAASamples;
+			}
 
 			Color pixelColor = mFrameBuffer.GetColorFromPixel(x,y);
 			Color rayColor = info.IsValid() ? info.mColor : ambient;
+
 			if (mRenderNormals)
 			{
 				rayColor = Color((info.mNormal + glm::vec3(1.0F)) / 2.0F);
@@ -166,6 +186,14 @@ glm::vec2 GraphicsManagerClass::GetNDC(const glm::vec2& xy)
 	return glm::vec2(x, y);
 }
 
+glm::vec2 GraphicsManagerClass::GetRandomSubPixelNDC(const glm::vec2& xy)
+{
+	float x = ((xy.x + Utils::GetRandomFloat(0.0f, 1.0f)) - (mWidth / 2.0F)) / (mWidth / 2.0F);
+	float y = -((xy.y + Utils::GetRandomFloat(0.0f, 1.0f)) - (mHeight / 2.0F)) / (mHeight / 2.0F);
+
+	return glm::vec2(x, y);
+}
+
 glm::vec3 GraphicsManagerClass::GetPixelWorld(const glm::vec2& ndc, bool one_cam)
 {
 	if (one_cam == false)
@@ -224,6 +252,7 @@ void GraphicsManagerClass::SetWidth(int width) { mWidth = width; }
 void GraphicsManagerClass::SetRenderNormals(bool render) { mRenderNormals = render; }
 void GraphicsManagerClass::ToggleRenderNormals() { mRenderNormals = !mRenderNormals; }
 void GraphicsManagerClass::SetSamples(int count) { mSamples = count; }
+void GraphicsManagerClass::SetAntiAliasingSamples(int count) { mMSAASamples = count; }
 void GraphicsManagerClass::SetHeight(int height) { mHeight = height; }
 void GraphicsManagerClass::SetAspectRatio(float ratio) { mAspectRatio = ratio;  }
 void GraphicsManagerClass::SetAspectRatio() { mAspectRatio = (float)mWidth / mHeight;  }

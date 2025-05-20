@@ -286,6 +286,8 @@ void Utils::LoadConfig(const std::string& path)
                         SceneManager.SetDisplayScene(GetFile(line.substr(found + 1u).c_str()));
                     else if (type.compare("NORMALS") == 0)
                         GraphicsManager.SetRenderNormals(GetInt(line.substr(found + 1u).c_str()) == 1 ? true : false );
+					else if (type.compare("ANTIALIASING_SAMPLES") == 0)
+                        GraphicsManager.SetAntiAliasingSamples(GetInt(line.substr(found + 1u).c_str()));
                 }
             }
         }
@@ -296,3 +298,8 @@ void Utils::LoadConfig(const std::string& path)
 
 glm::vec3 Utils::GetRandomVector() { return  glm::sphericalRand(1.0F); }
 glm::vec3 Utils::GetRandomVector(float radius) { return  glm::ballRand(radius); }
+
+float Utils::GetRandomFloat(float min, float max)
+{
+    return glm::linearRand(min, max);
+}

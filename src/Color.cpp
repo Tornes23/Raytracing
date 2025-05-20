@@ -94,6 +94,32 @@ Color Color::operator*(const Color& rhs)
 	return Color(floats * rhsFloats);
 }
 
+Color Color::operator+(const Color& rhs)
+{
+	glm::vec3 floats = GetColor();
+	glm::vec3 rhsFloats = rhs.GetColor();
+	return Color(floats + rhsFloats);
+}
+
+Color& Color::operator+=(const Color& lhs)
+{
+	glm::vec3 lhsFloats = lhs.GetColor();
+	mRGB += lhsFloats;
+	return *this;
+}
+
+Color& Color::operator/=(int n)
+{
+	mRGB /= n;
+	return *this;
+}
+
+Color& Color::operator/=(float f)
+{
+	mRGB /= f;
+	return *this;
+}
+
 std::string Color::GetDebugString() const
 {
 	std::string debugString("(");

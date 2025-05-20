@@ -20,5 +20,6 @@ namespace Utils
 	void LoadConfig(const std::string& path);
 	glm::vec3 GetRandomVector();
 	glm::vec3 GetRandomVector(float radius);
+	float GetRandomFloat(float min, float max);
 
 }

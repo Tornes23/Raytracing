@@ -30,6 +30,10 @@ public:
 	float GetG() const;
 	float GetB() const;
 	Color operator*(const Color& rhs);
+	Color operator+(const Color& rhs);
+	Color& operator+=(const Color& lhs);
+	Color& operator/=(int n);
+	Color& operator/=(float f);
 	std::string GetDebugString() const;
 
 	glm::vec3 mRGB;
