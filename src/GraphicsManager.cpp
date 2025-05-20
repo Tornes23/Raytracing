@@ -67,12 +67,8 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 			mFrameBuffer.AddToPixel(x, y, rayColor);
 		}
 	}
-
-
 	//DEBUG
 	//std::cout << "Batch = [" << startX << ", " << startY << ", " << width << ", " << height << "] FINISHED! \n";
-
-
 }
 
 

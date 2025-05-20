@@ -5,11 +5,6 @@
 #include "Object.h"
 #include "Utils.h"
 
-ContactInfo RayTracer::Cast(const Ray& ray, std::vector<Object>& objs)
-{
-    return RayCast(ray, objs, 1);
-}
-
 ContactInfo RayTracer::FindClosestObj(const Ray& ray, std::vector<Object>& objs)
 {
     ContactInfo minInfo;

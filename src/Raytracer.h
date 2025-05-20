@@ -7,7 +7,6 @@ class RayTracer
 {
 public:
 
-	ContactInfo Cast(const Ray& ray, std::vector<Object>& objs);
 	ContactInfo FindClosestObj(const Ray& ray, std::vector<Object>& objs);
 	ContactInfo RayCast(const Ray& ray, std::vector<Object>& objs, int bounce);
 

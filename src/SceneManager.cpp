@@ -22,7 +22,7 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
 {
     //stream to read from the file
     std::ifstream inFile(to_load, std::ios::in);
-    char buffer[80] = { '\0' };
+    char buffer[155] = { '\0' };
     //checking if it was opened
     if (!inFile)
         std::cerr << "ERROR WHILE TRYING TO OPEN " << to_load << " FILE\n";
@@ -32,7 +32,7 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
     //reading the code from the file and adding it to the string
     while (inFile.good())
     {
-        inFile.getline(buffer, 80);
+        inFile.getline(buffer, 155);
         if (!inFile.eof())
         {
             if (buffer[0] != '\0' && buffer[0] != '#')
