@@ -61,11 +61,12 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
                         if (type.compare("MESH") == 0) {
                             inFile.getline(buffer, 80);
                             const char* trs = buffer;
-                            Object obj(line.substr(found + 1u).c_str(), GeometryTypes::Model);
+                            Object obj;
                             obj.SetPos(Utils::GetVector(&trs));
                             obj.SetRot(Utils::GetVector(&trs));
                             obj.SetSca(Utils::GetFloat(&trs));
-                            obj.ApplyModel2WorldToModel();
+                            obj.ComputeModel2World();
+                            obj.LoadObjModel(line.substr(found + 1u).c_str());
                             objects.push_back(obj);
                         }
 

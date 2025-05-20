@@ -211,10 +211,12 @@ Polygon::Polygon(const char** info)
 
 bool Polygon::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
 {
+	const float maxFloat = std::numeric_limits<float>::max();
+	float minTime = maxFloat;
+
 	for (int i = 0; i < mTriangles.size(); i++)
 	{
 		ContactInfo temp;
-		float minTime = std::numeric_limits<float>::max();
 		mTriangles[i].CheckIntersection(ray, glm::vec3(0.0f), temp);
 		if (temp.mTI >= 0.0f && temp.mTI < minTime)
 		{
@@ -224,7 +226,7 @@ bool Polygon::CheckIntersection(const Ray& ray, const glm::vec3& center, Contact
 		}
 	}
 
-	if (info.mTI < 0.0f)
+	if (minTime == maxFloat || info.mTI < 0.0f)
 	{
 		return false;
 	}
@@ -250,24 +252,34 @@ Model::Model(const char** info, const glm::mat4x4& m2w)
 
 bool Model::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info)
 {
-	for (int i = 0; i < mModel->mTriangles.size(); i++)
+	const float maxFloat = std::numeric_limits<float>::max();
+	float minTime = maxFloat;
+	std::vector<Triangle>& triangles = mModel->mTriangles;
+
+	ContactInfo result;
+	for (int i = 0; i < triangles.size(); i++)
 	{
 		ContactInfo temp;
-		float minTime = std::numeric_limits<float>::max();
-		mModel->mTriangles[i].CheckIntersection(ray, glm::vec3(0.0f), temp);
+		if (!triangles[i].CheckIntersection(ray, glm::vec3(0.0f), temp))
+		{
+			continue;
+		}
+
 		if (temp.mTI >= 0.0f && temp.mTI < minTime)
 		{
 			minTime = temp.mTI;
-			info.mTI = temp.mTI;
-			info.mNormal = mModel->mTriangles[i].mNormal;
+			result.mTI = temp.mTI;
+			result.mNormal = triangles[i].mNormal;
 		}
 	}
 
-	if (info.mTI < 0.0f)
+	if (minTime == maxFloat || result.mTI < 0.0f)
 	{
 		return false;
 	}
 
+	info.mTI = result.mTI;
+	info.mNormal = result.mNormal;
 	info.mContact = ray.mP0 + ray.mV * info.mTI;
 
 	return true;
@@ -317,28 +329,46 @@ Mesh::Mesh(const std::string& obj, const glm::mat4x4& m2w)
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
+	std::vector<glm::vec3> vertices;
 
 	std::string err;
 
 	bool valid = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, obj.c_str());
 	if (valid)
 	{
-		mTriangles.resize(shapes[0].mesh.num_face_vertices.size());
-		//triangulate
-		auto mesh = shapes[0].mesh;
-		int index = 0;
-		for (size_t i = 0; i < mesh.indices.size(); i += 3) {
+		for (size_t i = 0; i < shapes.size(); i++)
+		{
+			auto mesh = shapes[i].mesh;
+			size_t index_offset = 0;
 
-			int index0 = mesh.indices[i    ].vertex_index;
-			int index1 = mesh.indices[i + 1].vertex_index;
-			int index2 = mesh.indices[i + 2].vertex_index;
+			for (size_t j = 0; j < mesh.num_face_vertices.size(); j++)
+			{
+				// Loop over vertices in the face.
+				size_t fv = size_t(mesh.num_face_vertices[j]);
+				for (size_t k = 0; k < fv; k++)
+				{
+					// access to vertex
+					tinyobj::index_t idx = mesh.indices[index_offset + k];
 
-			glm::vec3 v0 = m2w * glm::vec4(attrib.vertices[index0]);
-			glm::vec3 v1 = m2w * glm::vec4(attrib.vertices[index1]);
-			glm::vec3 v2 = m2w * glm::vec4(attrib.vertices[index2]);
+					tinyobj::real_t vx = attrib.vertices[3 * size_t(idx.vertex_index) + 0];
+					tinyobj::real_t vy = attrib.vertices[3 * size_t(idx.vertex_index) + 1];
+					tinyobj::real_t vz = attrib.vertices[3 * size_t(idx.vertex_index) + 2];
+					vertices.push_back({ vx, vy, vz });
+				}
+				index_offset += fv;
+			}
+		}
 
-			mTriangles[index] = Triangle(v0, v1, v2);
-			index++;
+		glm::mat4x4 transform = m2w;
+		std::transform(vertices.begin(), vertices.end(), vertices.begin(), [&transform](glm::vec3& vertex)
+			{
+				return transform * glm::vec4(vertex, 1.0f);
+			}
+		);
+
+		for (size_t i = 0; i < vertices.size(); i+=3)
+		{
+			mTriangles.push_back(Triangle(vertices[i], vertices[i + 1], vertices[i + 2]));
 		}
 	}
 }

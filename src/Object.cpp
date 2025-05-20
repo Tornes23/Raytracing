@@ -33,9 +33,6 @@ Object::Object(const char* info, GeometryTypes type)
 	case GeometryTypes::Polygon:
 		mModel = new Polygon(&info);
 		break;
-	case GeometryTypes::Model:
-		mModel = new Model(&info);
-		break;
 	default:
 		mModel = new Sphere(&info);
 		break;
@@ -103,6 +100,21 @@ void Object::ComputeModel2World()
 	mM2W = mM2W * glm::rotate(glm::radians(mRot.y), glm::vec3(0, 1, 0));
 	mM2W = mM2W * glm::rotate(glm::radians(mRot.z), glm::vec3(0, 0, 1));
 	mM2W = mM2W * glm::scale(glm::vec3(mScale));
+}
+
+void Object::LoadObjModel(const char* file)
+{
+	if (!file)
+	{
+		return;
+	}
+
+	if (mModel)
+	{
+		delete mModel;
+	}
+
+	mModel = new Model(&file, mM2W);
 }
 
 void Object::ApplyModel2WorldToModel()

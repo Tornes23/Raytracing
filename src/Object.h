@@ -32,6 +32,7 @@ struct Object
 	void SetSca(float scale);
 	glm::mat4x4 GetModel2World() const;
 	void ComputeModel2World();
+	void LoadObjModel(const char* file = nullptr);
 
 	glm::vec3 mPos{0.0F, 0.0F, 0.0F};
 	glm::vec3 mRot{0.0F, 0.0F, 0.0F};
