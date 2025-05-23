@@ -201,10 +201,10 @@ std::string Utils::GetFile(const char* info)
 Material* Utils::ParseMaterial(std::ifstream& file)
 {
     Material* parsed = nullptr;
-    char buffer[40] = { '\0' };
+    char buffer[155] = { '\0' };
     do
     {
-        file.getline(buffer, 40);
+        file.getline(buffer, 155);
         if (buffer[0] == '\0' || buffer[0] == '#')
             break;
 
