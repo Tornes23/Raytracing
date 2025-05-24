@@ -13,6 +13,7 @@ namespace Utils
 	float GetFloat(char** info);
 	int GetInt (char** info);
 	int GetInt (const char* info);
+	float GetFloat(const char* info);
 	std::string GetFile(const char* info);
 	Material* ParseMaterial(std::ifstream& file);
 

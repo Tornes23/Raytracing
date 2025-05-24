@@ -29,10 +29,10 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 			glm::vec3 pixelworld = GetPixelWorld(ndc);
 			glm::vec3 camPos = GetCameraPos(currScene);
 			Ray ray(camPos, glm::normalize(pixelworld - camPos));
-			Scene* scene = SceneManager.GetScene();
+			Scene* scene = SceneManager.GetCurrentScene();
 			Color ambient = GetAmbient(currScene);
 
-			ContactInfo info = Raytracer.RayCast(ray, scene->mObjects, 0);
+			ContactInfo info = Raytracer.RayCast(ray, *scene, 0);
 
 			if (mMSAASamples > 0)
 			{
@@ -46,7 +46,7 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 					// the ray will go through that position in the world
 					Ray subSampleRay(camPos, glm::normalize(subSamplePixelworld - camPos));
 					//make the anti aliasing sample
-					ContactInfo iterationResult = Raytracer.RayCast(subSampleRay, scene->mObjects, 0);
+					ContactInfo iterationResult = Raytracer.RayCast(subSampleRay, *scene, 0);
 					info.mColor += iterationResult.mColor;
 				}
 

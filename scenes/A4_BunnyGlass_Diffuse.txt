@@ -5,11 +5,11 @@ LIGHT (-15.0,10.0,-8.0) 2.0 (50,50,50)
 CAMERA (0.0,5.0,8.0) (0.0,3.0,0.0) (0,1,0) 1
 AMBIENT (0,0,0)
 
-MESH ..\meshes\glass.obj
+MESH ./meshes/glass.obj
 (-0.6,0.0,0.0) (0.0,0.0,0.0) 1
 DIFFUSE (0.94,0.93,1.0)
 
-MESH ..\meshes\bunny.obj
+MESH ./meshes/bunny.obj
 (1.0,0.5,-6.0) (0.0,30.0,0.0) 2
 DIFFUSE (0.5,0.91,0.5)
 

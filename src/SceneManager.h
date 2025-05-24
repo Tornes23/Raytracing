@@ -10,9 +10,11 @@ public:
 	void LoadScene(const std::string& to_load);
 	void NextScene();
 	void PrevScene();
+	void BuildScenesKDTrees();
 
 
-	Scene* GetScene();
+	Scene* GetScene(int i = -1);
+	Scene* GetCurrentScene();
 	int GetDisplayScene();
 	void SetDisplayScene(int index = 0);
 	void SetDisplayScene(const std::string& filename);

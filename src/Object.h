@@ -24,7 +24,7 @@ struct Object
 	Object(const char* info = nullptr, GeometryTypes type = GeometryTypes::AABB);
 	Object(const Object& obj);
 	Object(const Light& light);
-	bool CheckIntersection(const Ray& ray, ContactInfo& info);
+	bool CheckIntersection(const Ray& ray, ContactInfo& info) const;
 	void Destroy();
 
 	void SetPos(const glm::vec3& pos);
@@ -41,7 +41,8 @@ struct Object
 
 	void ApplyModel2WorldToModel();
 	//the corresponding Geometry
-	Geometry* mModel = nullptr;
+	Geometry* mGeometry = nullptr;
+	GeometryTypes mGeometryType = GeometryTypes::AABB;
 	Material* mMaterial = nullptr;
 	bool mbLight = false;
 };

@@ -18,11 +18,13 @@ int main(int argc, char ** argv)
 {
 
     std::string inputDirectory= "./scenes/";
-    //Loading the scene
+    //Loading the scenes
     SceneManager.LoadScenes(inputDirectory.data());
 
     Utils::LoadConfig("CONFIG.txt");
-    
+
+    SceneManager.BuildScenesKDTrees();
+
     std::string inputFile = "input.txt";
     std::string screenshotName = "output.png";
     bool        takeScreenshot = false;

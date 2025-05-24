@@ -1,14 +1,13 @@
 #pragma once
 #include <vector>
-#include "Geometry.h"
-#include "Object.h"
+#include "Scene.h"
 
 class RayTracer
 {
 public:
 
-	ContactInfo FindClosestObj(const Ray& ray, std::vector<Object>& objs);
-	ContactInfo RayCast(const Ray& ray, std::vector<Object>& objs, int bounce);
+	ContactInfo FindClosestObj(const Ray& ray, const Scene& scene);
+	ContactInfo RayCast(const Ray& ray, const Scene& scene, int bounce);
 
 	void SetBounces(int bounces = 1);
 

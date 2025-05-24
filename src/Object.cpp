@@ -10,31 +10,34 @@ Object::Object(const char* info, GeometryTypes type)
 {
 	if (info == nullptr)
 		return;
+
+	mGeometryType = type;
+
 	if(type != GeometryTypes::Polygon && type != GeometryTypes::Model)
 		mPos = Utils::GetVector(&info);
 	
 	switch (type)
 	{
 	case GeometryTypes::Triangle:
-		mModel = new Triangle(&info);
+		mGeometry = new Triangle(&info);
 		break;
 	case GeometryTypes::Plane:
 		//mModel = new Plane();
 		break;
 	case GeometryTypes::BOX:
-		mModel = new Box(&info);
+		mGeometry = new Box(&info);
 		break;
 	case GeometryTypes::AABB:
-		mModel = new AABB(&info);
+		mGeometry = new AABB(&info);
 		break;
 	case GeometryTypes::Sphere:
-		mModel = new Sphere(&info);
+		mGeometry = new Sphere(&info);
 		break;
 	case GeometryTypes::Polygon:
-		mModel = new Polygon(&info);
+		mGeometry = new Polygon(&info);
 		break;
 	default:
-		mModel = new Sphere(&info);
+		mGeometry = new Sphere(&info);
 		break;
 	}
 	mbLight = false;
@@ -43,23 +46,24 @@ Object::Object(const char* info, GeometryTypes type)
 Object::Object(const Object& obj)
 {
 	mPos = obj.mPos;
-	mModel = obj.mModel;
+	mGeometry = obj.mGeometry;
 	mMaterial = obj.mMaterial;
 	mbLight = obj.mbLight;
+	mGeometryType = obj.mGeometryType;
 }
 
 Object::Object(const Light& light)
 {
-	mModel = new Sphere(light.mRadius);
+	mGeometry = new Sphere(light.mRadius);
 	mPos = light.mPos;
 	mMaterial = new Diffuse;
 	mMaterial->mColor = light.mColor;
 	mbLight = true;
 }
 
-bool Object::CheckIntersection(const Ray& ray, ContactInfo& info)
+bool Object::CheckIntersection(const Ray& ray, ContactInfo& info) const
 {
-	bool intersected = mModel->CheckIntersection(ray, mPos, info);
+	bool intersected = mGeometry->CheckIntersection(ray, mPos, info);
 
 	if (!intersected)
 		return false;
@@ -72,10 +76,10 @@ bool Object::CheckIntersection(const Ray& ray, ContactInfo& info)
 
 void Object::Destroy()
 {
-	if (mModel != nullptr)
+	if (mGeometry != nullptr)
 	{
-		delete mModel;
-		mModel = nullptr;
+		delete mGeometry;
+		mGeometry = nullptr;
 	}
 	if (mMaterial != nullptr)
 	{
@@ -109,17 +113,18 @@ void Object::LoadObjModel(const char* file)
 		return;
 	}
 
-	if (mModel)
+	if (mGeometry)
 	{
-		delete mModel;
+		delete mGeometry;
 	}
 
-	mModel = new Model(&file, mM2W);
+	mGeometry = new Model(&file, mM2W);
+	mGeometryType = GeometryTypes::Model;
 }
 
 void Object::ApplyModel2WorldToModel()
 {
-	std::vector<Triangle>triangles = mModel->mModel->mTriangles;
+	std::vector<Triangle>triangles = mGeometry->mModel->mTriangles;
 	glm::mat4x4 transform = mM2W;
 	std::transform(triangles.begin(), triangles.end(), triangles.begin(), [&transform](Triangle& triangle) 
 					{

@@ -190,6 +190,32 @@ int Utils::GetInt(const char* info)
     return val;
 }
 
+float Utils::GetFloat(const char* info)
+{
+	if (info == nullptr)
+		return 0.0f;
+
+	float val = 0.0F;
+	std::string number;
+	char* end{};
+
+	while (*info != '(' && *info != ',' && *info != ')' && *info != '\0' && *info != '\n')
+	{
+		if (*info == ' ')
+		{
+			info++;
+			continue;
+		}
+
+		number.push_back(*info);
+		info++;
+	}
+
+	val = std::strtof(number.data(), &end);
+
+	return val;
+}
+
 std::string Utils::GetFile(const char* info)
 {
     if (info == nullptr)
@@ -288,6 +314,12 @@ void Utils::LoadConfig(const std::string& path)
                         GraphicsManager.SetRenderNormals(GetInt(line.substr(found + 1u).c_str()) == 1 ? true : false );
 					else if (type.compare("ANTIALIASING_SAMPLES") == 0)
                         GraphicsManager.SetAntiAliasingSamples(GetInt(line.substr(found + 1u).c_str()));
+					else if (type.compare("KDTREE_TRAVERSAL_COST") == 0)
+                        SceneManager.GetCurrentScene()->SetKDTreeTraversalCost(GetFloat(line.substr(found + 1u).c_str()));
+					else if (type.compare("KDTREE_INTERSECTION_COST") == 0)
+						SceneManager.GetCurrentScene()->SetKDTreeIntersectionCost(GetFloat(line.substr(found + 1u).c_str()));
+					else if (type.compare("KDTREE_MAX_DEPTH") == 0)
+						SceneManager.GetCurrentScene()->SetKDTreeMaxDepth(GetInt(line.substr(found + 1u).c_str()));
                 }
             }
         }

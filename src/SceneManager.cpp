@@ -29,6 +29,7 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
 
     std::string scene = Utils::GetFilename(to_load);
     std::vector<Object> objects;
+    Scene* pScene = new Scene(scene);
     //reading the code from the file and adding it to the string
     while (inFile.good())
     {
@@ -69,11 +70,9 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
                             obj.LoadObjModel(line.substr(found + 1u).c_str());
                             objects.push_back(obj);
                         }
-
+                        
                         objects.back().mMaterial = Utils::ParseMaterial(inFile);
                     }
-
-                   
                 }
             }
         }
@@ -82,7 +81,9 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
     for (auto& obj : GraphicsManager.GetLights(scene))
         objects.push_back(Object(obj));
 
-    mScenes.push_back(new Scene(objects, scene));
+    pScene->SetObjects(objects);
+    pScene->SubmitTrianglesOfObjects();
+    mScenes.push_back(pScene);
     //closing the file
     inFile.close();
 	//load stuff
@@ -93,19 +94,37 @@ void SceneManagerClass::PrevScene()
     mDisplayScene = glm::clamp(mDisplayScene - 1, 0, (int)mScenes.size());
 }
 
+void SceneManagerClass::BuildScenesKDTrees()
+{
+    for (size_t i = 0; i < mScenes.size(); i++)
+    {
+        mScenes[i]->BuildSceneKDTree();
+    }
+}
+
 void SceneManagerClass::NextScene()
 {
     mDisplayScene = glm::clamp(mDisplayScene + 1, 0, (int)mScenes.size());
 }
 
-Scene* SceneManagerClass::GetScene()
+Scene* SceneManagerClass::GetScene(int i)
 {
-    if (mDisplayScene < 0)
-        return mScenes[0];
-    if (mDisplayScene > mScenes.size())
+    if (i < 0)
+        return nullptr;
+    if (i > mScenes.size())
         return mScenes.back();
 
-    return mScenes[mDisplayScene];
+    return mScenes[i];
+}
+
+Scene* SceneManagerClass::GetCurrentScene()
+{
+	if (mDisplayScene < 0)
+		return nullptr;
+	if (mDisplayScene > mScenes.size())
+		return mScenes.back();
+
+	return mScenes[mDisplayScene];
 }
 
 int SceneManagerClass::GetDisplayScene(){ return mDisplayScene;}

@@ -5,16 +5,22 @@
 #include "Object.h"
 #include "Utils.h"
 
-ContactInfo RayTracer::FindClosestObj(const Ray& ray, std::vector<Object>& objs)
+ContactInfo RayTracer::FindClosestObj(const Ray& ray, const Scene& scene)
 {
     ContactInfo minInfo;
     minInfo.mTI = std::numeric_limits<float>::max();
     int minIndex = -1;
+    const std::vector<Object>& objects = scene.mObjects;
 
-    for (int i = 0; i < objs.size(); i++)
+    for (int i = 0; i < objects.size(); i++)
     {
+        if (objects[i].mGeometryType == GeometryTypes::Model)
+        {
+            continue;
+        }
+
         ContactInfo info;
-        bool intersected = objs[i].CheckIntersection(ray, info);
+        bool intersected = objects[i].CheckIntersection(ray, info);
 
         if (intersected)
         {
@@ -25,18 +31,36 @@ ContactInfo RayTracer::FindClosestObj(const Ray& ray, std::vector<Object>& objs)
         }
     }
 
-    if (minIndex >= 0 && objs[minIndex].mbLight) {
-        minInfo.mColor = objs[minIndex].mMaterial->mColor;
+    if (minIndex >= 0 && objects[minIndex].mbLight) {
+        minInfo.mColor = objects[minIndex].mMaterial->mColor;
+        minInfo.mCollidedWith = &objects[minIndex];
+        return minInfo;
     }
 
-    if(minIndex >= 0)
-        minInfo.mCollidedWith = &objs[minIndex];
+	if (minIndex >= 0)
+		minInfo.mCollidedWith = &objects[minIndex];
 
+	kdtree::intersection treeIntersection = scene.mKDTree.get_closest(ray, nullptr);
+	if (treeIntersection.t >= 0.0f && treeIntersection.t <= minInfo.mTI)
+	{
+        minInfo.mTI = treeIntersection.t;
+
+		const scene_triangle& triangle = scene.mSceneTriangles[treeIntersection.triangle_index];
+        minInfo.mNormal = triangle.geometry.mNormal;
+        minInfo.mColor = triangle.owner->mMaterial->mColor;
+
+		if (glm::dot(triangle.geometry.mNormal, ray.mV) > 0)
+            minInfo.mNormal = -triangle.geometry.mNormal;
+		else
+            minInfo.mNormal = triangle.geometry.mNormal;
+
+        minInfo.mCollidedWith = triangle.owner;
+	}
 
     return minInfo;
 }
 
-ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs, int bounce){
+ContactInfo RayTracer::RayCast(const Ray& ray, const Scene& scene, int bounce){
 
     ContactInfo result;
     if (bounce > mBounces)
@@ -45,7 +69,7 @@ ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs, int bo
         return result;
     }
 
-    ContactInfo info = FindClosestObj(ray, objs);
+    ContactInfo info = FindClosestObj(ray, scene);
     if(info.IsValid()){
 
         if (info.mCollidedWith->mbLight) {
@@ -58,7 +82,7 @@ ContactInfo RayTracer::RayCast(const Ray& ray, std::vector<Object>& objs, int bo
 
         if (bounced.mV == glm::vec3(0.0F)) return result;
 		//std::cout << "[RAYCAST]In bounce number: " << bounce << " result color is:" << result.mColor.GetDebugString() << std::endl;
-		ContactInfo recursion = RayCast(bounced, objs, bounce + 1);
+		ContactInfo recursion = RayCast(bounced, scene, bounce + 1);
 		//std::cout << "[RAYCAST]After Recursion returned color is:" << recursion.mColor.GetDebugString() << std::endl;
 		result.mColor = result.mColor * recursion.mColor;
 		//std::cout << "[RAYCAST]After Multiplying result color is:" << result.mColor.GetDebugString() << std::endl;
