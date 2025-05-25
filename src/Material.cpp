@@ -38,6 +38,9 @@ Ray Metal::BounceRay(const glm::vec3& incidence, const glm::vec3& normal, const 
 
 void Dielectric::ParseData(const char** info)
 {
+    mColor = Color(Utils::GetVector(info));
+    mIndexOfRefraction = Utils::GetInt(info);
+    mAttenuation = Utils::GetVector(info);
 }
 
 Ray Dielectric::BounceRay(const glm::vec3& incidence, const glm::vec3& normal, const glm::vec3& cp)

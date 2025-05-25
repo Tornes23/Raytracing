@@ -14,14 +14,14 @@ struct Material
 
 struct Diffuse : Material
 {
-	Diffuse(){}
+	Diffuse() {}
 	void ParseData(const char** info);
 	Ray BounceRay(const glm::vec3& incidence, const glm::vec3& normal, const glm::vec3& cp);
 };
 
 struct Metal : Material
 {
-	Metal(){}
+	Metal() {}
 	void ParseData(const char** info);
 	Ray BounceRay(const glm::vec3& incidence, const glm::vec3& normal, const glm::vec3& cp);
 	float mRoughness = 0.0F;
@@ -32,5 +32,6 @@ struct Dielectric : Material
 	Dielectric() {}
 	void ParseData(const char** info);
 	Ray BounceRay(const glm::vec3& incidence, const glm::vec3& normal, const glm::vec3& cp);
-	Color mTraversal;
+	int mIndexOfRefraction;
+	glm::vec3 mAttenuation;
 };

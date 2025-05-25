@@ -10,6 +10,7 @@
 #include "Geometry.h"
 
 constexpr float cEpsilon = 1e-13f;
+struct Material;
 
 /**
  * Basic KDTree
@@ -79,26 +80,26 @@ public:
             // Split position (internal only)
             float m_split;
             // Index of first triangle (leafs only)
-            unsigned m_start_primitive;
+            size_t m_start_primitive;
         };
         union
         {
             // Subnode index (6MSB) + Axis (2LSB) (internal only)
-            unsigned m_subnode_index;
+            size_t m_subnode_index;
             // Amount of triangles (6MSB) + 0b11 (leafs only)
-            unsigned m_count;
+            size_t m_count;
         };
 
     public:
-        void set_leaf(int first_primitive_index, int primitive_count);
-        void set_internal(int axis, float split_point, int subnode_index);
+        void set_leaf(size_t first_primitive_index, size_t primitive_count);
+        void set_internal(size_t axis, float split_point, size_t subnode_index);
 
         // Accessors
         [[nodiscard]] bool  is_leaf() const noexcept;
         [[nodiscard]] bool  is_internal() const noexcept;
-        [[nodiscard]] int   primitive_count() const noexcept;
-        [[nodiscard]] int   primitive_start() const noexcept;
-        [[nodiscard]] int   next_child() const noexcept;
+        [[nodiscard]] size_t   primitive_count() const noexcept;
+        [[nodiscard]] size_t   primitive_start() const noexcept;
+        [[nodiscard]] size_t   next_child() const noexcept;
         [[nodiscard]] float split() const noexcept;
         [[nodiscard]] int   axis() const noexcept;
     };
@@ -114,6 +115,8 @@ public:
 
         // Index of source triangle (so the application knows which triangles was being referenced)
         size_t original_index;
+
+        Object* owner = nullptr;
 
         [[nodiscard]] auto const& operator[](int i) const { return tri.mPoints[i]; }
         [[nodiscard]] auto& operator[](int i) { return tri.mPoints[i]; }
@@ -146,8 +149,8 @@ public:
     float get_split(std::vector<triangle_wrapper> const& triangles, int axis, float* min_cost);
     void split(std::vector<triangle_wrapper> const& triangles, int* left, int* right, int axis, float splitPoint);
 
-    int cost_intersect(float surfaceA, int countA, float surfaceB, int countB);
-    int cost_leaf(std::vector<triangle_wrapper> const& triangles);
+    float cost_intersect(float surfaceA, int countA, float surfaceB, int countB);
+    float cost_leaf(std::vector<triangle_wrapper> const& triangles);
 
     void split(std::vector<triangle_wrapper> const& triangles, std::vector<triangle_wrapper>& left, std::vector<triangle_wrapper>& right, int axis, float splitPoint);
     AABB computeBV(triangle_wrapper const& triangle);

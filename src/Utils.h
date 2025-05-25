@@ -3,6 +3,7 @@
 #include <string>
 #include <glm/vec3.hpp>
 struct Material;
+struct Object;
 
 namespace Utils
 {

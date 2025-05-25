@@ -11,7 +11,7 @@ struct Scene
 	Scene(const std::string& name = "InvalidSceneName");
 
 	void SetObjects(std::vector<Object>& objects);
-	void SubmitTrianglesOfObject(const Object& object);
+	void SubmitTrianglesOfObject(Object* object);
 	void SubmitTrianglesOfObjects();
 	void BuildSceneKDTree();
 	

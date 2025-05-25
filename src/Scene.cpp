@@ -32,9 +32,9 @@ void Scene::SetObjects(std::vector<Object>& objects)
 	std::memcpy(&mObjects[0], &objects[0], sizeof(Object) * objects.size());
 }
 
-void Scene::SubmitTrianglesOfObject(const Object& object)
+void Scene::SubmitTrianglesOfObject(Object* object)
 {
-	std::vector<Triangle>& meshTriangles = object.mGeometry->mModel->mTriangles;
+	std::vector<Triangle>& meshTriangles = object->mGeometry->mModel->mTriangles;
 	if (meshTriangles.empty())
 	{
 		return;
@@ -44,7 +44,10 @@ void Scene::SubmitTrianglesOfObject(const Object& object)
 	std::vector<scene_triangle> newTriangles(meshTriangles.size());
 	//push back triangles with object* data and geometry
 	for (int i = 0; i < newTriangles.size(); i++)
-		newTriangles[i] = { meshTriangles[i], &object };
+	{
+		newTriangles[i].geometry = meshTriangles[i];
+		newTriangles[i].owner = object;
+	}
 
 	mSceneTriangles.resize(oldTriangles.size() + newTriangles.size());
 	if (!oldTriangles.empty())
@@ -64,7 +67,7 @@ void Scene::SubmitTrianglesOfObjects()
 			continue;
 		}
 
-		SubmitTrianglesOfObject(mObjects[i]);
+		SubmitTrianglesOfObject(&mObjects[i]);
 	}
 }
 
@@ -93,8 +96,3 @@ void Scene::SetKDTreeMaxDepth(int maxDepth)
 	mKDTreeConfig.max_depth = maxDepth;
 }
 
-scene_triangle::scene_triangle(const Triangle& sceneTriangle, const Object* pOwnerObject)
-{
-	geometry = sceneTriangle;
-	owner = pOwnerObject;
-}

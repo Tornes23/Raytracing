@@ -70,7 +70,8 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
                             obj.LoadObjModel(line.substr(found + 1u).c_str());
                             objects.push_back(obj);
                         }
-                        
+                        //Object* lastObject = &objects.back();
+                        //lastObject->mMaterial = Utils::ParseMaterial(inFile, &objects.back());
                         objects.back().mMaterial = Utils::ParseMaterial(inFile);
                     }
                 }

@@ -69,9 +69,8 @@ struct Object;
 struct scene_triangle
 {
 	scene_triangle() {}
-	scene_triangle(const Triangle& triangle, const Object* pOwnerObject);
 	Triangle geometry;
-	const Object* owner = nullptr;
+    Object* owner = nullptr;
 
 	glm::vec3 const& operator[](int index) const { return geometry[index]; }
 	glm::vec3& operator[](int index) { return geometry[index]; }

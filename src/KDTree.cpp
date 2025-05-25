@@ -12,6 +12,7 @@
 #include <glm/gtx/norm.hpp>
 #include <sstream>
 #include "KDTree.hpp"
+#include "Object.h"
 
 /**
 * @brief	sets the variables for a leaf node
@@ -19,7 +20,7 @@
 * @param	int primitive_count
 * @return		void
 **/
-void kdtree::node::set_leaf(int first_primitive_index, int primitive_count)
+void kdtree::node::set_leaf(size_t first_primitive_index, size_t primitive_count)
 	{
 		//setting the variables
 		m_start_primitive = first_primitive_index;
@@ -36,7 +37,7 @@ void kdtree::node::set_leaf(int first_primitive_index, int primitive_count)
 	* @param	int subnode_index
 	* @return		void
 	**/
-void kdtree::node::set_internal(int axis, float split_point, int subnode_index)
+void kdtree::node::set_internal(size_t axis, float split_point, size_t subnode_index)
 	{
 		//setting the variables
 		m_split = split_point;
@@ -81,10 +82,10 @@ bool kdtree::node::is_internal() const noexcept
 * @brief	returns the Triangle count
 * @return		int
 **/
-int kdtree::node::primitive_count() const noexcept
+size_t kdtree::node::primitive_count() const noexcept
 	{
 		//remove the last 2 bits and return count
-		unsigned int count = m_count >> 2;
+	    size_t count = m_count >> 2;
 		return count;
 	}
 
@@ -92,16 +93,16 @@ int kdtree::node::primitive_count() const noexcept
 	* @brief	returns the index of the first Triangle in the node
 	* @return		int
 	**/
-int kdtree::node::primitive_start() const noexcept { return m_start_primitive; }
+size_t kdtree::node::primitive_start() const noexcept { return m_start_primitive; }
 
 /**
 	* @brief	gets the right node of a internal one
 	* @return		int
 	**/
-int kdtree::node::next_child() const noexcept
+size_t kdtree::node::next_child() const noexcept
 	{
 		//remove the last 2 bits and return count
-		int rightNode = m_subnode_index >> 2;
+	size_t rightNode = m_subnode_index >> 2;
 		return rightNode;
 	}
 
@@ -210,8 +211,9 @@ void kdtree::build(triangle_container const& all_triangles, const config& cfg)
 void kdtree::build(triangle_container const& all_triangles)
 {
 	//pushing back the triangles
+	m_triangles.resize(all_triangles.size());
 	for (unsigned i = 0; i < all_triangles.size(); i++)
-		m_triangles.push_back({ all_triangles[i].geometry, i });
+		m_triangles[i] = { all_triangles[i].geometry, i, all_triangles[i].owner};
 
 	//calling to build the tree
 	build_tree(m_triangles, 0);
@@ -233,7 +235,7 @@ void kdtree::build_tree(std::vector<triangle_wrapper> const& triangles, int dept
 	m_aabbs.push_back(computeBV(triangles));
 
 	//getting the nodes index
-	unsigned currIndex = m_nodes.size() - 1;
+	size_t currIndex = m_nodes.size() - 1;
 
 	//if it does not have a valid depth create a leaf and return
 	if (depth >= m_cfg.max_depth)
@@ -387,7 +389,7 @@ void kdtree::split(std::vector<triangle_wrapper> const& triangles, int* left, in
 	* @param	std::vector<triangle_wrapper> const& triangles
 	* @return		int
 	**/
-int kdtree::cost_leaf(std::vector<triangle_wrapper> const& triangles)
+float kdtree::cost_leaf(std::vector<triangle_wrapper> const& triangles)
 	{
 		//returning the result of the heuristics formula
 		return m_cfg.cost_intersection * triangles.size();
@@ -551,10 +553,10 @@ float kdtree::compute_surface(const AABB& bv)
 	* @param	int countB
 	* @return		int
 	**/
-int kdtree::cost_intersect(float surfaceA, int countA, float surfaceB, int countB)
+float kdtree::cost_intersect(float surfaceA, int countA, float surfaceB, int countB)
 	{
 		//returning the result of the heuristics formula
-		int cost = m_cfg.cost_traversal + m_cfg.cost_intersection * (surfaceA * countA + surfaceB * countB);
+		float cost = m_cfg.cost_traversal + m_cfg.cost_intersection * (surfaceA * countA + surfaceB * countB);
 		return cost;
 	}
 
@@ -603,13 +605,13 @@ kdtree::intersection kdtree::get_min(Ray const& r, int currNode, intersection& m
 		//if the node is a leaf
 		if (m_nodes[currNode].is_leaf())
 		{
-			unsigned size = m_nodes[currNode].primitive_count();
+			size_t size = m_nodes[currNode].primitive_count();
 
 			//checking with every Triangle in the node
-			for (unsigned i = 0; i < size; i++)
+			for (size_t i = 0; i < size; i++)
 			{
 				//getting the starting index
-				unsigned index = m_nodes[currNode].primitive_start();
+				size_t index = m_nodes[currNode].primitive_start();
 
 				//getting the intersection time for the Triangle
 				ContactInfo triangleIntersection;
@@ -637,15 +639,15 @@ kdtree::intersection kdtree::get_min(Ray const& r, int currNode, intersection& m
 			//if the Rays starting pos is over or under the splitting point get the left or right node
 			int leftIndex = -1;
 			if (r.mP0[axis] <= splitPoint)
-				leftIndex = currNode + 1;
+				leftIndex = (int)(currNode + 1);
 			else
-				leftIndex = m_nodes[currNode].next_child();
+				leftIndex = (int)m_nodes[currNode].next_child();
 
-			int rightIndex = -1.0F;
+			int rightIndex = -1;
 			if (r.mP0[axis] > splitPoint)
 				rightIndex = currNode + 1;
 			else
-				rightIndex = m_nodes[currNode].next_child();
+				rightIndex = (int)m_nodes[currNode].next_child();
 
 			//recursive call to the child nodes
 			get_min(r, leftIndex, minT);

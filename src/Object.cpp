@@ -40,6 +40,7 @@ Object::Object(const char* info, GeometryTypes type)
 		mGeometry = new Sphere(&info);
 		break;
 	}
+
 	mbLight = false;
 }
 

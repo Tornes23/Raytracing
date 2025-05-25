@@ -4,6 +4,7 @@
 #include "Raytracer.h"
 #include "Object.h"
 #include "Utils.h"
+#include "KDTree.hpp"
 
 ContactInfo RayTracer::FindClosestObj(const Ray& ray, const Scene& scene)
 {
@@ -45,16 +46,16 @@ ContactInfo RayTracer::FindClosestObj(const Ray& ray, const Scene& scene)
 	{
         minInfo.mTI = treeIntersection.t;
 
-		const scene_triangle& triangle = scene.mSceneTriangles[treeIntersection.triangle_index];
-        minInfo.mNormal = triangle.geometry.mNormal;
-        minInfo.mColor = triangle.owner->mMaterial->mColor;
+		const kdtree::triangle_wrapper& triangleWrapper = scene.mKDTree.triangles()[treeIntersection.triangle_index];
+        minInfo.mNormal = triangleWrapper.tri.mNormal;
+        minInfo.mColor = triangleWrapper.owner && triangleWrapper.owner->mMaterial ? triangleWrapper.owner->mMaterial->mColor : Color::Black;
 
-		if (glm::dot(triangle.geometry.mNormal, ray.mV) > 0)
-            minInfo.mNormal = -triangle.geometry.mNormal;
+		if (glm::dot(triangleWrapper.tri.mNormal, ray.mV) > 0)
+            minInfo.mNormal = -triangleWrapper.tri.mNormal;
 		else
-            minInfo.mNormal = triangle.geometry.mNormal;
+            minInfo.mNormal = triangleWrapper.tri.mNormal;
 
-        minInfo.mCollidedWith = triangle.owner;
+        minInfo.mCollidedWith = triangleWrapper.owner ? triangleWrapper.owner : nullptr;
 	}
 
     return minInfo;
