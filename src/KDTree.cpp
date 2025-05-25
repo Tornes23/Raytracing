@@ -238,7 +238,7 @@ void kdtree::build_tree(std::vector<triangle_wrapper> const& triangles, int dept
 	size_t currIndex = m_nodes.size() - 1;
 
 	//if it does not have a valid depth create a leaf and return
-	if (depth >= m_cfg.max_depth)
+	if (depth >= m_cfg.max_depth || m_cfg.min_triangles >= triangles.size())
 	{
 		m_nodes[currIndex].set_leaf(m_indices.size(), triangles.size());
 
@@ -592,10 +592,10 @@ kdtree::intersection kdtree::get_closest(Ray const r, debug_stats* stats) const
 kdtree::intersection kdtree::get_min(Ray const& r, int currNode, intersection& minT) const
 	{
 		//cheching is a valid node
-		if (currNode < 0.0F)
+		if (currNode < 0)
 			return minT;
 
-		//if does not intersect with the AABB of this node return an error intersection codeContactInfo aabbIntersection;
+		//if does not intersect with the AABB of this node return an error intersection code;
 		if (m_aabbs[currNode].GetIntersectionTime(r) < 0.0F)
 		{
 			intersection error{ 0, -1.0F };
@@ -630,7 +630,8 @@ kdtree::intersection kdtree::get_min(Ray const& r, int currNode, intersection& m
 				}
 			}
 		}
-		else //if the node is a intermediate
+		
+		if(m_nodes[currNode].is_internal())//if the node is a intermediate
 		{
 			//getting the partition axis and the splitting point
 			int axis = m_nodes[currNode].axis();

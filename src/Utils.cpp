@@ -320,6 +320,8 @@ void Utils::LoadConfig(const std::string& path)
 						SceneManager.GetCurrentScene()->SetKDTreeIntersectionCost(GetFloat(line.substr(found + 1u).c_str()));
 					else if (type.compare("KDTREE_MAX_DEPTH") == 0)
 						SceneManager.GetCurrentScene()->SetKDTreeMaxDepth(GetInt(line.substr(found + 1u).c_str()));
+					else if (type.compare("KDTREE_MIN_TRIANGLES") == 0)
+						SceneManager.GetCurrentScene()->SetKDTreeMinTriangles(GetInt(line.substr(found + 1u).c_str()));
                 }
             }
         }

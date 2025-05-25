@@ -12,7 +12,7 @@
 #endif // MULTITHREAD
 
 
-//void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; RenderBatch(40, 150, 41, 151); }
+//void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; RenderBatch(133, 208, 134, 209); }
 void GraphicsManagerClass::Render() { if (!SwapBuffers()) return; RenderBatch(0, 0, mWidth, mHeight); }
 
 void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int endY)

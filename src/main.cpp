@@ -27,7 +27,7 @@ int main(int argc, char ** argv)
 
     std::string inputFile = "input.txt";
     std::string screenshotName = "output.png";
-    bool        takeScreenshot = false;
+    bool        takeScreenshot = true;
 
     if (argc > 1)
         inputFile = argv[1];

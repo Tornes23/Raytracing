@@ -18,6 +18,7 @@ struct Scene
 	void SetKDTreeTraversalCost(float cost);
 	void SetKDTreeIntersectionCost(float cost);
 	void SetKDTreeMaxDepth(int maxDepth);
+	void SetKDTreeMinTriangles(int minTriangles);
 
 	std::vector<Object> mObjects;
 	std::vector<scene_triangle> mSceneTriangles;

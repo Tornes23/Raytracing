@@ -96,3 +96,8 @@ void Scene::SetKDTreeMaxDepth(int maxDepth)
 	mKDTreeConfig.max_depth = maxDepth;
 }
 
+void Scene::SetKDTreeMinTriangles(int minTriangles)
+{
+	mKDTreeConfig.min_triangles = minTriangles;
+}
+

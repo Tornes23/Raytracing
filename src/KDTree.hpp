@@ -39,6 +39,7 @@ public:
         float cost_traversal = 1.0f;
         float cost_intersection = 80.0f;
         int   max_depth = 5;
+        unsigned int min_triangles = 50;
     };
 
     void SetConfig(const config& buildConfig) { m_cfg = buildConfig; }

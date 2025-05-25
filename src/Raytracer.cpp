@@ -28,34 +28,27 @@ ContactInfo RayTracer::FindClosestObj(const Ray& ray, const Scene& scene)
             if (info.mTI < minInfo.mTI){
                 minInfo = info;
                 minIndex = i;
+                minInfo.mCollidedWith = &objects[minIndex];
             }
         }
     }
 
-    if (minIndex >= 0 && objects[minIndex].mbLight) {
-        minInfo.mColor = objects[minIndex].mMaterial->mColor;
-        minInfo.mCollidedWith = &objects[minIndex];
-        return minInfo;
-    }
-
-	if (minIndex >= 0)
-		minInfo.mCollidedWith = &objects[minIndex];
-
 	kdtree::intersection treeIntersection = scene.mKDTree.get_closest(ray, nullptr);
-	if (treeIntersection.t >= 0.0f && treeIntersection.t <= minInfo.mTI)
+	if (treeIntersection.t >= 0.0f && treeIntersection.t < minInfo.mTI)
 	{
         minInfo.mTI = treeIntersection.t;
 
-		const kdtree::triangle_wrapper& triangleWrapper = scene.mKDTree.triangles()[treeIntersection.triangle_index];
+        size_t index = scene.mKDTree.indices()[treeIntersection.triangle_index];
+		const kdtree::triangle_wrapper& triangleWrapper = scene.mKDTree.triangles()[index];
+		//const kdtree::triangle_wrapper& triangleWrapper = scene.mKDTree.triangles()[treeIntersection.triangle_index];
         minInfo.mNormal = triangleWrapper.tri.mNormal;
         minInfo.mColor = triangleWrapper.owner && triangleWrapper.owner->mMaterial ? triangleWrapper.owner->mMaterial->mColor : Color::Black;
 
-		if (glm::dot(triangleWrapper.tri.mNormal, ray.mV) > 0)
-            minInfo.mNormal = -triangleWrapper.tri.mNormal;
-		else
-            minInfo.mNormal = triangleWrapper.tri.mNormal;
+		if (glm::dot(minInfo.mNormal, ray.mV) > 0)
+			minInfo.mNormal = -minInfo.mNormal;
 
         minInfo.mCollidedWith = triangleWrapper.owner ? triangleWrapper.owner : nullptr;
+        minInfo.mContact = ray.mP0 + (minInfo.mTI * ray.mV);
 	}
 
     return minInfo;

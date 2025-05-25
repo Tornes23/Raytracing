@@ -51,6 +51,9 @@ Object::Object(const Object& obj)
 	mMaterial = obj.mMaterial;
 	mbLight = obj.mbLight;
 	mGeometryType = obj.mGeometryType;
+	mRot = obj.mRot;
+	mScale = obj.mScale;
+	mM2W = obj.mM2W;
 }
 
 Object::Object(const Light& light)

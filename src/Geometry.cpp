@@ -11,8 +11,7 @@ Geometry::~Geometry()
 {
 	if (mModel)
 	{
-		delete mModel.get();
-		mModel = nullptr;
+		mModel.reset();
 	}
 }
 
