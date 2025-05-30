@@ -71,14 +71,27 @@ ContactInfo RayTracer::RayCast(const Ray& ray, const Scene& scene, int bounce){
             return result;
         }
         result = info;
-        Ray bounced = info.mCollidedWith->mMaterial->BounceRay(ray.mV, info.mNormal, info.mContact);
+        Ray bounced = info.mCollidedWith->mMaterial->BounceRay(ray, info.mNormal, info.mContact);
 
         if (bounced.mV == glm::vec3(0.0F)) return result;
-		//std::cout << "[RAYCAST]In bounce number: " << bounce << " result color is:" << result.mColor.GetDebugString() << std::endl;
+		
+		if (glm::dot(bounced.mV, info.mNormal) < 0.0f)
+            info.mNormal = -info.mNormal;
+
+		//return result;
+        bounced.mP0 = info.mContact + (info.mNormal * GetEpsilon());
+
+        //std::cout << "[RAYCAST]In bounce number: " << bounce << " result color is:" << result.mColor.GetDebugString() << std::endl;
 		ContactInfo recursion = RayCast(bounced, scene, bounce + 1);
 		//std::cout << "[RAYCAST]After Recursion returned color is:" << recursion.mColor.GetDebugString() << std::endl;
+
+		// Add the accumulated color and update the t so that the caller knows if anything was hit in the end
+		if (ray.mAttenuation != glm::vec3(1, 1, 1))
+			result.mColor.ApplyAttenuation(ray.mAttenuation, info.mTI);
+
 		result.mColor = result.mColor * recursion.mColor;
 		//std::cout << "[RAYCAST]After Multiplying result color is:" << result.mColor.GetDebugString() << std::endl;
+        return result;
 	}
 
     return result;

@@ -22,9 +22,12 @@ struct ContactInfo
 
 struct Ray
 {
-    Ray(const glm::vec3& p0, const glm::vec3& vec);
+    Ray(const glm::vec3& p0 = glm::vec3(0.0f), const glm::vec3& vec = glm::vec3(0.0f));
     glm::vec3 mP0;
     glm::vec3 mV;
+
+    glm::vec3 mAttenuation = glm::vec3(1.0f);
+    float mIndexOfRefraction = 1.0f;
 };
 
 struct Geometry

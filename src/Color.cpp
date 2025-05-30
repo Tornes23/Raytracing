@@ -74,6 +74,16 @@ void Color::SetColor(const std::vector<float>& c)
 	mRGB.b = c[2];
 }
 
+void Color::ApplyAttenuation(const glm::vec3& attenuationFactors, float power)
+{
+	glm::vec3 attenuation(1.0f);
+	attenuation.r *= glm::pow(attenuationFactors.r, power);
+	attenuation.g *= glm::pow(attenuationFactors.g, power);
+	attenuation.b *= glm::pow(attenuationFactors.b, power);
+
+	mRGB *= attenuation;
+}
+
 glm::vec3 Color::GetColor() const{ return mRGB; }
 glm::vec<3, unsigned char> Color::ToRGB(int divisor) const { 
 

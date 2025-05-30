@@ -24,16 +24,22 @@ public:
 	void SetColor(glm::vec3& color);
 	void SetColor(const std::vector<double>& c);
 	void SetColor(const std::vector<float>& c);
+
+	void ApplyAttenuation(const glm::vec3& attenuationFactors, float power);
+
+
 	glm::vec3 GetColor() const;
-	glm::vec<3, unsigned char> ToRGB(int divisor = 1) const;
 	float GetR() const;
 	float GetG() const;
 	float GetB() const;
+	glm::vec<3, unsigned char> ToRGB(int divisor = 1) const;
+
 	Color operator*(const Color& rhs);
 	Color operator+(const Color& rhs);
 	Color& operator+=(const Color& lhs);
 	Color& operator/=(int n);
 	Color& operator/=(float f);
+
 	std::string GetDebugString() const;
 
 	glm::vec3 mRGB;

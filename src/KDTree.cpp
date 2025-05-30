@@ -21,14 +21,14 @@
 * @return		void
 **/
 void kdtree::node::set_leaf(size_t first_primitive_index, size_t primitive_count)
-	{
-		//setting the variables
-		m_start_primitive = first_primitive_index;
-		m_count = primitive_count;
+{
+	//setting the variables
+	m_start_primitive = first_primitive_index;
+	m_count = primitive_count;
 
-		m_count <<= 2;
-		m_count |= 0b11;
-	}
+	m_count <<= 2;
+	m_count |= 0b11;
+}
 
 /**
 	* @brief	sets the variable for a internal node
@@ -38,56 +38,56 @@ void kdtree::node::set_leaf(size_t first_primitive_index, size_t primitive_count
 	* @return		void
 	**/
 void kdtree::node::set_internal(size_t axis, float split_point, size_t subnode_index)
-	{
-		//setting the variables
-		m_split = split_point;
+{
+	//setting the variables
+	m_split = split_point;
 
-		m_subnode_index = subnode_index;
+	m_subnode_index = subnode_index;
 
-		m_subnode_index <<= 2;
-		m_subnode_index |= axis;
-	}
+	m_subnode_index <<= 2;
+	m_subnode_index |= axis;
+}
 
 /**
 	* @brief	to know if is a leaf
 	* @return		bool
 	**/
 bool kdtree::node::is_leaf() const noexcept
-	{
-		//check if last 2 bits on count are 11
-		int axis = m_count & 0b11;
+{
+	//check if last 2 bits on count are 11
+	int axis = m_count & 0b11;
 
-		if (axis == 3)
-			return true;
+	if (axis == 3)
+		return true;
 
-		return false;
-	}
+	return false;
+}
 
 /**
 	* @brief	to know if is a internal
 	* @return		bool
 	**/
 bool kdtree::node::is_internal() const noexcept
-	{
-		//check if last 2 bits on count are not 11 (00 -> x, 01 -> y 10 -> z)
-		int axis = m_count & 0b11;
+{
+	//check if last 2 bits on count are not 11 (00 -> x, 01 -> y 10 -> z)
+	int axis = m_count & 0b11;
 
-		if (axis != 3)
-			return true;
+	if (axis != 3)
+		return true;
 
-		return false;
-	}
+	return false;
+}
 
 /**
 * @brief	returns the Triangle count
 * @return		int
 **/
 size_t kdtree::node::primitive_count() const noexcept
-	{
-		//remove the last 2 bits and return count
-	    size_t count = m_count >> 2;
-		return count;
-	}
+{
+	//remove the last 2 bits and return count
+    size_t count = m_count >> 2;
+	return count;
+}
 
 /**
 	* @brief	returns the index of the first Triangle in the node
@@ -100,11 +100,11 @@ size_t kdtree::node::primitive_start() const noexcept { return m_start_primitive
 	* @return		int
 	**/
 size_t kdtree::node::next_child() const noexcept
-	{
-		//remove the last 2 bits and return count
+{
+	//remove the last 2 bits and return count
 	size_t rightNode = m_subnode_index >> 2;
-		return rightNode;
-	}
+	return rightNode;
+}
 
 /**
 	* @brief	gets the splitting point
@@ -117,12 +117,12 @@ float kdtree::node::split() const noexcept { return m_split; }
 	* @return		int
 	**/
 int kdtree::node::axis() const noexcept
-	{
-		//get last 2 bits on the subnode index
-		int axis = m_subnode_index & 0b11;
+{
+	//get last 2 bits on the subnode index
+	int axis = m_subnode_index & 0b11;
 
-		return axis;
-	}
+	return axis;
+}
 
 kdtree::classification_t kdtree::classify_plane_triangle(const Plane& p, const Triangle& t)
 {
@@ -355,34 +355,34 @@ float kdtree::get_split(std::vector<triangle_wrapper> const& triangles, int axis
 	* @return		void
 	**/
 void kdtree::split(std::vector<triangle_wrapper> const& triangles, int* left, int* right, int axis, float splitPoint)
+{
+	//creating the plane
+	glm::vec3 planePos{};
+	glm::vec3 planeNormal{};
+
+	planePos[axis] = splitPoint;
+	planeNormal[axis] = 1.0F;
+
+	//the burning plane at a thousand degrees© that will be used to split
+	Plane bpatd(planeNormal, planePos);
+
+	for (auto& it : triangles)
 	{
-		//creating the plane
-		glm::vec3 planePos{};
-		glm::vec3 planeNormal{};
+		//getting the classification based on the plane
+		classification_t result = classify_plane_triangle(bpatd, it.tri);
 
-		planePos[axis] = splitPoint;
-		planeNormal[axis] = 1.0F;
-
-		//the burning plane at a thousand degrees© that will be used to split
-		Plane bpatd(planeNormal, planePos);
-
-		for (auto& it : triangles)
+		//if is inside increment left
+		if (result == classification_t::inside)
+			*left += 1;
+		else if (result == classification_t::outside)//if is out increment right
+			*right += 1;
+		else//if overlaps increment both
 		{
-			//getting the classification based on the plane
-			classification_t result = classify_plane_triangle(bpatd, it.tri);
-
-			//if is inside increment left
-			if (result == classification_t::inside)
-				*left += 1;
-			else if (result == classification_t::outside)//if is out increment right
-				*right += 1;
-			else//if overlaps increment both
-			{
-				*left += 1;
-				*right += 1;
-			}
+			*left += 1;
+			*right += 1;
 		}
 	}
+}
 
 /**
 	* @brief	computes the cost of making it a leaf node
@@ -390,10 +390,10 @@ void kdtree::split(std::vector<triangle_wrapper> const& triangles, int* left, in
 	* @return		int
 	**/
 float kdtree::cost_leaf(std::vector<triangle_wrapper> const& triangles)
-	{
-		//returning the result of the heuristics formula
-		return m_cfg.cost_intersection * triangles.size();
-	}
+{
+	//returning the result of the heuristics formula
+	return m_cfg.cost_intersection * triangles.size();
+}
 
 /**
 	* @brief	splits the tiangles into left and right based on their position
@@ -405,39 +405,39 @@ float kdtree::cost_leaf(std::vector<triangle_wrapper> const& triangles)
 	* @return		void
 	**/
 void kdtree::split(std::vector<triangle_wrapper> const& triangles, std::vector<triangle_wrapper>& left, std::vector<triangle_wrapper>& right, int axis, float splitPoint)
+{
+	//creating the plane
+	glm::vec3 planePos{};
+	glm::vec3 planeNormal{};
+
+	planePos[axis] = splitPoint;
+	planeNormal[axis] = 1.0F;
+
+	//the burning plane at a thousand degrees© that will be used to split
+	Plane bpatd(planeNormal, planePos);
+
+	//for each Triangle
+	for (auto& it : triangles)
 	{
-		//creating the plane
-		glm::vec3 planePos{};
-		glm::vec3 planeNormal{};
+		//getting the classification based on the plane
+		classification_t result = classify_plane_triangle(bpatd, it.tri);
 
-		planePos[axis] = splitPoint;
-		planeNormal[axis] = 1.0F;
-
-		//the burning plane at a thousand degrees© that will be used to split
-		Plane bpatd(planeNormal, planePos);
-
-		//for each Triangle
-		for (auto& it : triangles)
+		//if is inside push to the left
+		if (result == classification_t::inside)
 		{
-			//getting the classification based on the plane
-			classification_t result = classify_plane_triangle(bpatd, it.tri);
-
-			//if is inside push to the left
-			if (result == classification_t::inside)
-			{
-				left.push_back(it);
-			}
-			else if (result == classification_t::outside)//if is out push to right
-			{
-				right.push_back(it);
-			}
-			else//if overlaps push to both
-			{
-				right.push_back(it);
-				left.push_back(it);
-			}
+			left.push_back(it);
+		}
+		else if (result == classification_t::outside)//if is out push to right
+		{
+			right.push_back(it);
+		}
+		else//if overlaps push to both
+		{
+			right.push_back(it);
+			left.push_back(it);
 		}
 	}
+}
 
 /**
 	* @brief	Computes the bv of a Triangle
@@ -445,38 +445,38 @@ void kdtree::split(std::vector<triangle_wrapper> const& triangles, std::vector<t
 	* @return		AABB
 	**/
 AABB kdtree::computeBV(triangle_wrapper const& Triangle)
+{
+	//AABB which will contain the values
+	AABB bounding;
+
+	//floats to store the min and max values
+	float mins[3] = { std::numeric_limits<float>::max(),
+					  std::numeric_limits<float>::max(),
+					  std::numeric_limits<float>::max() };
+
+	float maxs[3] = { -std::numeric_limits<float>::max(),
+					  -std::numeric_limits<float>::max(),
+					  -std::numeric_limits<float>::max() };
+
+	//go throught the vector and get the lowest and highest x, y, z values
+	for (int i = 0; i < 3; i++)
 	{
-		//AABB which will contain the values
-		AABB bounding;
-
-		//floats to store the min and max values
-		float mins[3] = { std::numeric_limits<float>::max(),
-						  std::numeric_limits<float>::max(),
-						  std::numeric_limits<float>::max() };
-
-		float maxs[3] = { -std::numeric_limits<float>::max(),
-						  -std::numeric_limits<float>::max(),
-						  -std::numeric_limits<float>::max() };
-
-		//go throught the vector and get the lowest and highest x, y, z values
-		for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
 		{
-			for (int j = 0; j < 3; j++)
-			{
-				if (Triangle[i][j] <= mins[j])
-					mins[j] = Triangle[i][j];
+			if (Triangle[i][j] <= mins[j])
+				mins[j] = Triangle[i][j];
 
-				if (Triangle[i][j] >= maxs[j])
-					maxs[j] = Triangle[i][j];
-			}
+			if (Triangle[i][j] >= maxs[j])
+				maxs[j] = Triangle[i][j];
 		}
-
-		//setting the points
-		bounding.mMin = glm::vec3(mins[0], mins[1], mins[2]);
-		bounding.mMax = glm::vec3(maxs[0], maxs[1], maxs[2]);
-
-		return bounding;
 	}
+
+	//setting the points
+	bounding.mMin = glm::vec3(mins[0], mins[1], mins[2]);
+	bounding.mMax = glm::vec3(maxs[0], maxs[1], maxs[2]);
+
+	return bounding;
+}
 
 /**
 	* @brief	Computes the bv of a vector of triangles
@@ -484,42 +484,42 @@ AABB kdtree::computeBV(triangle_wrapper const& Triangle)
 	* @return		AABB
 	**/
 AABB kdtree::computeBV(std::vector<triangle_wrapper> const& triangles)
+{
+	//AABB which will contain the values
+	AABB bounding;
+
+	//floats to store the min and max values
+	float mins[3] = { std::numeric_limits<float>::max(),
+					  std::numeric_limits<float>::max(),
+					  std::numeric_limits<float>::max() };
+
+	float maxs[3] = { -std::numeric_limits<float>::max(),
+					  -std::numeric_limits<float>::max(),
+					  -std::numeric_limits<float>::max() };
+
+	//go throught the vector and get the lowest and highest x, y, z values
+	for (unsigned i = 0; i < triangles.size(); i++)
 	{
-		//AABB which will contain the values
-		AABB bounding;
-
-		//floats to store the min and max values
-		float mins[3] = { std::numeric_limits<float>::max(),
-						  std::numeric_limits<float>::max(),
-						  std::numeric_limits<float>::max() };
-
-		float maxs[3] = { -std::numeric_limits<float>::max(),
-						  -std::numeric_limits<float>::max(),
-						  -std::numeric_limits<float>::max() };
-
-		//go throught the vector and get the lowest and highest x, y, z values
-		for (unsigned i = 0; i < triangles.size(); i++)
+		for (int j = 0; j < 3; j++)
 		{
-			for (int j = 0; j < 3; j++)
+			for (int k = 0; k < 3; k++)
 			{
-				for (int k = 0; k < 3; k++)
-				{
-					if (triangles[i][j][k] <= mins[k])
-						mins[k] = triangles[i][j][k];
+				if (triangles[i][j][k] <= mins[k])
+					mins[k] = triangles[i][j][k];
 
-					if (triangles[i][j][k] >= maxs[k])
-						maxs[k] = triangles[i][j][k];
-				}
+				if (triangles[i][j][k] >= maxs[k])
+					maxs[k] = triangles[i][j][k];
 			}
-
 		}
 
-		//setting the points
-		bounding.mMin = glm::vec3(mins[0], mins[1], mins[2]);
-		bounding.mMax = glm::vec3(maxs[0], maxs[1], maxs[2]);
-
-		return bounding;
 	}
+
+	//setting the points
+	bounding.mMin = glm::vec3(mins[0], mins[1], mins[2]);
+	bounding.mMax = glm::vec3(maxs[0], maxs[1], maxs[2]);
+
+	return bounding;
+}
 
 /**
 	* @brief	computes the surface area of a bv
@@ -527,23 +527,23 @@ AABB kdtree::computeBV(std::vector<triangle_wrapper> const& triangles)
 	* @return		float
 	**/
 float kdtree::compute_surface(const AABB& bv)
-	{
-		//the scale on x y and z
-		float scaleX = bv.mMax.x - bv.mMin.x;
-		float scaleY = bv.mMax.y - bv.mMin.y;
-		float scaleZ = bv.mMax.z - bv.mMin.z;
+{
+	//the scale on x y and z
+	float scaleX = bv.mMax.x - bv.mMin.x;
+	float scaleY = bv.mMax.y - bv.mMin.y;
+	float scaleZ = bv.mMax.z - bv.mMin.z;
 
-		//compute the area of 3 faces
-		float area1 = scaleX * scaleY;
-		float area2 = scaleZ * scaleY;
-		float area3 = scaleX * scaleZ;
+	//compute the area of 3 faces
+	float area1 = scaleX * scaleY;
+	float area2 = scaleZ * scaleY;
+	float area3 = scaleX * scaleZ;
 
-		//compute the total area
-		float area = (area1 + area2 + area3) * 2.0F;
+	//compute the total area
+	float area = (area1 + area2 + area3) * 2.0F;
 
-		//returning tne total area
-		return area;
-	}
+	//returning tne total area
+	return area;
+}
 
 /**
 	* @brief	computes the cost of intersection for a node
@@ -554,11 +554,11 @@ float kdtree::compute_surface(const AABB& bv)
 	* @return		int
 	**/
 float kdtree::cost_intersect(float surfaceA, int countA, float surfaceB, int countB)
-	{
-		//returning the result of the heuristics formula
-		float cost = m_cfg.cost_traversal + m_cfg.cost_intersection * (surfaceA * countA + surfaceB * countB);
-		return cost;
-	}
+{
+	//returning the result of the heuristics formula
+	float cost = m_cfg.cost_traversal + m_cfg.cost_intersection * (surfaceA * countA + surfaceB * countB);
+	return cost;
+}
 
 /**
 * @brief	wrapper to get the closest Triangle
@@ -567,20 +567,24 @@ float kdtree::cost_intersect(float surfaceA, int countA, float surfaceB, int cou
 * @return		kdtree::intersection
 **/
 kdtree::intersection kdtree::get_closest(Ray const r, debug_stats* stats) const
+{
+	if(m_triangles.empty() || m_aabbs.empty() || m_nodes.empty() || m_indices.empty())
 	{
-		//intersection value
-		intersection t{ 0, -1.0F };
-
-		//if does not intersect with the root return straight away
-		if (m_aabbs[0].GetIntersectionTime(r) < 0.0F)
-			return t;
-
-		//getting the minimum intersection time
-		get_min(r, 0, t);
-
-		//returing the intersecion object
-		return t;
+		return intersection{ 0, -1.0F };
 	}
+	//intersection value
+	intersection t{ 0, -1.0F };
+
+	//if does not intersect with the root return straight away
+	if (m_aabbs[0].GetIntersectionTime(r) < 0.0F)
+		return t;
+
+	//getting the minimum intersection time
+	get_min(r, 0, t);
+
+	//returing the intersecion object
+	return t;
+}
 
 /**
 	* @brief	recursive fuction that gets the Triangle with the mionimum intersection time
@@ -590,72 +594,72 @@ kdtree::intersection kdtree::get_closest(Ray const r, debug_stats* stats) const
 	* @return		kdtree::intersection
 	**/
 kdtree::intersection kdtree::get_min(Ray const& r, int currNode, intersection& minT) const
+{
+	//cheching is a valid node
+	if (currNode < 0)
+		return minT;
+
+	//if does not intersect with the AABB of this node return an error intersection code;
+	if (m_aabbs[currNode].GetIntersectionTime(r) < 0.0F)
 	{
-		//cheching is a valid node
-		if (currNode < 0)
-			return minT;
+		intersection error{ 0, -1.0F };
+		return error;
+	}
 
-		//if does not intersect with the AABB of this node return an error intersection code;
-		if (m_aabbs[currNode].GetIntersectionTime(r) < 0.0F)
+	//if the node is a leaf
+	if (m_nodes[currNode].is_leaf())
+	{
+		size_t size = m_nodes[currNode].primitive_count();
+
+		//checking with every Triangle in the node
+		for (size_t i = 0; i < size; i++)
 		{
-			intersection error{ 0, -1.0F };
-			return error;
-		}
+			//getting the starting index
+			size_t index = m_nodes[currNode].primitive_start();
 
-		//if the node is a leaf
-		if (m_nodes[currNode].is_leaf())
-		{
-			size_t size = m_nodes[currNode].primitive_count();
+			//getting the intersection time for the Triangle
+			float time = m_triangles[m_indices[index + i]].tri.GetIntersectionTime(r);
 
-			//checking with every Triangle in the node
-			for (size_t i = 0; i < size; i++)
+			//if does not intersect skip it
+			if (time < 0.0F)
+				continue;
+
+			//if the minimum time is negative or the result is lower than the stored one update it
+			if (time < minT.t || minT.t < 0.0F)
 			{
-				//getting the starting index
-				size_t index = m_nodes[currNode].primitive_start();
-
-				//getting the intersection time for the Triangle
-				float time = m_triangles[m_indices[index + i]].tri.GetIntersectionTime(r);
-
-				//if does not intersect skip it
-				if (time < 0.0F)
-					continue;
-
-				//if the minimum time is negative or the result is lower than the stored one update it
-				if (time < minT.t || minT.t < 0.0F)
-				{
-					minT.triangle_index = m_indices[index + i];
-					minT.t = time;
-				}
+				minT.triangle_index = m_indices[index + i];
+				minT.t = time;
 			}
 		}
-		
-		if(m_nodes[currNode].is_internal())//if the node is a intermediate
-		{
-			//getting the partition axis and the splitting point
-			int axis = m_nodes[currNode].axis();
-			float splitPoint = m_nodes[currNode].split();
-
-			//if the Rays starting pos is over or under the splitting point get the left or right node
-			int leftIndex = -1;
-			if (r.mP0[axis] <= splitPoint)
-				leftIndex = (int)(currNode + 1);
-			else
-				leftIndex = (int)m_nodes[currNode].next_child();
-
-			int rightIndex = -1;
-			if (r.mP0[axis] > splitPoint)
-				rightIndex = currNode + 1;
-			else
-				rightIndex = (int)m_nodes[currNode].next_child();
-
-			//recursive call to the child nodes
-			get_min(r, leftIndex, minT);
-			get_min(r, rightIndex, minT);
-		}
-
-		//returing the minumum intersection time
-		return minT;
 	}
+	
+	if(m_nodes[currNode].is_internal())//if the node is a intermediate
+	{
+		//getting the partition axis and the splitting point
+		int axis = m_nodes[currNode].axis();
+		float splitPoint = m_nodes[currNode].split();
+
+		//if the Rays starting pos is over or under the splitting point get the left or right node
+		int leftIndex = -1;
+		if (r.mP0[axis] <= splitPoint)
+			leftIndex = (int)(currNode + 1);
+		else
+			leftIndex = (int)m_nodes[currNode].next_child();
+
+		int rightIndex = -1;
+		if (r.mP0[axis] > splitPoint)
+			rightIndex = currNode + 1;
+		else
+			rightIndex = (int)m_nodes[currNode].next_child();
+
+		//recursive call to the child nodes
+		get_min(r, leftIndex, minT);
+		get_min(r, rightIndex, minT);
+	}
+
+	//returing the minumum intersection time
+	return minT;
+}
 
 /**
 * @brief	gets the depth of the tree
