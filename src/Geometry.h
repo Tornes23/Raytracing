@@ -41,6 +41,7 @@ struct Triangle : Geometry
     Triangle(const char** info = nullptr);
 	Triangle(const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2);
     bool CheckIntersection(const Ray& ray, const glm::vec3& center, ContactInfo& info) const;
+    float GetIntersectionTime(const Ray& ray) const;
     void GetEdgesFromVertices(glm::vec3& edgeA, glm::vec3& edgeB) const;
     Triangle ApplyMatrix(const glm::mat4x4& mat);
 
@@ -118,6 +119,7 @@ struct Plane : Geometry
     bool CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2& interval) const;
     bool CheckIntersection(const Ray& ray, glm::vec2& interval) const;
     bool CheckIntersection(const Ray& ray, const glm::vec3& point, ContactInfo& info) const;
+    float GetIntersectionTime(const Ray& ray) const;
     glm::vec3 ProjectPointInPlane(const glm::vec3& point) const;
 
     //necessary data

@@ -36,7 +36,6 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 
 			if (mMSAASamples > 0)
 			{
-
 				for (int i = 0; i < mMSAASamples; i++)
 				{
 					// Generating a random subpixel sample coords

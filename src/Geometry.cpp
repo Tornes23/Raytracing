@@ -200,6 +200,28 @@ bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, ContactInf
 	return true;
 }
 
+float Plane::GetIntersectionTime(const Ray& ray) const
+{
+	//computing the dot product
+	float dot = glm::dot(mNormal, ray.mV);
+
+	//if the dot product is 0
+	if (dot <= cEpsilon && dot >= -cEpsilon)
+		return -1.0F;
+
+	//using the formula to compute the time
+	float d = (mNormal.x * mP.x) + (mNormal.y * mP.y) + (mNormal.z * mP.z);
+
+	float t = (d - glm::dot(mNormal, ray.mP0)) / dot;
+
+	//if the t is negative return -1
+	if (t < 0.0F)
+		return -1.0F;
+
+	//returning the time
+	return t;
+}
+
 glm::vec3 Plane::ProjectPointInPlane(const glm::vec3& point) const
 {
 	//projecting the point onto the plane
@@ -609,6 +631,46 @@ bool Triangle::CheckIntersection(const Ray& ray, const glm::vec3& center, Contac
 
 	// intersection with the triangle
 	return true;
+}
+
+float Triangle::GetIntersectionTime(const Ray& ray) const
+{
+	//checking if the ray intersects with the plane created by the tirangle
+	glm::vec3 normal = glm::normalize(glm::cross(mV0 - mV1, mV0 - mV2));
+	Plane p(normal, mV0);
+	float time = p.GetIntersectionTime(ray);
+
+	//if they intersect
+	if (time != -1.0F)
+	{
+		//checking point containment using barycentric coordinates
+		glm::vec3 point = ray.mP0 + (time * ray.mV);
+
+		glm::vec3 edge0(mV1 - mV0);
+		glm::vec3 edge1(mV2 - mV0);
+		glm::vec3 edge2(point - mV0);
+
+		float dot00 = glm::dot(edge0, edge0);
+		float dot01 = glm::dot(edge0, edge1);
+		float dot02 = glm::dot(edge0, edge2);
+		float dot11 = glm::dot(edge1, edge1);
+		float dot12 = glm::dot(edge1, edge2);
+
+		float divider = (dot00 * dot11) - (dot01 * dot01);
+
+		if (divider == 0.0F)
+			return -1.0F;
+
+		float u = ((dot11 * dot02) - (dot01 * dot12)) / divider;
+		float v = ((dot00 * dot12) - (dot01 * dot02)) / divider;
+
+		if (u >= 0.0F && v >= 0 && (u + v <= 1.0F))
+			return time;
+
+	}
+
+	//if they dont intersect return -1
+	return -1.0F;
 }
 
 void Triangle::GetEdgesFromVertices(glm::vec3& edgeA, glm::vec3& edgeB) const

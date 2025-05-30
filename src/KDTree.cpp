@@ -614,9 +614,7 @@ kdtree::intersection kdtree::get_min(Ray const& r, int currNode, intersection& m
 				size_t index = m_nodes[currNode].primitive_start();
 
 				//getting the intersection time for the Triangle
-				ContactInfo triangleIntersection;
-				m_triangles[m_indices[index + i]].tri.CheckIntersection(r, glm::vec3(0.0f), triangleIntersection);
-				float time = triangleIntersection.mTI;
+				float time = m_triangles[m_indices[index + i]].tri.GetIntersectionTime(r);
 
 				//if does not intersect skip it
 				if (time < 0.0F)

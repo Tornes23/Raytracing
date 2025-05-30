@@ -38,9 +38,8 @@ ContactInfo RayTracer::FindClosestObj(const Ray& ray, const Scene& scene)
 	{
         minInfo.mTI = treeIntersection.t;
 
-        size_t index = scene.mKDTree.indices()[treeIntersection.triangle_index];
+        size_t index = treeIntersection.triangle_index;
 		const kdtree::triangle_wrapper& triangleWrapper = scene.mKDTree.triangles()[index];
-		//const kdtree::triangle_wrapper& triangleWrapper = scene.mKDTree.triangles()[treeIntersection.triangle_index];
         minInfo.mNormal = triangleWrapper.tri.mNormal;
         minInfo.mColor = triangleWrapper.owner && triangleWrapper.owner->mMaterial ? triangleWrapper.owner->mMaterial->mColor : Color::Black;
 
