@@ -80,7 +80,7 @@ ContactInfo RayTracer::RayCast(const Ray& ray, const Scene& scene, int bounce){
 
 		//return result;
         bounced.mP0 = info.mContact + (info.mNormal * GetEpsilon());
-
+        
         //std::cout << "[RAYCAST]In bounce number: " << bounce << " result color is:" << result.mColor.GetDebugString() << std::endl;
 		ContactInfo recursion = RayCast(bounced, scene, bounce + 1);
 		//std::cout << "[RAYCAST]After Recursion returned color is:" << recursion.mColor.GetDebugString() << std::endl;

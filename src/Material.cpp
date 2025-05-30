@@ -48,6 +48,9 @@ Ray Dielectric::BounceRay(const Ray& ray, const glm::vec3& normal, const glm::ve
 {
 	glm::vec3 p = cp + (normal * Raytracer.GetEpsilon());
 	Ray bounced(p);
+	bounced.mAttenuation= ray.mAttenuation;
+	bounced.mIndexOfRefraction = ray.mIndexOfRefraction;
+
 
 	glm::vec3 incidence = ray.mV;
     float randFloat = Utils::GetRandomFloat(0.0f, 1.0f);
