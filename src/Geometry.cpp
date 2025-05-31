@@ -46,7 +46,7 @@ bool Sphere::CheckIntersection(const Ray& ray, const glm::vec3& center, ContactI
 	info.mContact = ray.mP0 + ray.mV * info.mTI;
 	info.mNormal = glm::normalize(info.mContact - center);
 
-	if (glm::dot(info.mNormal, ray.mV) > 0)
+	if (glm::dot(info.mNormal, ray.mV) >= 0)
 		info.mNormal = -info.mNormal;
 
 	return true;
@@ -118,7 +118,7 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 		info.mNormal = planes[closestPlaneIndx].mNormal;
 	}
 
-	if (glm::dot(info.mNormal, ray.mV) > 0)
+	if (glm::dot(info.mNormal, ray.mV) >= 0)
 		info.mNormal = -info.mNormal;
 	
 	info.mContact = ray.mP0 + info.mTI * ray.mV;
@@ -132,12 +132,11 @@ bool Box::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInfo
 bool Plane::CheckIntersection(const Ray& ray, const glm::vec3& point, glm::vec2& interval) const
 {
 	float raydot = glm::dot(ray.mV, mNormal);
-	float epsilon = std::numeric_limits<float>::epsilon();
-	if(raydot < epsilon && -epsilon < raydot)
-		return false;
+	//float epsilon = std::numeric_limits<float>::epsilon();
+	//if(raydot < epsilon && -epsilon < raydot)
+	//	return false;
 
-	//glm::vec3 cp = glm::normalize(ray.mP0 - point);
-	glm::vec3 cp = ray.mP0 - point;
+	glm::vec3 cp = glm::normalize(ray.mP0 - point);
 	float dot = glm::dot(cp, mNormal);
 	float time = -dot / raydot;
 
@@ -516,7 +515,7 @@ bool AABB::CheckIntersection(const Ray& ray, const glm::vec3& corner, ContactInf
 	info.mContact = ray.mP0 + info.mTI * ray.mV;
 
 
-	if (glm::dot(info.mNormal, ray.mV) > 0)
+	if (glm::dot(info.mNormal, ray.mV) >= 0)
 		info.mNormal = -info.mNormal;
 
 

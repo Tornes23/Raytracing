@@ -43,7 +43,7 @@ ContactInfo RayTracer::FindClosestObj(const Ray& ray, const Scene& scene)
         minInfo.mNormal = triangleWrapper.tri.mNormal;
         minInfo.mColor = triangleWrapper.owner && triangleWrapper.owner->mMaterial ? triangleWrapper.owner->mMaterial->mColor : Color::Black;
 
-		if (glm::dot(minInfo.mNormal, ray.mV) > 0)
+		if (glm::dot(minInfo.mNormal, ray.mV) >= 0)
 			minInfo.mNormal = -minInfo.mNormal;
 
         minInfo.mCollidedWith = triangleWrapper.owner ? triangleWrapper.owner : nullptr;
@@ -101,7 +101,7 @@ ContactInfo RayTracer::RayCast(const Ray& ray, const Scene& scene, int bounce){
 
         if (bounced.mV == glm::vec3(0.0F)) return result;
 		
-		if (glm::dot(bounced.mV, result.mNormal) < 0.0f)
+		if (glm::dot(bounced.mV, result.mNormal) <= 0.0f)
             result.mNormal = -result.mNormal;
 
 		//return result;
@@ -116,6 +116,8 @@ ContactInfo RayTracer::RayCast(const Ray& ray, const Scene& scene, int bounce){
 			result.mColor.ApplyAttenuation(ray.mAttenuation, result.mTI);
 
 		Color mixedColor = result.mColor * recursion.mColor;
+		//Color mixedColor = recursion.mColor;
+		//Color mixedColor = result.mColor;
         result = recursion;
         result.mColor = mixedColor;
 		//std::cout << "[RAYCAST]After Multiplying result color is:" << result.mColor.GetDebugString() << std::endl;

@@ -17,7 +17,6 @@ struct ContactInfo
     float mTI = -1.0F;
     const Object* mCollidedWith = nullptr;
     Color mColor = Color::Black;
-    //Color mColor = Color::White;
     bool IsValid();
     ContactInfo& operator=(const ContactInfo& rhs);
 };

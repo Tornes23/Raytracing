@@ -110,10 +110,10 @@ void FrameBuffer::ConvertRaytracingPixelToRenderPixel(int x, int y, int divisor)
     if (x >= 0 && y >= 0 && x < width && y < height)
     {
         int index = (y * width + x);
-        glm::vec3 pixelColor = (255.99f * mRaytracingBuffer[index]) / static_cast<float>(divisor);
-        unsigned char red   = static_cast<unsigned char>(glm::clamp(pixelColor.r, 0.0f, 255.9f));
-        unsigned char green = static_cast<unsigned char>(glm::clamp(pixelColor.g, 0.0f, 255.9f));
-        unsigned char blue  = static_cast<unsigned char>(glm::clamp(pixelColor.b, 0.0f, 255.9f));
+        glm::vec3 pixelColor = 255.99f * mRaytracingBuffer[index] / static_cast<float>(divisor);
+        unsigned char red   = static_cast<unsigned char>(glm::clamp(pixelColor.r, 0.0f, 255.99f));
+        unsigned char green = static_cast<unsigned char>(glm::clamp(pixelColor.g, 0.0f, 255.99f));
+        unsigned char blue  = static_cast<unsigned char>(glm::clamp(pixelColor.b, 0.0f, 255.99f));
         glm::vec<3, unsigned char> renderColor(red, green, blue);
 
         SetColorRenderPixel(x, y, glm::vec<3, unsigned char>(red, green, blue));
