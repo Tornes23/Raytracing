@@ -7,6 +7,7 @@ class RayTracer
 public:
 
 	ContactInfo FindClosestObj(const Ray& ray, const Scene& scene);
+	ContactInfo CheckLights(const Ray& ray, const Scene& scene);
 	ContactInfo RayCast(const Ray& ray, const Scene& scene, int bounce);
 
 	void SetBounces(int bounces = 1);

@@ -29,6 +29,7 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
 
     std::string scene = Utils::GetFilename(to_load);
     std::vector<Object> objects;
+    std::vector<Object> lights;
     Scene* pScene = new Scene(scene);
     //reading the code from the file and adding it to the string
     while (inFile.good())
@@ -79,10 +80,11 @@ void SceneManagerClass::LoadScene(const std::string& to_load)
         }
     }
     
-    for (auto& obj : GraphicsManager.GetLights(scene))
-        objects.push_back(Object(obj));
+    for (auto& light : GraphicsManager.GetLights(scene))
+        lights.push_back(Object(light));
 
     pScene->SetObjects(objects);
+    pScene->SetLights(lights);
     pScene->SubmitTrianglesOfObjects();
     mScenes.push_back(pScene);
     //closing the file

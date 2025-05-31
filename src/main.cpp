@@ -109,7 +109,7 @@ int main(int argc, char ** argv)
             reload = false;
         }
 		
-        if (takeScreenshot)
+        if (takeScreenshot && GraphicsManager.HasFinished())
         {
             GraphicsManager.GetScreenshot(screenshotName);
             takeScreenshot = false;

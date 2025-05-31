@@ -13,13 +13,15 @@ void FrameBuffer::Init(int w, int h)
     width     = w;
     height    = h;
     int size  = width * height;
-    mBuffer = new glm::vec3[size];
+    mRaytracingBuffer = new glm::vec3[size];
+    mRenderBuffer = new glm::vec<3, unsigned char>[size];
     Clear();
 }
 
 void FrameBuffer::Free()
 {
-    delete[] mBuffer;
+    delete[] mRaytracingBuffer;
+    delete[] mRenderBuffer;
 }
 
 void FrameBuffer::Clear(const glm::vec3& color)
@@ -28,7 +30,7 @@ void FrameBuffer::Clear(const glm::vec3& color)
     {
         for (int y = 0; y < height; y++)
         {
-            SetPixel(x, y, color);
+            SetRaytracingPixel(x, y, color);
         }
     }
 }
@@ -42,62 +44,80 @@ void FrameBuffer::ClearBatch(int startX, int startY, int endX, int endY, const g
     {
         for (int y = startY; y < endY; y++)
         {
-            mBuffer[(y * width + x)] = color;
+            mRaytracingBuffer[(y * width + x)] = color;
         }
     }
 }
 
-void FrameBuffer::SetPixel(int x, int y, const glm::vec3& color)
+void FrameBuffer::SetRaytracingPixel(int x, int y, const glm::vec3& color)
 {
     if (x >= 0 && y >= 0 && x < width && y < height)
     {
-        mBuffer[(y * width + x)] = color;
+        mRaytracingBuffer[(y * width + x)] = color;
     }
 }
 
-void FrameBuffer::AddToPixel(int x, int y, const glm::vec3& color)
+void FrameBuffer::AddToRaytracingPixel(int x, int y, const glm::vec3& color)
 {
     if (x >= 0 && y >= 0 && x < width && y < height)
-        mBuffer[(y * width + x)] += color;
-}
-
-void FrameBuffer::SetPixel(int x, int y, const Color& color)
-{
-    if (x >= 0 && y >= 0 && x < width && y < height)
-        SetPixel(x, y, color.GetColor());
-}
-
-void FrameBuffer::AddToPixel(int x, int y, const Color& color)
-{
-    if (x >= 0 && y >= 0 && x < width && y < height)
-        AddToPixel(x, y, color.GetColor());
-}
-
-void FrameBuffer::Normalize(int startX, int startY, int endX, int endY, int factor)
-{
-
-    //DEBUG
-    //std::cout << "normalizing batch = [" << startX << ", " << startY << ", " << width << ", " << height << "]\n";
-    //std::cout << "normalizin factor = " << factor << "\n";
-    //int x = 229;
-    //int y = 196;
-    for (int x = startX; x < endX; x++)
     {
-        for (int y = startY; y < endY; y++)
-        {
-              mBuffer[(y * width + x)] /= factor;
-        }
+        mRaytracingBuffer[(y * width + x)] += color;
     }
 }
 
-Color FrameBuffer::GetColorFromPixel(int x, int y)
+void FrameBuffer::SetRaytracingPixel(int x, int y, const Color& color)
+{
+    if (x >= 0 && y >= 0 && x < width && y < height)
+        SetRaytracingPixel(x, y, color.GetColor());
+}
+
+void FrameBuffer::AddToRaytracingPixel(int x, int y, const Color& color)
+{
+    if (x >= 0 && y >= 0 && x < width && y < height)
+        AddToRaytracingPixel(x, y, color.GetColor());
+}
+
+Color FrameBuffer::GetColorFromRaytracingPixel(int x, int y)
 {
     if (x >= 0 && y >= 0 && x < width && y < height)
     {
-        return mBuffer[(y * width + x)];
+        return mRaytracingBuffer[(y * width + x)];
     }
 
     return Color::Black;
+}
+
+glm::vec<3, unsigned char> FrameBuffer::GetColorFromRenderPixel(int x, int y)
+{
+	if (x >= 0 && y >= 0 && x < width && y < height)
+	{
+		return mRenderBuffer[(y * width + x)];
+	}
+
+	return glm::vec<3, unsigned char>(0,0,0);
+}
+
+void FrameBuffer::SetColorRenderPixel(int x, int y, const glm::vec<3, unsigned char>& color)
+{
+	if (x >= 0 && y >= 0 && x < width && y < height)
+	{
+		mRenderBuffer[(y * width + x)] = color;
+	}
+}
+
+void FrameBuffer::ConvertRaytracingPixelToRenderPixel(int x, int y, int divisor)
+{
+    if (x >= 0 && y >= 0 && x < width && y < height)
+    {
+        int index = (y * width + x);
+        glm::vec3 pixelColor = (255.99f * mRaytracingBuffer[index]) / static_cast<float>(divisor);
+        unsigned char red   = static_cast<unsigned char>(glm::clamp(pixelColor.r, 0.0f, 255.9f));
+        unsigned char green = static_cast<unsigned char>(glm::clamp(pixelColor.g, 0.0f, 255.9f));
+        unsigned char blue  = static_cast<unsigned char>(glm::clamp(pixelColor.b, 0.0f, 255.9f));
+        glm::vec<3, unsigned char> renderColor(red, green, blue);
+
+        SetColorRenderPixel(x, y, glm::vec<3, unsigned char>(red, green, blue));
+    }
 }
 
 void FrameBuffer::SwapBuffers()
@@ -106,7 +126,7 @@ void FrameBuffer::SwapBuffers()
     {
         for (int y = 0; y < height; y++)
         {
-            SetPixel(x, y, mBuffer[(y * width + x)]);
+            SetRaytracingPixel(x, y, mRaytracingBuffer[(y * width + x)]);
         }
     }
 }
@@ -124,7 +144,7 @@ void FrameBuffer::ConvertFrameBufferToSFMLImage(sf::Image & image, int samples)
     {
         for (int y = 0; y < h; y++)
         {
-            glm::vec<3, unsigned char> color = GetColorFromPixel(x, y).ToRGB(samples);
+            glm::vec<3, unsigned char> color = GetColorFromRenderPixel(x, y);
             image.setPixel(x, y, sf::Color(color.r, color.g, color.b));
         }
     }

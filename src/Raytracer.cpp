@@ -53,45 +53,72 @@ ContactInfo RayTracer::FindClosestObj(const Ray& ray, const Scene& scene)
     return minInfo;
 }
 
+ContactInfo RayTracer::CheckLights(const Ray& ray, const Scene& scene)
+{
+	ContactInfo minInfo;
+	minInfo.mTI = std::numeric_limits<float>::max();
+	int minIndex = -1;
+	const std::vector<Object>& lights = scene.mLights;
+
+	for (int i = 0; i < lights.size(); i++)
+	{
+		ContactInfo info;
+		bool intersected = lights[i].CheckIntersection(ray, info);
+
+		if (intersected)
+		{
+			if (info.mTI < minInfo.mTI) {
+				minInfo = info;
+				minIndex = i;
+				minInfo.mCollidedWith = &lights[minIndex];
+			}
+		}
+	}
+
+	return minInfo;
+}
+
 ContactInfo RayTracer::RayCast(const Ray& ray, const Scene& scene, int bounce){
 
-    ContactInfo result;
     if (bounce > mBounces)
     {
         //std::cout << "Early out on bounce number:" << bounce << std::endl;
-        return result;
+        return ContactInfo{};
     }
 
-    ContactInfo info = FindClosestObj(ray, scene);
-    if(info.IsValid()){
+    ContactInfo result = FindClosestObj(ray, scene);
 
-        if (info.mCollidedWith->mbLight) {
-            result = info;
-            result.mColor = info.mColor;
-            return result;
-        }
-        result = info;
-        Ray bounced = info.mCollidedWith->mMaterial->BounceRay(ray, info.mNormal, info.mContact);
+    ContactInfo lightsInfo = CheckLights(ray, scene);
+
+    if (lightsInfo.IsValid() && lightsInfo.mTI <= result.mTI)
+    {
+        return lightsInfo;
+    }
+
+    if(result.IsValid()){
+
+        Ray bounced = result.mCollidedWith->mMaterial->BounceRay(ray, result.mNormal, result.mContact);
 
         if (bounced.mV == glm::vec3(0.0F)) return result;
 		
-		if (glm::dot(bounced.mV, info.mNormal) < 0.0f)
-            info.mNormal = -info.mNormal;
+		if (glm::dot(bounced.mV, result.mNormal) < 0.0f)
+            result.mNormal = -result.mNormal;
 
 		//return result;
-        bounced.mP0 = info.mContact + (info.mNormal * GetEpsilon());
+        bounced.mP0 = result.mContact + (result.mNormal * GetEpsilon());
         
         //std::cout << "[RAYCAST]In bounce number: " << bounce << " result color is:" << result.mColor.GetDebugString() << std::endl;
 		ContactInfo recursion = RayCast(bounced, scene, bounce + 1);
 		//std::cout << "[RAYCAST]After Recursion returned color is:" << recursion.mColor.GetDebugString() << std::endl;
-
+        // 
 		// Add the accumulated color and update the t so that the caller knows if anything was hit in the end
-		if (ray.mAttenuation != glm::vec3(1, 1, 1))
-			result.mColor.ApplyAttenuation(ray.mAttenuation, info.mTI);
+		if (ray.mAttenuation != glm::vec3(1.0f, 1.0f, 1.0f))
+			result.mColor.ApplyAttenuation(ray.mAttenuation, result.mTI);
 
-		result.mColor = result.mColor * recursion.mColor;
+		Color mixedColor = result.mColor * recursion.mColor;
+        result = recursion;
+        result.mColor = mixedColor;
 		//std::cout << "[RAYCAST]After Multiplying result color is:" << result.mColor.GetDebugString() << std::endl;
-        return result;
 	}
 
     return result;

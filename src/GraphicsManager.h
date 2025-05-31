@@ -48,6 +48,7 @@ public:
 	bool RenderNormals();
 	int GetTotalSamples();
 	int GetSampleCount();
+	bool HasFinished() const;
 
 	void SetWidth(int width);
 	void SetHeight(int height);

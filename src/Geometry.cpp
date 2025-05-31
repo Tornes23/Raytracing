@@ -418,7 +418,18 @@ Mesh::Mesh(const std::string& obj, const glm::mat4x4& m2w)
 	}
 }
 
-bool ContactInfo::IsValid() { return mTI != std::numeric_limits<float>::max() && mTI >= 0.0F; }
+bool ContactInfo::IsValid() { return mCollidedWith != nullptr; }
+
+ContactInfo& ContactInfo::operator=(const ContactInfo& rhs)
+{
+	mContact = rhs.mContact;
+	mNormal = rhs.mNormal;
+	mTI = rhs.mTI;
+	mCollidedWith = rhs.mCollidedWith;
+	mColor = rhs.mColor;
+
+	return *this;
+}
 
 AABB::AABB(const glm::vec3& min, const glm::vec3& max)
 {

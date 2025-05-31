@@ -27,9 +27,24 @@ Scene::Scene(const std::string& name)
 
 void Scene::SetObjects(std::vector<Object>& objects)
 {
+	if (objects.empty())
+	{
+		return;
+	}
 	mObjects.resize(objects.size());
 
 	std::memcpy(&mObjects[0], &objects[0], sizeof(Object) * objects.size());
+}
+
+void Scene::SetLights(std::vector<Object>& lights)
+{
+	if (lights.empty())
+	{
+		return;
+	}
+	mLights.resize(lights.size());
+
+	std::memcpy(&mLights[0], &lights[0], sizeof(Object) * lights.size());
 }
 
 void Scene::SubmitTrianglesOfObject(Object* object)

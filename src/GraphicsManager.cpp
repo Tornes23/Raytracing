@@ -52,18 +52,16 @@ void GraphicsManagerClass::RenderBatch(int startX, int startY, int endX, int end
 				info.mColor /= mMSAASamples;
 			}
 
-			Color pixelColor = mFrameBuffer.GetColorFromPixel(x,y);
-			Color rayColor = info.IsValid() ? info.mColor : ambient;
+			Color finalColor = info.IsValid() ? info.mColor : ambient;
 
 			if (mRenderNormals)
 			{
-				rayColor = Color((info.mNormal + glm::vec3(1.0F)) / 2.0F);
+				finalColor = Color((info.mNormal + glm::vec3(1.0F)) / 2.0F);
 			}
 
-			// mix the color
-			Color addedColor = pixelColor * rayColor;
-	
-			mFrameBuffer.AddToPixel(x, y, rayColor);
+			mFrameBuffer.AddToRaytracingPixel(x, y, finalColor);
+			mFrameBuffer.ConvertRaytracingPixelToRenderPixel(x, y, mSampleCount);
+
 		}
 	}
 	//DEBUG
@@ -118,35 +116,6 @@ void GraphicsManagerClass::Clear() {
 	mSampleCount = 0;
 #endif // MULTITHREAD
 
-}
-
-void GraphicsManagerClass::Normalize()
-{
-#ifdef MULTITHREAD
-
-	if (!mbNormalized) {
-		if (!ThreadPool.HasFinished()) return;
-		mbNormalized = true;
-		int xBatches = mWidth / mBatchSize.x;
-		int yBatches = mHeight / mBatchSize.y;
-		ThreadPool.SetTaskCount(xBatches * yBatches);
-
-		for (int x = 0; x < xBatches; x++)
-		{
-			for (int y = 0; y < yBatches; y++)
-			{
-				int startX = x * mBatchSize.x;
-				int startY = y * mBatchSize.y;
-				ThreadPool.Submit(&FrameBuffer::Normalize, &mFrameBuffer, startX, startY, startX + mBatchSize.x, startY + mBatchSize.y, mSamples);
-			}
-		}
-	}
-#else
-	if (!mbNormalized) {
-		mbNormalized = true;
-		mFrameBuffer.Normalize(0, 0, mWidth, mHeight, mSamples);
-	}
-#endif // MULTITHREAD
 }
 
 void GraphicsManagerClass::UpdateTextures()
@@ -251,7 +220,8 @@ void GraphicsManagerClass::SetAntiAliasingSamples(int count) { mMSAASamples = co
 void GraphicsManagerClass::SetHeight(int height) { mHeight = height; }
 void GraphicsManagerClass::SetAspectRatio(float ratio) { mAspectRatio = ratio;  }
 void GraphicsManagerClass::SetAspectRatio() { mAspectRatio = (float)mWidth / mHeight;  }
-bool GraphicsManagerClass::SwapBuffers() { return mSampleCount <= mSamples; }
+bool GraphicsManagerClass::SwapBuffers() { return mSampleCount < mSamples; }
+bool GraphicsManagerClass::HasFinished() const { return mSampleCount >= mSamples; }
 #ifdef MULTITHREAD
 #include "ThreadPool.h"
 glm::ivec2 GraphicsManagerClass::GetBatchSize() { return mBatchSize; }

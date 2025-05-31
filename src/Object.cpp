@@ -69,10 +69,7 @@ bool Object::CheckIntersection(const Ray& ray, ContactInfo& info) const
 {
 	bool intersected = mGeometry->CheckIntersection(ray, mPos, info);
 
-	if (!intersected)
-		return false;
-
-	if(mMaterial != nullptr)
+	if(intersected)
 		info.mColor = mMaterial->mColor;
 
 	return intersected;
